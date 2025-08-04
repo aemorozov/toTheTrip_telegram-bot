@@ -1,0 +1,14 @@
+# fly.toml
+app = "tothetrip"
+
+kill_signal = "SIGINT"
+kill_timeout = 5
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+
+[experimental]
+  auto_rollback = true
