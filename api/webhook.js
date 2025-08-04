@@ -1,8 +1,16 @@
 const TelegramBot = require('node-telegram-bot-api');
 const { getIataCode } = require('../services/getIataCode');
 const { getCheapTickets } = require('../services/getCheapTickets');
-const { saveUser, redis } = require('../services/db');
+const { saveUser } = require('../services/db');
 const { translateCodesWithGPT } = require('../services/translateCodeWithGPT');
+const { Redis } = require('@upstash/redis')
+
+const redis = new Redis({
+    url: 'https://trusted-wombat-9341.upstash.io',
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+})
+
+UPSTASH_REDIS_REST_TOKEN = "ASR9AAIjcDExNmE4Njg2NDQyNGY0ODNhOThlM2Y2ODYwZTdhYTE0Y3AxMA"
 
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN);
 bot.setWebHook(`https://${process.env.VERCEL_URL}/api/webhook`);
