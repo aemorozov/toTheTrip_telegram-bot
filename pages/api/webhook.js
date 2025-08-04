@@ -1,9 +1,9 @@
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
-const { getIataCode } = require('./services/getIataCode');
-const { getCheapTickets } = require('./services/getCheapTickets');
-const { saveUser, redis } = require('./services/db');
-const { translateCodesWithGPT, getNearestFlightableAirport } = require('./services/translateCodeWithGPT');
+const { getIataCode } = require('../../services/getIataCode');
+const { getCheapTickets } = require('../../services/getCheapTickets');
+const { saveUser, redis } = require('../../services/db');
+const { translateCodesWithGPT, getNearestFlightableAirport } = require('../../services/translateCodeWithGPT');
 
 
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
