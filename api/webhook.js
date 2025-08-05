@@ -94,7 +94,6 @@ module.exports = async (req, res) => {
             return res.status(200).send('ok');
         }
 
-        // Redis: push last messages
         try {
             console.log('💾 Redis: LPUSH', `user:${userInfo.id}:messages`, userInput);
             const t1 = Date.now();
