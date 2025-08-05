@@ -13,7 +13,16 @@ async function saveUser(userInfo, iata) {
         first_name: userInfo.first_name,
         iata_code: iata,
     };
-    await redis.set(userKey, JSON.stringify(data));
+
+    console.log('💾 Saving user to Redis:', userKey, data);
+
+    try {
+        const result = await redis.set(userKey, JSON.stringify(data));
+        console.log('✅ User saved to Redis:', result);
+    } catch (err) {
+        console.error('❌ Redis set error in saveUser:', err);
+        throw err; // пробросим ошибку, чтобы отловить выше
+    }
 }
 
 module.exports = { saveUser };

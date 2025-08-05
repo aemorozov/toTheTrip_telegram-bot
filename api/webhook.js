@@ -29,8 +29,18 @@ module.exports = async (req, res) => {
                 return res.status(200).send('ok');
             }
 
-            await redis.lpush(`user:${userInfo.id}:messages`, userInput);
-            await redis.ltrim(`user:${userInfo.id}:messages`, 0, 49);
+            try {
+                console.log('💾 Saving message to Redis...', `user:${userInfo.id}:messages`, userInput);
+                await redis.lpush(`user:${userInfo.id}:messages`, userInput);
+                await redis.ltrim(`user:${userInfo.id}:messages`, 0, 49);
+                console.log('✅ Message saved');
+            } catch (redisErr) {
+                console.error('❌ Redis write error:', redisErr);
+                await bot.sendMessage(chatId, 'Redis error — try again later.');
+                return res.status(500).send('Redis error');
+            }
+
+
 
             try {
                 const iata = await getIataCode(userInput);
