@@ -10,8 +10,6 @@ const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
 })
 
-UPSTASH_REDIS_REST_TOKEN = "ASR9AAIjcDExNmE4Njg2NDQyNGY0ODNhOThlM2Y2ODYwZTdhYTE0Y3AxMA"
-
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN);
 bot.setWebHook(`https://${process.env.VERCEL_URL}/api/webhook`);
 

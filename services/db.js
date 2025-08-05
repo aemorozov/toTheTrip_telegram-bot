@@ -1,24 +1,19 @@
-const Redis = require('ioredis');
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+const { Redis } = require('@upstash/redis');
+
+const redis = new Redis({
+    url: 'https://trusted-wombat-9341.upstash.io',
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 async function saveUser(userInfo, iata) {
-    const userData = {
+    const userKey = `user:${userInfo.id}`;
+    const data = {
         id: userInfo.id,
-        is_bot: userInfo.is_bot,
-        first_name: userInfo.first_name,
-        last_name: userInfo.last_name,
         username: userInfo.username,
-        language_code: userInfo.language_code,
-        is_premium: userInfo.is_premium,
+        first_name: userInfo.first_name,
         iata_code: iata,
-        updated_at: new Date().toISOString()
     };
-
-    await redis.set(`user:${userInfo.id}`, JSON.stringify(userData));
+    await redis.set(userKey, JSON.stringify(data));
 }
 
-async function getUser(chatId) {
-    return await redis.get(`user:${chatId}:iata`);
-}
-
-module.exports = { saveUser, getUser, redis };
+module.exports = { saveUser };
