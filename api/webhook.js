@@ -5,15 +5,16 @@ const { saveUser } = require('../services/db');
 const { translateCodesWithGPT } = require('../services/translateCodeWithGPT');
 const { Redis } = require('@upstash/redis')
 
-const redis = new Redis({
-    url: 'https://trusted-wombat-9341.upstash.io',
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-})
-
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN);
-bot.setWebHook(`https://${process.env.VERCEL_URL}/api/webhook`);
-
 module.exports = async (req, res) => {
+
+    const redis = new Redis({
+        url: 'https://trusted-wombat-9341.upstash.io',
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+
+    const bot = new TelegramBot(process.env.TELEGRAM_TOKEN);
+    bot.setWebHook(`https://${process.env.VERCEL_URL}/api/webhook`);
+
     if (req.method === 'POST') {
         const body = req.body;
 
