@@ -1,3 +1,4 @@
+require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const { getIataCode } = require('../services/getIataCode');
 const { getCheapTickets } = require('../services/getCheapTickets');
