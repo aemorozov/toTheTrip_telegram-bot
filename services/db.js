@@ -1,9 +1,5 @@
-const { Redis } = require('@upstash/redis');
-
-const redis = new Redis({
-    url: 'https://trusted-wombat-9341.upstash.io',
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+// services/db.js
+const redis = require('./redis'); // твой общий экспорт клиента
 
 async function saveUser(userInfo, iata) {
     const userKey = `user:${userInfo.id}`;
@@ -11,17 +7,18 @@ async function saveUser(userInfo, iata) {
         id: userInfo.id,
         username: userInfo.username,
         first_name: userInfo.first_name,
+        last_name: userInfo.last_name,
         iata_code: iata,
+        updated_at: new Date().toISOString(),
     };
 
-    console.log('💾 Saving user to Redis:', userKey, data);
-
+    // Всегда сохраняем валидный JSON
     try {
-        const result = await redis.set(userKey, JSON.stringify(data));
-        console.log('✅ User saved to Redis:', result);
+        await redis.set(userKey, JSON.stringify(data));
+        console.log('✅ saveUser -> saved JSON to redis for', userInfo.id);
     } catch (err) {
-        console.error('❌ Redis set error in saveUser:', err);
-        throw err; // пробросим ошибку, чтобы отловить выше
+        console.error('❌ saveUser: redis.set error', err);
+        throw err;
     }
 }
 
