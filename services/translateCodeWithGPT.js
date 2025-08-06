@@ -30,7 +30,6 @@ ${JSON.stringify(tickets, null, 2)}
 
 
     const raw = res.choices[0]?.message?.content;
-    console.log(raw)
 
     // 🧹 Вырезаем JSON-массив из текста
     const jsonMatch = raw.match(/\[\s*{[\s\S]*}\s*]/);
