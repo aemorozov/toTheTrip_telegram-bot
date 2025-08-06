@@ -17,15 +17,15 @@ for (const key of requiredEnv) {
 }
 
 // --- Инициализация одного раза (рекомендуется) ---
-try {
-    redis = new Redis({
-        url: process.env.REDIS_URL || 'https://trusted-wombat-9341.upstash.io',
-        token: process.env.UPSTASH_REDIS_REST_TOKEN,
-    });
-    console.log('✅ Upstash Redis client created');
-} catch (e) {
-    console.error('❌ Failed to init Redis client', e);
-}
+// try {
+//     redis = new Redis({
+//         url: process.env.REDIS_URL || 'https://trusted-wombat-9341.upstash.io',
+//         token: process.env.UPSTASH_REDIS_REST_TOKEN,
+//     });
+//     console.log('✅ Upstash Redis client created');
+// } catch (e) {
+//     console.error('❌ Failed to init Redis client', e);
+// }
 
 // Инициализация TelegramBot без polling — webhook mode
 let bot;
