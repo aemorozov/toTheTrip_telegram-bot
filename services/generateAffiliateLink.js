@@ -1,60 +1,63 @@
 // services/generateAffiliateLink.js
-/**
- * Формирует партнёрскую ссылку для билета.
- *
- * Поддерживаемый формат ссылки — Aviasales search URL:
- *   https://www.aviasales.com/search/{ORIGIN}{DESTINATION}{DEPART_DATE}1?marker={MARKER}
- *
- * Параметры:
- * - ticket: объект билета (ожидаем поля destination (IATA), maybe depart_date в формате YYYY-MM-DD)
- * - origin: IATA код города вылета
- *
- * Переменные окружения:
- * - process.env.TRAVELPAYOUTS_MARKER  — твой marker/partner id из Travelpayouts
- * - process.env.AFFILIATE_BASE (опционально) — базовый домен, если хочешь кастомизировать (по умолчанию aviasales.com)
- *
- * Возвращает: строка с URL (https://...)
- */
 const querystring = require('querystring');
 
-function padDateForAviasales(dateStr) {
-    // Aviasales expects date as DDMM (day month) optionally plus year? 
-    // Simпle approach: if we have YYYY-MM-DD, we'll use DDMM (most common simple search)
-    if (!dateStr) return '';
-    try {
-        const [y, m, d] = dateStr.split('-');
-        if (!y || !m || !d) return '';
-        // Aviasales search often allows DDMM format, e.g. 2505 for 25 May
-        return `${d.padStart(2, '0')}${m.padStart(2, '0')}`;
-    } catch (e) {
-        return '';
-    }
+/**
+ * Ожидает ticket с полями:
+ *  - destination (IATA)
+ *  - depart_date (YYYY-MM-DD)  <-- обязательно
+ *  - (опционально) return_date (YYYY-MM-DD)
+ *
+ * origin: строка, IATA код отправления
+ *
+ * Возвращает: URL-строку или null, если недостаточно данных.
+ *
+ * ENV:
+ *  - TRAVELPAYOUTS_MARKER  (рекомендуется)
+ *  - AFFILIATE_BASE (по умолчанию 'www.aviasales.com')
+ *
+ * Примечание: мы формируем Aviasales-style URL: /search/ORIGDESTDDMM1?marker=...
+ * Если тебе нужен другой формат (redirect Travelpayouts и т.п.) — пришли пример и я адаптирую.
+ */
+
+function toYYYYMMDD(dateStr) {
+    if (!dateStr) return null;
+    // Допускаем уже YYYY-MM-DD или ISO + time. Берём только начальную YYYY-MM-DD часть.
+    const m = dateStr.match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : null;
+}
+
+function ddmmFromYYYYMMDD(dateStr) {
+    // dateStr обязателен в формате YYYY-MM-DD
+    if (!dateStr) return null;
+    const parts = dateStr.split('-');
+    if (parts.length < 3) return null;
+    const [, mm, dd] = parts;
+    return `${dd.padStart(2, '0')}${mm.padStart(2, '0')}`;
 }
 
 module.exports = function generateAffiliateLink({ ticket = {}, origin }) {
-    const marker = process.env.TRAVELPAYOUTS_MARKER || process.env.AFFILIATE_MARKER || '';
+    const marker = process.env.TRAVELPAYOUTS_MARKER || '';
     const base = process.env.AFFILIATE_BASE || 'www.aviasales.com';
 
     const dest = (ticket.destination || ticket.to || ticket.iata || '').toUpperCase();
     if (!origin || !dest) return null;
 
-    // Try to include departure date if available (YYYY-MM-DD)
-    let datePart = '';
-    const departDate = ticket.depart_date || ticket.departure_at || ticket.departure_date;
-    const padded = padDateForAviasales(departDate);
-    if (padded) {
-        // Aviasales search pattern: ORIGDESTDDMM (no separators), plus "1" for one adult (simple)
-        datePart = padded;
+    // Берём дату отправления — если её нет, вернём null (по требованию: дата обязательна)
+    const rawDate = ticket.depart_date || ticket.departure_date || ticket.departure_at || ticket.departure;
+    const ymd = toYYYYMMDD(rawDate);
+    if (!ymd) {
+        // Логирование лучше делать в вызывающем коде; здесь просто возвращаем null
+        return null;
     }
 
-    // Build path like /search/ORIGDESTDDMM1
-    const path = `/search/${origin}${dest}${datePart}1`;
+    const ddmm = ddmmFromYYYYMMDD(ymd);
+    if (!ddmm) return null;
 
-    // Query: include marker and show_to_affiliates param if needed
+    // Формат: ORIGDESTDDMM1 (1 adult) — это простой кликабельный поиск
+    const path = `/search/${origin}${dest}${ddmm}1`;
+
     const qs = {};
     if (marker) qs.marker = marker;
-    // other optional params can be appended if needed:
-    // qs.show_to_affiliates = 'true';
 
     const url = `https://${base}${path}${Object.keys(qs).length ? ('?' + querystring.stringify(qs)) : ''}`;
     return url;

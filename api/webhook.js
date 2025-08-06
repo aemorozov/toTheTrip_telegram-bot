@@ -148,7 +148,7 @@ module.exports = async (req, res) => {
 
             const iata = userObj?.iata_code;
             if (!iata) {
-                await safeSend(chatId, 'Departure city is not set. Send /start again.');
+                await safeSend(chatId, 'Departure city is not set. Please send /start again.');
                 return res.status(200).send('ok');
             }
 
@@ -158,6 +158,7 @@ module.exports = async (req, res) => {
                 console.log('🎫 getCheapTickets start for', iata);
                 const t0 = Date.now();
                 tickets = await getCheapTickets(iata);
+                console.log(tickets)
                 console.log(`🎫 getCheapTickets done (${tickets?.length || 0}) in ${Date.now() - t0}ms`);
             } catch (e) {
                 console.error('❌ getCheapTickets error:', e);
@@ -181,33 +182,19 @@ module.exports = async (req, res) => {
                 console.error('❌ translateCodesWithGPT error (will continue):', e);
             }
 
-            // build message with affiliate links
-            const headerCity = userObj?.origin_name || iata || 'your city';
-            let message = `✈️ *TOP-10 cheapest flights from ${headerCity}* ✨:\n\n`;
+            // send result
+            try {
+                const message = `✈️ *TOP-10 cheapest flights from ${userInput}* ✨:\n\n` + tickets.map(t => {
+                    const match = translations.find(item => item.iata === t.destination && item.airline === t.airline);
+                    const city = match?.city || t.destination;
+                    const airline = match?.airline_name || t.airline;
+                    return `→ *${city}* from *${t.price}€*`;
+                }).join('\n');
 
-            // iterate tickets and add affiliate link per item
-            const lines = tickets.map(t => {
-                const match = translations.find(item => item.iata === t.destination && item.airline === t.airline);
-                const city = match?.city || t.destination;
-                const airline = match?.airline_name || t.airline;
-                const price = t.price ? `${t.price}€` : '—';
-
-                // generate affiliate link
-                const affiliateUrl = generateAffiliateLink({ ticket: t, origin: iata });
-
-                // Build line. We keep URL as plain text to avoid Markdown escaping issues.
-                // Example: "→ Paris (Air France) — 45€\nhttps://..."
-                const prettyCity = city;
-                const prettyAirline = airline ? ` (${airline})` : '';
-                const datePart = t.depart_date ? ` — ${t.depart_date}` : '';
-
-                const urlLine = affiliateUrl ? `\n${affiliateUrl}` : '';
-                return `→ *${prettyCity}*${prettyAirline} — *${price}*${datePart}${urlLine}\n`;
-            });
-
-            message += lines.join('\n');
-
-            await safeSend(chatId, message, { parse_mode: 'Markdown' });
+                await safeSend(chatId, message, { parse_mode: 'Markdown' });
+            } catch (e) {
+                console.error('❌ Error building/sending tickets message:', e);
+            }
 
             console.log(`Callback handling finished (total ${Date.now() - overallStart}ms)`);
             return res.status(200).send('ok');
