@@ -1,4 +1,3 @@
-// api/webhook.js
 require('dotenv').config();
 
 const TelegramBot = require('node-telegram-bot-api');
@@ -6,7 +5,7 @@ const { getIataCode } = require('../services/getIataCode');
 const { getCheapTickets } = require('../services/getCheapTickets');
 const { translateCodesWithGPT } = require('../services/translateCodeWithGPT');
 const { pushMessage, getUser, saveUser } = require('../services/db'); // <-- используем функции
-// НЕ импортируем/инициализируем Redis здесь!
+const generateAffiliateLink = require('../services/generateAffiliateLink');
 
 // Проверка env
 const requiredEnv = ['TELEGRAM_TOKEN', 'UPSTASH_REDIS_REST_TOKEN', 'UPSTASH_REDIS_REST_URL', 'VERCEL_URL', 'OPENAI_API_KEY'];
@@ -182,19 +181,33 @@ module.exports = async (req, res) => {
                 console.error('❌ translateCodesWithGPT error (will continue):', e);
             }
 
-            // send result
-            try {
-                const message = `✈️ *TOP-10 cheapest flights* ✨:\n\n` + tickets.map(t => {
-                    const match = translations.find(item => item.iata === t.destination && item.airline === t.airline);
-                    const city = match?.city || t.destination;
-                    const airline = match?.airline_name || t.airline;
-                    return `→ *${city}* from *${t.price}€*`;
-                }).join('\n');
+            // build message with affiliate links
+            const headerCity = userObj?.origin_name || iata || 'your city';
+            let message = `✈️ *TOP-10 cheapest flights from ${headerCity}* ✨:\n\n`;
 
-                await safeSend(chatId, message, { parse_mode: 'Markdown' });
-            } catch (e) {
-                console.error('❌ Error building/sending tickets message:', e);
-            }
+            // iterate tickets and add affiliate link per item
+            const lines = tickets.map(t => {
+                const match = translations.find(item => item.iata === t.destination && item.airline === t.airline);
+                const city = match?.city || t.destination;
+                const airline = match?.airline_name || t.airline;
+                const price = t.price ? `${t.price}€` : '—';
+
+                // generate affiliate link
+                const affiliateUrl = generateAffiliateLink({ ticket: t, origin: iata });
+
+                // Build line. We keep URL as plain text to avoid Markdown escaping issues.
+                // Example: "→ Paris (Air France) — 45€\nhttps://..."
+                const prettyCity = city;
+                const prettyAirline = airline ? ` (${airline})` : '';
+                const datePart = t.depart_date ? ` — ${t.depart_date}` : '';
+
+                const urlLine = affiliateUrl ? `\n${affiliateUrl}` : '';
+                return `→ *${prettyCity}*${prettyAirline} — *${price}*${datePart}${urlLine}\n`;
+            });
+
+            message += lines.join('\n');
+
+            await safeSend(chatId, message, { parse_mode: 'Markdown' });
 
             console.log(`Callback handling finished (total ${Date.now() - overallStart}ms)`);
             return res.status(200).send('ok');
