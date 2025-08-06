@@ -17,7 +17,6 @@ for (const key of requiredEnv) {
 }
 
 // --- Инициализация одного раза (рекомендуется) ---
-let redis;
 try {
     redis = new Redis({
         url: process.env.REDIS_URL || 'https://trusted-wombat-9341.upstash.io',
