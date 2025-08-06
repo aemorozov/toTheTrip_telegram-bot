@@ -1,3 +1,4 @@
+// api/webhook.js
 require('dotenv').config();
 
 const TelegramBot = require('node-telegram-bot-api');
@@ -148,7 +149,7 @@ module.exports = async (req, res) => {
 
             const iata = userObj?.iata_code;
             if (!iata) {
-                await safeSend(chatId, 'Departure city is not set. Please send /start again.');
+                await safeSend(chatId, 'Departure city is not set. Send /start again.');
                 return res.status(200).send('ok');
             }
 
@@ -158,7 +159,6 @@ module.exports = async (req, res) => {
                 console.log('🎫 getCheapTickets start for', iata);
                 const t0 = Date.now();
                 tickets = await getCheapTickets(iata);
-                console.log(tickets)
                 console.log(`🎫 getCheapTickets done (${tickets?.length || 0}) in ${Date.now() - t0}ms`);
             } catch (e) {
                 console.error('❌ getCheapTickets error:', e);
