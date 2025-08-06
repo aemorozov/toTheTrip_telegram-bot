@@ -188,7 +188,7 @@ module.exports = async (req, res) => {
                     const match = translations.find(item => item.iata === t.destination && item.airline === t.airline);
                     const city = match?.city || t.destination;
                     const airline = match?.airline_name || t.airline;
-                    return `⇄ *${city} from ${t.price}€* \n ${translations.departure} - ${translations.return}`;
+                    return `⇄ *${city} from ${t.price}€* \n ${match?.departure} — ${match?.return}`;
                 }).join('\n');
 
                 await safeSend(chatId, message, { parse_mode: 'Markdown' });
