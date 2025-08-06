@@ -31,8 +31,6 @@ ${JSON.stringify(tickets, null, 2)}
 
     const raw = res.choices[0]?.message?.content;
 
-    console.log('Вот raw: ', raw)
-
     // 🧹 Вырезаем JSON-массив из текста
     const jsonMatch = raw.match(/\[\s*{[\s\S]*}\s*]/);
     if (!jsonMatch) {
@@ -41,6 +39,7 @@ ${JSON.stringify(tickets, null, 2)}
     }
 
     try {
+        console.log(JSON.parse(jsonMatch[0]))
         return JSON.parse(jsonMatch[0]);
     } catch (err) {
         console.error('[GPT PARSE ERROR]', err.message);
