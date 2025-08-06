@@ -6,7 +6,8 @@ const { getIataCode } = require('../services/getIataCode');
 const { getCheapTickets } = require('../services/getCheapTickets');
 const { saveUser } = require('../services/db');
 const { translateCodesWithGPT } = require('../services/translateCodeWithGPT');
-const { Redis } = require('@upstash/redis');
+const { redis, saveUser, getUser, pushMessage } = require('../services/db');
+
 
 // --- Проверка обязательных переменных окружения ---
 const requiredEnv = ['TELEGRAM_TOKEN', 'UPSTASH_REDIS_REST_TOKEN', 'VERCEL_URL', 'OPENAI_API_KEY'];
