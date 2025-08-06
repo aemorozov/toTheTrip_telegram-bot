@@ -176,6 +176,7 @@ module.exports = async (req, res) => {
             try {
                 console.log('🌐 translateCodesWithGPT start');
                 const t0 = Date.now();
+                console.log(tickets)
                 translations = await translateCodesWithGPT(tickets);
                 console.log(`🌐 translateCodesWithGPT done (${translations?.length || 0}) in ${Date.now() - t0}ms`);
             } catch (e) {
@@ -185,7 +186,7 @@ module.exports = async (req, res) => {
             // send result
             try {
                 const message = `✈️ *TOP-10 cheapest flights from ${userObj.iata_code}* ✨:\n\n` + tickets.map(t => {
-                    const match = tickets.find(item => item.iata === t.destination && item.airline === t.airline);
+                    const match = translations.find(item => item.iata === t.destination && item.airline === t.airline);
                     const city = match?.city || t.destination;
                     const airline = match?.airline_name || t.airline;
                     return `→ *${city}* from *${t.price}€*`;

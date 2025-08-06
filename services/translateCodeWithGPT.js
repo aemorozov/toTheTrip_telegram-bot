@@ -12,7 +12,8 @@ ${JSON.stringify(tickets, null, 2)}
     iata: 'BCN',
     city: 'Barcelona',
     airline: 'FR',
-    airline_name: 'Ryanair'
+    airline_name: 'Ryanair',
+    
   }
 ]
 
