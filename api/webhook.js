@@ -4,9 +4,8 @@ require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const { getIataCode } = require('../services/getIataCode');
 const { getCheapTickets } = require('../services/getCheapTickets');
-const { saveUser } = require('../services/db');
 const { translateCodesWithGPT } = require('../services/translateCodeWithGPT');
-const { redis, saveUser, getUser, pushMessage } = require('../services/db');
+const { redis, saveUser } = require('../services/db');
 
 
 // --- Проверка обязательных переменных окружения ---
