@@ -184,11 +184,11 @@ module.exports = async (req, res) => {
 
             // send result
             try {
-                const message = `*TOP-10 cheapest flight*:\n\n` + tickets.map(t => {
+                const message = `*TOP-10 cheapest flights*:\n\n` + tickets.map(t => {
                     const match = translations.find(item => item.iata === t.destination && item.airline === t.airline);
                     const city = match?.city || t.destination;
                     const airline = match?.airline_name || t.airline;
-                    return `✈️ → *${city}* from *${t.price}€*`;
+                    return `→ *${city}* from *${t.price}€*`;
                 }).join('\n');
 
                 await safeSend(chatId, message, { parse_mode: 'Markdown' });
