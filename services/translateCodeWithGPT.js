@@ -28,7 +28,6 @@ ${JSON.stringify(tickets, null, 2)}
         temperature: 0.2
     });
 
-
     const raw = res.choices[0]?.message?.content;
 
     // 🧹 Вырезаем JSON-массив из текста
