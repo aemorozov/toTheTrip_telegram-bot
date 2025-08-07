@@ -11,7 +11,6 @@ try {
         console.warn('⚠️ Upstash env vars missing. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN');
     } else {
         redis = new Redis({ url, token });
-        console.log('✅ Upstash Redis client initialized');
     }
 } catch (err) {
     console.error('❌ Error initializing Upstash Redis client:', err);
@@ -59,7 +58,6 @@ async function saveUser(userInfo, iata) {
     };
     try {
         await redis.set(userKey, JSON.stringify(data));
-        console.log(`✅ saveUser: saved ${userKey}`);
     } catch (err) {
         console.error('❌ saveUser: redis.set error', err);
         throw err;
@@ -105,7 +103,6 @@ async function pushMessage(userId, text, max = 50) {
         await redis.lpush(listKey, text);
         await redis.ltrim(listKey, 0, max - 1);
         // Не логируем каждый пуш в продакшне, но при необходимости можно
-        // console.log(`✅ pushMessage: pushed to ${listKey}`);
     } catch (err) {
         console.error('❌ pushMessage: redis error', err);
         throw err;

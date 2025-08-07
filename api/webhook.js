@@ -16,7 +16,6 @@ let bot;
 try {
     if (!process.env.TELEGRAM_TOKEN) throw new Error('TELEGRAM_TOKEN not set');
     bot = new TelegramBot(process.env.TELEGRAM_TOKEN);
-    console.log('✅ Telegram bot instance created (webhook mode)');
 } catch (e) {
     console.error('❌ Telegram init error:', e);
     // продолжаем чтобы endpoint возвращал 500, но не крашил процесс на cold-start
@@ -27,7 +26,6 @@ async function safeSend(chatId, text, opts = {}) {
     try {
         console.log(`→ sendMessage to ${chatId}: "${(text || '').slice(0, 80)}"`);
         await bot.sendMessage(chatId, text, opts);
-        console.log(`← sendMessage done (${Date.now() - start}ms)`);
     } catch (err) {
         console.error(`❌ bot.sendMessage error for ${chatId}:`, err && err.message ? err.message : err);
     }
@@ -35,15 +33,12 @@ async function safeSend(chatId, text, opts = {}) {
 
 module.exports = async (req, res) => {
     const overallStart = Date.now();
-    console.log(`\n--- webhook request at ${new Date().toISOString()} ---`);
-    console.log('method:', req.method);
 
     if (req.method !== 'POST') {
         return res.status(200).send('ok');
     }
 
     const body = req.body || {};
-    console.log('body keys:', Object.keys(body));
 
     // ----- plain message -----
     if (body.message) {
@@ -63,9 +58,7 @@ module.exports = async (req, res) => {
 
         // push to redis list via helper (которая сама проверит redis)
         try {
-            console.log('💾 pushMessage ->', `user:${userInfo.id}:messages`, userInput);
             await pushMessage(userInfo.id, userInput, 50);
-            console.log('✅ pushMessage ok');
         } catch (e) {
             console.error('❌ pushMessage error:', e);
             await safeSend(chatId, 'Redis error — try again later.');
@@ -75,10 +68,8 @@ module.exports = async (req, res) => {
         // get IATA
         let iata;
         try {
-            console.log('🔎 getIataCode start for:', userInput);
             const t0 = Date.now();
             iata = await getIataCode(userInput);
-            console.log(`🔎 getIataCode -> ${iata} (${Date.now() - t0}ms)`);
         } catch (e) {
             console.error('❌ getIataCode error:', e);
             await safeSend(chatId, 'Error while determining IATA code. Try again later.');
@@ -92,10 +83,8 @@ module.exports = async (req, res) => {
 
         // save user
         try {
-            console.log('💾 saveUser start', userInfo?.id, iata);
             const t1 = Date.now();
             await saveUser(userInfo, iata);
-            console.log(`✅ saveUser done (${Date.now() - t1}ms)`);
         } catch (e) {
             console.error('❌ saveUser error:', e);
             await safeSend(chatId, 'Error while saving user. Try again later.');
@@ -138,7 +127,6 @@ module.exports = async (req, res) => {
             // get user via helper (returns parsed object or null)
             let userObj;
             try {
-                console.log('💾 getUser start for', chatId);
                 userObj = await getUser(chatId);
                 console.log('✅ getUser raw:', userObj);
             } catch (e) {
@@ -159,7 +147,6 @@ module.exports = async (req, res) => {
                 console.log('🎫 getCheapTickets start for', iata);
                 const t0 = Date.now();
                 tickets = await getCheapTickets(iata);
-                console.log(`🎫 getCheapTickets done (${tickets?.length || 0}) in ${Date.now() - t0}ms`);
             } catch (e) {
                 console.error('❌ getCheapTickets error:', e);
                 await safeSend(chatId, 'An error occurred while fetching tickets.');
@@ -177,7 +164,6 @@ module.exports = async (req, res) => {
                 console.log('🌐 translateCodesWithGPT start');
                 const t0 = Date.now();
                 translations = await translateCodesWithGPT(tickets);
-                console.log(`🌐 translateCodesWithGPT done (${translations?.length || 0}) in ${Date.now() - t0}ms`);
             } catch (e) {
                 console.error('❌ translateCodesWithGPT error (will continue):', e);
             }
@@ -197,15 +183,12 @@ module.exports = async (req, res) => {
                 console.error('❌ Error building/sending tickets message:', e);
             }
 
-            console.log(`Callback handling finished (total ${Date.now() - overallStart}ms)`);
             return res.status(200).send('ok');
         }
 
         // unknown callback
-        console.log('Unknown callback data:', data);
         return res.status(200).send('ok');
     }
 
-    console.log('No message or callback_query found in body');
     return res.status(200).send('ok');
 };
