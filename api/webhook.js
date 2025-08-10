@@ -7,6 +7,7 @@ const { getCheapTickets } = require('../services/getCheapTickets');
 const { translateCodesWithGPT } = require('../services/translateCodeWithGPT');
 const { pushMessage, getUser, saveUser } = require('../services/db'); // <-- используем функции
 const generateAffiliateLink = require('../services/generateAffiliateLink');
+const iataBase = require('../services/iataBase')
 
 // Проверка env
 const requiredEnv = ['TELEGRAM_TOKEN', 'UPSTASH_REDIS_REST_TOKEN', 'UPSTASH_REDIS_REST_URL', 'VERCEL_URL', 'OPENAI_API_KEY'];
@@ -22,7 +23,7 @@ try {
 }
 
 async function safeSend(chatId, text, opts = {}) {
-    const start = Date.now();
+    // const start = Date.now();
     try {
         console.log(`→ sendMessage to ${chatId}: "${(text || '').slice(0, 80)}"`);
         await bot.sendMessage(chatId, text, opts);
@@ -32,7 +33,6 @@ async function safeSend(chatId, text, opts = {}) {
 }
 
 module.exports = async (req, res) => {
-    const overallStart = Date.now();
 
     if (req.method !== 'POST') {
         return res.status(200).send('ok');
@@ -68,7 +68,7 @@ module.exports = async (req, res) => {
         // get IATA
         let iata;
         try {
-            const t0 = Date.now();
+            // const t0 = Date.now();
             iata = await getIataCode(userInput);
         } catch (e) {
             console.error('❌ getIataCode error:', e);
@@ -83,7 +83,7 @@ module.exports = async (req, res) => {
 
         // save user
         try {
-            const t1 = Date.now();
+            // const t1 = Date.now();
             await saveUser(userInfo, iata);
         } catch (e) {
             console.error('❌ saveUser error:', e);
@@ -100,12 +100,11 @@ module.exports = async (req, res) => {
                     ]
                 }
             };
-            await safeSend(chatId, '✅ City saved! Now choose an option:', options);
+            await safeSend(chatId, '✅ City saved! Choose an option:', options);
         } catch (e) {
             console.error('❌ Error sending options:', e);
         }
 
-        console.log(`Message handling finished (total ${Date.now() - overallStart}ms)`);
         return res.status(200).send('ok');
     }
 
@@ -137,15 +136,15 @@ module.exports = async (req, res) => {
 
             const iata = userObj?.iata_code;
             if (!iata) {
-                await safeSend(chatId, 'Departure city is not set. Send /start again.');
+                await safeSend(chatId, '❌ Departure city is not set. 🔄 Send /start again.');
                 return res.status(200).send('ok');
             }
 
             // get tickets
             let tickets;
             try {
-                console.log('🎫 getCheapTickets start for', iata);
-                const t0 = Date.now();
+                // console.log('🎫 getCheapTickets start for', iata);
+                // const t0 = Date.now();
                 tickets = await getCheapTickets(iata);
             } catch (e) {
                 console.error('❌ getCheapTickets error:', e);
@@ -161,21 +160,24 @@ module.exports = async (req, res) => {
             // translate codes
             let translations = [];
             try {
-                console.log('🌐 translateCodesWithGPT start');
-                const t0 = Date.now();
+                // console.log('🌐 translateCodesWithGPT start');
+                // const t0 = Date.now();
                 translations = await translateCodesWithGPT(tickets);
+                // translations.push(tickets.map(ticket => {
+                //     ticket.destination = iataBase.find(item => ticket.destination === item)
+                // }))
             } catch (e) {
                 console.error('❌ translateCodesWithGPT error (will continue):', e);
             }
 
             // send result
             try {
-                const message = `✈️ *TOP-10 cheapest flights from ${userObj.iata_code}* ✨:\n\n` + tickets.map(t => {
+                const message = `✈️ *TOP-10* cheapest flights from *${userObj.iata_code}* ✨:\n\n` + tickets.map(t => {
                     const match = translations.find(item => item.iata === t.destination && item.airline === t.airline);
                     console.log('match: ', match)
                     const city = match?.city || t.destination;
                     const airline = match?.airline_name || t.airline;
-                    return `⇄ *${city} from ${t.price}€* \n ${match?.departure} — ${match?.return}`;
+                    return `✈️ *${city} from ${t.price}€* \n ${match?.departure} ⇄ ${match?.return}`;
                 }).join('\n');
 
                 await safeSend(chatId, message, { parse_mode: 'Markdown' });
