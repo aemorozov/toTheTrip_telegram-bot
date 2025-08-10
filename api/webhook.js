@@ -6,8 +6,6 @@ const { getIataCode } = require('../services/getIataCode');
 const { getCheapTickets } = require('../services/getCheapTickets');
 const { translateCodesWithGPT } = require('../services/translateCodeWithGPT');
 const { pushMessage, getUser, saveUser } = require('../services/db'); // <-- используем функции
-const generateAffiliateLink = require('../services/generateAffiliateLink');
-const iataBase = require('../services/iataBase')
 
 // Проверка env
 const requiredEnv = ['TELEGRAM_TOKEN', 'UPSTASH_REDIS_REST_TOKEN', 'UPSTASH_REDIS_REST_URL', 'VERCEL_URL', 'OPENAI_API_KEY'];
@@ -172,11 +170,10 @@ module.exports = async (req, res) => {
 
             // send result
             try {
-                const message = `✈️ *TOP-10* cheapest flights from *${userObj.iata_code}* ✨:\n\n` + tickets.map(t => {
+                const message = `*TOP-10* cheapest flights from *${userObj.iata_code}*:\n\n` + tickets.map(t => {
                     const match = translations.find(item => item.iata === t.destination && item.airline === t.airline);
                     console.log('match: ', match)
                     const city = match?.city || t.destination;
-                    const airline = match?.airline_name || t.airline;
                     return `✈️ *${city} from ${t.price}€* \n ${match?.departure} ⇄ ${match?.return}`;
                 }).join('\n');
 

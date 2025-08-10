@@ -7,19 +7,12 @@ async function translateCodesWithGPT(tickets) {
 ${JSON.stringify(tickets, null, 2)}
 
 Верни ТОЛЬКО массив объектов в следующем формате:
-[
-  {
-    iata: 'BCN',
-    city: 'Barcelona',
-    airline: 'FR',
-    airline_name: 'Ryanair',
-    departure: '2025-08-07',
-    return: '2025-08-10'
-  }
-]
+[{iata: 'BCN',city: 'Barcelona',airline: 'FR',airline_name: 'Ryanair',departure: '15 Sept 2025',return: '16 Sept 2025'}]
 
+
+Без символов \n и +, только читсый json.
 На английском языке. Код EAP = Basel, Switzerland.
-К городу всегда указывай страну через запятую.
+К городу всегда указывай страну в виде RU, IT и так далее через запятую.
 Без пояснений, текста до или после.`;
 
     const res = await openai.chat.completions.create({
@@ -29,7 +22,6 @@ ${JSON.stringify(tickets, null, 2)}
     });
 
     const raw = res.choices[0]?.message?.content;
-    console.log(raw)
 
 
     // 🧹 Вырезаем JSON-массив из текста
@@ -38,6 +30,9 @@ ${JSON.stringify(tickets, null, 2)}
         console.error('[GPT PARSE ERROR] Ответ не содержит JSON-массив:', raw);
         return [];
     }
+
+    console.log("JSON: ", jsonMatch)
+
 
     try {
         return JSON.parse(jsonMatch[0]);
