@@ -7,11 +7,13 @@ async function translateCodesWithGPT(tickets) {
 ${JSON.stringify(tickets, null, 2)}
 
 Верни ТОЛЬКО массив объектов в следующем формате:
-[{iata: 'BCN',city: 'Barcelona',airline: 'FR',airline_name: 'Ryanair',departure: '15 Sept 2025',return: '16 Sept 2025'}]
+[{iata: 'BCN',city: 'Barcelona',airline: 'FR',airline_name: 'Ryanair',departure: '15 Sep 2025',return: '16 Sep 2025'}]
 
 
 Без символов \n и +, только читсый json.
-На английском языке. Код EAP = Basel, Switzerland.
+На английском языке. 
+Код EAP = Basel, CH.
+Код RMO = Chișinău, MD.
 К городу всегда указывай страну в виде RU, IT и так далее через запятую.
 Без пояснений, текста до или после.`;
 
@@ -31,7 +33,7 @@ ${JSON.stringify(tickets, null, 2)}
         return [];
     }
 
-    console.log("JSON: ", jsonMatch)
+    // console.log("JSON: ", jsonMatch)
 
 
     try {

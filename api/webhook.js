@@ -6,6 +6,7 @@ const { getIataCode } = require('../services/getIataCode');
 const { getCheapTickets } = require('../services/getCheapTickets');
 const { translateCodesWithGPT } = require('../services/translateCodeWithGPT');
 const { pushMessage, getUser, saveUser } = require('../services/db'); // <-- используем функции
+const { generatePartnerFlightLink } = require('../services/generatePartnerFlightLink')
 
 // Проверка env
 const requiredEnv = ['TELEGRAM_TOKEN', 'UPSTASH_REDIS_REST_TOKEN', 'UPSTASH_REDIS_REST_URL', 'VERCEL_URL', 'OPENAI_API_KEY'];
@@ -23,7 +24,7 @@ try {
 async function safeSend(chatId, text, opts = {}) {
     // const start = Date.now();
     try {
-        console.log(`→ sendMessage to ${chatId}: "${(text || '').slice(0, 80)}"`);
+        // console.log(`→ sendMessage to ${chatId}: "${(text || '').slice(0, 80)}"`);
         await bot.sendMessage(chatId, text, opts);
     } catch (err) {
         console.error(`❌ bot.sendMessage error for ${chatId}:`, err && err.message ? err.message : err);
@@ -45,7 +46,7 @@ module.exports = async (req, res) => {
         const userInput = msg.text?.trim();
         const userInfo = msg.from;
 
-        console.log('💬 incoming message', { chatId, userInput, from: userInfo?.id });
+        // console.log('💬 incoming message', { chatId, userInput, from: userInfo?.id });
 
         if (!chatId) return res.status(200).send('ok');
 
@@ -111,7 +112,7 @@ module.exports = async (req, res) => {
         const query = body.callback_query;
         const chatId = query.message?.chat?.id;
         const data = query.data;
-        console.log('🔘 callback_query', { from: query.from?.id, chatId, data });
+        // console.log('🔘 callback_query', { from: query.from?.id, chatId, data });
 
         // acknowledge (non-fatal)
         try {
@@ -125,7 +126,7 @@ module.exports = async (req, res) => {
             let userObj;
             try {
                 userObj = await getUser(chatId);
-                console.log('✅ getUser raw:', userObj);
+                // console.log('✅ getUser raw:', userObj);
             } catch (e) {
                 console.error('❌ getUser error:', e);
                 await safeSend(chatId, 'Redis error — try again later.');
@@ -141,9 +142,8 @@ module.exports = async (req, res) => {
             // get tickets
             let tickets;
             try {
-                // console.log('🎫 getCheapTickets start for', iata);
-                // const t0 = Date.now();
                 tickets = await getCheapTickets(iata);
+                // console.log(tickets[0])
             } catch (e) {
                 console.error('❌ getCheapTickets error:', e);
                 await safeSend(chatId, 'An error occurred while fetching tickets.');
@@ -158,26 +158,26 @@ module.exports = async (req, res) => {
             // translate codes
             let translations = [];
             try {
-                // console.log('🌐 translateCodesWithGPT start');
-                // const t0 = Date.now();
                 translations = await translateCodesWithGPT(tickets);
-                // translations.push(tickets.map(ticket => {
-                //     ticket.destination = iataBase.find(item => ticket.destination === item)
-                // }))
             } catch (e) {
                 console.error('❌ translateCodesWithGPT error (will continue):', e);
             }
 
             // send result
             try {
-                const message = `*TOP-10* cheapest flights from *${userObj.iata_code}*:\n\n` + tickets.map(t => {
+                const origin = userObj.iata_code
+                const message = `<b>TOP-10</b> cheapest flights from <b>${userObj.iata_code}</b>:\n\n` + tickets.map(t => {
                     const match = translations.find(item => item.iata === t.destination && item.airline === t.airline);
-                    console.log('match: ', match)
+                    const destination = t.destination
+                    const depart_date = t.departure
+                    const return_date = t.return
                     const city = match?.city || t.destination;
-                    return `✈️ *${city} from ${t.price}€* \n ${match?.departure} ⇄ ${match?.return}`;
-                }).join('\n');
+                    const link = generatePartnerFlightLink({ origin, destination, depart_date, return_date })
 
-                await safeSend(chatId, message, { parse_mode: 'Markdown' });
+                    return `✈️ to <b>${city}</b> ≈ <b>${t.price}€</b>\n<a href="${link}">${match?.departure} ⇄ ${match?.return}</a>\n`;
+                }).join('\n') + `\n*cheapest prices for the last hour`;
+
+                await safeSend(chatId, message, { parse_mode: 'HTML', disable_web_page_preview: true });
             } catch (e) {
                 console.error('❌ Error building/sending tickets message:', e);
             }
