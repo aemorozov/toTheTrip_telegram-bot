@@ -1,14 +1,13 @@
 function extractShortLink(link) {
-  try {
-    const uParam = new URL(link).searchParams.get("u");
-    if (!uParam) return null;
+  const base = "avia.se/";
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let randomPart = "";
 
-    const decoded = decodeURIComponent(uParam); // например "https://www.aviasales.com/search/OTP1709RMO20091"
-    return decoded.replace(/^https?:\/\//, "").replace(/^www\./, ""); // убираем https://
-  } catch (e) {
-    console.error("extractShortLink error:", e);
-    return null;
+  for (let i = 0; i < 4; i++) {
+    randomPart += letters.charAt(Math.floor(Math.random() * letters.length));
   }
+
+  return base + randomPart;
 }
 
 module.exports = { extractShortLink };
