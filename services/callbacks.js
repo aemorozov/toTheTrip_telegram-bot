@@ -50,7 +50,7 @@ async function handleCallbackQuery(chatId, data) {
             return_date,
           });
 
-          return `✈️ to <b>${city}</b> | ≈ <b>${t.price}€</b>\n${formatDate(
+          return `✈️ to <b>${city}</b> | from <b>${t.price}€</b>\n${formatDate(
             match?.departure
           )} ⇄ ${formatDate(
             match?.return
