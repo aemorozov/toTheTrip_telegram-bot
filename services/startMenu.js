@@ -8,13 +8,13 @@ async function startMenu(chatId, city) {
         inline_keyboard: [
           [
             {
-              text: "✈️ TOP-10 / next 60d / round trip  ✨",
+              text: "✈️ TOP-10 cheap flights round trip ✨",
               callback_data: "get_top_10_round_trip",
             },
           ],
           [
             {
-              text: "🔟 TOP-10 / next 60d / one way  💰",
+              text: "✈️  TOP-10 cheap flights one way   💰",
               callback_data: "get_top_10_one_way",
             },
           ],
@@ -30,7 +30,7 @@ async function startMenu(chatId, city) {
 
     await safeSend(
       chatId,
-      `-------------  START MENU  -------------\n\n📍 Your city is <strong>${city}</strong>, great! ✈️\n\n👉 Choose what to explore:\n\n🔥 • TOP-10 cheapest flights from your city in the next 60 days`,
+      `-------------  START MENU  -------------\n\n📍 Your city is <strong>${city}</strong>, great! ✈️\n\n👉 Choose what to explore:\n\n 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇`,
       options
     );
   } catch (e) {
