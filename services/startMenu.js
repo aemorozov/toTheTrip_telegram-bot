@@ -18,19 +18,19 @@ async function startMenu(chatId, city) {
               callback_data: "get_top_10_one_way",
             },
           ],
-          // [
-          //   {
-          //     text: "🌍 Specified destination / fixed days  📅",
-          //     callback_data: "add_destination_and_dates",
-          //   },
-          // ],
+          [
+            {
+              text: "🌍 Cheapest flyghts for destination 📅",
+              callback_data: "cheapest_flights_for_destination",
+            },
+          ],
         ],
       },
     };
 
     await safeSend(
       chatId,
-      `-------------  START MENU  -------------\n\n📍 Your city is <strong>${city}</strong>, great! ✈️\n\n👉 Choose what to explore:\n\n 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇`,
+      `-------------  START MENU  -------------\n\n📍 Your city is <strong>${city}</strong>, great! ✈️\n\nFor update the city, write it.\n\n👉 Choose what to explore:\n\n 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇`,
       options
     );
   } catch (e) {
