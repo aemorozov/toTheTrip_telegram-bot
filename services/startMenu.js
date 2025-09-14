@@ -30,7 +30,7 @@ async function startMenu(chatId, city) {
 
     await safeSend(
       chatId,
-      `-------------  START MENU  -------------\n\n📍 Your city is <strong>${city}</strong>, great! ✈️\n\nFor update the city, write it.\n\n👉 Choose what to explore:\n\n 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇`,
+      `-------------  START MENU  -------------\n\n📍 Your city is <strong>${city}</strong>, great! ✈️\n\n🔄 For update the city, write it.\n\n👉 Choose what to explore:\n\n 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇`,
       options
     );
   } catch (e) {
