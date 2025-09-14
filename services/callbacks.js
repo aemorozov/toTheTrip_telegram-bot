@@ -83,18 +83,18 @@ async function handleCallbackQuery(chatId, data) {
       `<b>🔥 TOP-10 cheapest round trip flights from ${userObj.city} for you</b>:\n\n` +
       translations
         .map((t) => {
-          const destination = t.iata;
+          const destination = t.destination;
+          const destination_iata = t.destination_iata;
           const depart_date = t.departure;
           const return_date = t.return;
-          const city = t?.city;
           const link = generatePartnerFlightLinkRoundTrip({
             origin,
-            destination,
+            destination_iata,
             depart_date,
             return_date,
           });
 
-          return `✈️ to <b>${city}</b> from <b>${
+          return `✈️ to <b>${destination}</b> from <b>${
             t.price
           }$</b>\n📅 ${formatDateRoundTrip(t.departure)} ${
             t.departure_time
@@ -130,19 +130,19 @@ async function handleCallbackQuery(chatId, data) {
       `<b>🔥 TOP-10 cheapest one way flights from ${userObj.city} for you</b>:\n\n` +
       translations
         .map((t) => {
-          const destination = t.iata;
+          const destination = t.destination;
           const depart_date = t.departure;
-          const city = t?.city;
+          const destination_iata = t.destination_iata;
           const link = generatePartnerFlightLinkOneWay({
             origin,
-            destination,
+            destination_iata,
             depart_date,
           });
 
-          return `✈️ to <b>${city}</b> from <b>${
+          return `✈️ to <b>${destination}</b> from <b>${
             t.price
           }$</b>\n📅 ${formatDateOneWay(t?.departure)} ${
-            t.time
+            t.departure_time
           }\n🔗 <u><a href="${link}">https://${extractShortLinkOneWay(
             link
           )}</a></u>\n`;

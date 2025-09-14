@@ -1,6 +1,6 @@
 function generatePartnerFlightLinkRoundTrip({
   origin,
-  destination,
+  destination_iata,
   depart_date,
   return_date,
   adults = 1,
@@ -21,7 +21,7 @@ function generatePartnerFlightLinkRoundTrip({
   const ret = formatDate(return_date);
 
   // 🔹 Составляем путь Aviasales
-  let searchPath = `${origin}${depart}${destination}${ret}`;
+  let searchPath = `${origin}${depart}${destination_iata}${ret}`;
 
   searchPath += adults; // количество пассажиров
 

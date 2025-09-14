@@ -1,6 +1,6 @@
 function generatePartnerFlightLinkOneWay({
   origin,
-  destination,
+  destination_iata,
   depart_date,
   adults = 1,
   marker = "59890", // твой партнёрский маркер
@@ -19,7 +19,7 @@ function generatePartnerFlightLinkOneWay({
   const depart = formatDate(depart_date);
 
   // 🔹 Составляем путь Aviasales
-  let searchPath = `${origin}${depart}${destination}`;
+  let searchPath = `${origin}${depart}${destination_iata}`;
 
   searchPath += adults; // количество пассажиров
 
