@@ -134,10 +134,43 @@ async function getMessages(userId, count = 50) {
   }
 }
 
+async function saveUserStep(chatId, step) {
+  if (!chatId || !step) return;
+  await redis.set(`user:${chatId}:step`, step, { ex: 3600 }); // срок жизни 1 час
+}
+
+async function getUserStep(chatId) {
+  if (!chatId) return null;
+  return await redis.get(`user:${chatId}:step`);
+}
+
+async function saveTempData(chatId, obj) {
+  const key = `user:${chatId}:temp`;
+  const current = JSON.parse((await redis.get(key)) || "{}");
+  const updated = { ...current, ...obj };
+  await redis.set(key, JSON.stringify(updated), { ex: 3600 });
+}
+
+async function getTempData(chatId) {
+  const key = `user:${chatId}:temp`;
+  const data = await redis.get(key);
+  return data ? JSON.parse(data) : {};
+}
+
+async function clearTempData(chatId) {
+  const key = `user:${chatId}:temp`;
+  await redis.del(key);
+}
+
 module.exports = {
   redis,
   saveUser,
   getUser,
   pushMessage,
   getMessages,
+  saveUserStep,
+  getUserStep,
+  saveTempData,
+  getTempData,
+  clearTempData,
 };

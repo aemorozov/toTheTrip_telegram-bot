@@ -13,7 +13,6 @@ async function getIataCode(city) {
   });
 
   const code = res.choices[0].message.content.trim().toUpperCase();
-  console.log(code);
   return code ? code.split(",") : null;
 }
 
