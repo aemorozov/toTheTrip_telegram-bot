@@ -85,11 +85,13 @@ async function handleCallbackQuery(chatId, data) {
         .map((t) => {
           const destination = t.iata;
           const depart_date = t.departure;
+          const return_date = t.return;
           const city = t?.city;
           const link = generatePartnerFlightLinkRoundTrip({
             origin,
             destination,
             depart_date,
+            return_date,
           });
 
           return `✈️ to <b>${city}</b> from <b>${
