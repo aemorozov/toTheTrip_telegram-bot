@@ -18,12 +18,12 @@ async function startMenu(chatId, city) {
               callback_data: "get_top_10_one_way",
             },
           ],
-          [
-            {
-              text: "🌍 Cheapest flyghts for destination 📅",
-              callback_data: "cheapest_flights_for_destination",
-            },
-          ],
+          // [
+          //   {
+          //     text: "🌍 Cheapest flyghts for destination 📅",
+          //     callback_data: "cheapest_flights_for_destination",
+          //   },
+          // ],
         ],
       },
     };
