@@ -20,7 +20,6 @@ async function getCheapTicketsRoundTrip(origin) {
     );
 
     const data = res.data?.data || {};
-    console.log("data: ", data);
     return data;
   } catch (err) {
     console.error("[getCheapTickets ERROR]", err.response?.data || err.message);

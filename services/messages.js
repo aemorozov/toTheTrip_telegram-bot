@@ -1,13 +1,13 @@
 const { safeSend } = require("./telegram");
 const { getIataCode } = require("./getIataCode");
-const { saveUser, pushMessage, getUserStep, getUser } = require("./db");
+const {
+  saveUser,
+  pushMessage,
+  getUserStep,
+  getUser,
+  saveUserDestination,
+} = require("./db");
 const { startMenu } = require("./startMenu");
-const {
-  getObjectForAPI,
-} = require("./getFlightsWithDestinationAndDates/askAI");
-const {
-  getTicketsForDestination,
-} = require("./getFlightsWithDestinationAndDates/getTicketsForDestination");
 
 async function handleTextMessage(chatId, userInput, userInfo) {
   // push to Redis
@@ -21,15 +21,40 @@ async function handleTextMessage(chatId, userInput, userInfo) {
   const step = await getUserStep(chatId);
   if (step === "waiting_for_destination") {
     try {
-      const userObj = await getUser(chatId);
-      const city = userObj?.city;
-      const jsonForGetTicketsDestination = await getObjectForAPI(
-        userInput,
-        city
-      );
-      const jsonFromTPAPI = await getTicketsForDestination(
-        jsonForGetTicketsDestination
-      );
+      const destinationIATA = await getIataCode(userInput);
+      console.log("messages.js ", destinationIATA);
+      saveUserDestination(chatId, destinationIATA[0], destinationIATA[1]);
+
+      const options = {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "➡️   One way    ✨",
+                callback_data: "to_destination_one_way",
+              },
+            ],
+            [
+              {
+                text: "🔄  Round trip  💰",
+                callback_data: "to_destination_round_trip",
+              },
+            ],
+          ],
+        },
+      };
+      await safeSend(chatId, "👌 Ok! One way ➡️ or round trip 🔄?.", options);
+
+      // const jsonForGetTicketsDestination = await getObjectForAPI(
+      //   userInput,
+      //   originIATA
+      // );
+
+      // console.log(jsonForGetTicketsDestination);
+      // const jsonFromTPAPI = await getTicketsForDestination(
+      //   jsonForGetTicketsDestination
+      // );
     } catch (err) {
       console.error("❌ handleTextMessage error:", err);
       await safeSend(chatId, "⚠️ Error processing data. Try again later. ");

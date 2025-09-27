@@ -5,8 +5,8 @@ async function translateCodesWithGPTRoundTrip(tickets) {
   const prompt = `Ты переводчик кодов IATA и авиакомпаний. Преобразуй массив билетов ниже:
 ${JSON.stringify(tickets, null, 2)}
 Верни ТОЛЬКО массив объектов в следующем формате:
-[{origin: "Barcelona, IT", origin_iata:"BCN",destination:"Volgograd, RU",destination_iata:"VOG",departure: '15 Sep 2025',departure_time: '22:20', return: '16 Sep 2025',return_time:'12:30', price: "17"}]
-Без символов \n и +, только читсый json.
+[{origin: "Barcelona, IT", origin_iata:"BCN",destination:"Volgograd, RU",destination_iata:"VOG",departure: '15 Sep 2025',departure_time: '22:20', transfers: "0", return_date: "17 Sep 2025", return_time: "21:20", return_transfers: "2", price: "17"}]
+Без символов \n и +, только чистый json.
 На английском языке. 
 Ничего не придумывай, строго реальные назания городов и их реальные iata коды.
 Код EAP = Basel, CH.

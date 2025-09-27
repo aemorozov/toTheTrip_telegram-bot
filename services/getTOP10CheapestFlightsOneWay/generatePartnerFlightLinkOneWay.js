@@ -1,7 +1,8 @@
 function generatePartnerFlightLinkOneWay({
-  origin,
+  originIATA,
   destination_iata,
   depart_date,
+  return_date,
   adults = 1,
   marker = "59890", // твой партнёрский маркер
   trs = "443711", // твой trs
@@ -17,9 +18,10 @@ function generatePartnerFlightLinkOneWay({
   };
 
   const depart = formatDate(depart_date);
+  const ret_date = return_date ? formatDate(return_date) : "";
 
   // 🔹 Составляем путь Aviasales
-  let searchPath = `${origin}${depart}${destination_iata}`;
+  let searchPath = `${originIATA}${depart}${destination_iata}${ret_date}`;
 
   searchPath += adults; // количество пассажиров
 

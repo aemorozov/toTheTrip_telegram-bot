@@ -1,6 +1,4 @@
-// services/db.js
 const { Redis } = require("@upstash/redis");
-
 let redis = null;
 
 try {
@@ -19,17 +17,16 @@ try {
   redis = null;
 }
 
-// Вспомогательная безопасная парсилка
+// безопасная парсилка
 function safeParseMaybeJson(value) {
   if (value === null || value === undefined) return null;
-  if (typeof value === "object") return value; // уже объект
+  if (typeof value === "object") return value;
   if (typeof value === "string") {
     const trimmed = value.trim();
     if (!trimmed) return null;
     try {
       return JSON.parse(trimmed);
     } catch (e) {
-      // не JSON — возвращаем строку как есть
       return trimmed;
     }
   }
@@ -37,17 +34,31 @@ function safeParseMaybeJson(value) {
 }
 
 /**
- * Сохранить пользователя (строка ключа: user:<id>) — всегда сохраняем JSON
- * @param {Object} userInfo - объект msg.from
- * @param {string} iata - iata код
+ * Вспомогательная функция для обновления полей пользователя
+ */
+async function updateUser(chatId, updates) {
+  if (!redis) return null;
+  const key = `user:${chatId}`;
+  const existing = safeParseMaybeJson(await redis.get(key)) || {};
+  const updated = {
+    ...existing,
+    ...updates,
+    updated_at: new Date().toISOString(),
+  };
+  await redis.set(key, JSON.stringify(updated));
+  return updated;
+}
+
+/**
+ * Сохранить пользователя (нового или обновить старого)
  */
 async function saveUser(userInfo, iata, city) {
-  if (!redis) {
-    console.warn("saveUser: redis not initialized, skipping save");
-    return;
-  }
+  if (!redis) return;
   const userKey = `user:${userInfo.id}`;
+  const existing = safeParseMaybeJson(await redis.get(userKey)) || {};
+
   const data = {
+    ...existing,
     id: userInfo.id,
     is_bot: userInfo.is_bot,
     first_name: userInfo.first_name,
@@ -57,120 +68,105 @@ async function saveUser(userInfo, iata, city) {
     is_premium: userInfo.is_premium,
     iata_code: iata,
     city: city,
+    destination_iata: existing.destination_iata || "",
+    destination_city: existing.destination_city || "",
+    one_way: existing.one_way ?? null,
+    step: existing.step || null,
+    messages: existing.messages || [],
     updated_at: new Date().toISOString(),
   };
-  try {
-    await redis.set(userKey, JSON.stringify(data));
-  } catch (err) {
-    console.error("❌ saveUser: redis.set error", err);
-    throw err;
-  }
+
+  await redis.set(userKey, JSON.stringify(data));
+  return data;
 }
 
 /**
- * Получить сохранённого пользователя (парсит JSON если нужно)
- * @param {string|number} chatId
- * @returns {Object|null|string}
+ * Добавить/обновить destination
+ */
+async function saveUserDestination(chatId, iata, city) {
+  return await updateUser(chatId, {
+    destination_iata: iata,
+    destination_city: city,
+  });
+}
+
+/**
+ * Добавить/обновить one_way
+ */
+async function saveUserOneWay(chatId, isOneWay) {
+  return await updateUser(chatId, {
+    one_way: !!isOneWay,
+  });
+}
+
+/**
+ * Получить one_way
+ */
+async function getUserOneWay(chatId) {
+  const user = (await getUser(chatId)) || {};
+  return user.one_way ?? null;
+}
+
+/**
+ * Получить сохранённого пользователя
  */
 async function getUser(chatId) {
-  if (!redis) {
-    console.warn("getUser: redis not initialized");
-    return null;
-  }
+  if (!redis) return null;
   const key = `user:${chatId}`;
-  try {
-    const raw = await redis.get(key);
-    const parsed = safeParseMaybeJson(raw);
-    return parsed;
-  } catch (err) {
-    console.error("❌ getUser: redis.get error", err);
-    throw err;
-  }
+  const raw = await redis.get(key);
+  return safeParseMaybeJson(raw);
 }
 
 /**
- * Сохранить текст сообщения в список последних сообщений пользователя.
- * Храним максимум `max` элементов (по умолчанию 50).
- * @param {string|number} userId
- * @param {string} text
- * @param {number} max
+ * Сохранить шаг сценария
+ */
+async function saveUserStep(chatId, step) {
+  if (!chatId || !step || !redis) return;
+  return await updateUser(chatId, { step });
+}
+
+/**
+ * Получить шаг сценария
+ */
+async function getUserStep(chatId) {
+  if (!chatId || !redis) return null;
+  const user = await getUser(chatId);
+  return user?.step || null;
+}
+
+/**
+ * Сохранить сообщение в массив messages
  */
 async function pushMessage(userId, text, max = 50) {
-  if (!redis) {
-    console.warn("pushMessage: redis not initialized, skipping");
-    return;
+  if (!redis) return;
+  const user = (await getUser(userId)) || {};
+  if (!Array.isArray(user.messages)) user.messages = [];
+  user.messages.unshift(text || "");
+  if (user.messages.length > max) {
+    user.messages = user.messages.slice(0, max);
   }
-  if (text === undefined || text === null) text = "";
-  const listKey = `user:${userId}:messages`;
-  try {
-    await redis.lpush(listKey, text);
-    await redis.ltrim(listKey, 0, max - 1);
-    // Не логируем каждый пуш в продакшне, но при необходимости можно
-  } catch (err) {
-    console.error("❌ pushMessage: redis error", err);
-    throw err;
-  }
+  await redis.set(`user:${userId}`, JSON.stringify(user));
+  return user;
 }
 
 /**
- * Получить N последних сообщений пользователя (по умолчанию 50)
- * @param {string|number} userId
- * @param {number} count
- * @returns {Array}
+ * Получить последние N сообщений
  */
 async function getMessages(userId, count = 50) {
-  if (!redis) {
-    console.warn("getMessages: redis not initialized");
-    return [];
-  }
-  const listKey = `user:${userId}:messages`;
-  try {
-    // LRANGE 0..count-1
-    const items = await redis.lrange(listKey, 0, count - 1);
-    return Array.isArray(items) ? items : [];
-  } catch (err) {
-    console.error("❌ getMessages: redis error", err);
-    throw err;
-  }
-}
-
-async function saveUserStep(chatId, step) {
-  if (!chatId || !step) return;
-  await redis.set(`user:${chatId}:step`, step, { ex: 3600 }); // срок жизни 1 час
-}
-
-async function getUserStep(chatId) {
-  if (!chatId) return null;
-  return await redis.get(`user:${chatId}:step`);
-}
-
-async function saveTempData(chatId, obj) {
-  const key = `user:${chatId}:temp`;
-  const current = JSON.parse((await redis.get(key)) || "{}");
-  const updated = { ...current, ...obj };
-  await redis.set(key, JSON.stringify(updated), { ex: 3600 });
-}
-
-async function getTempData(chatId) {
-  const key = `user:${chatId}:temp`;
-  const data = await redis.get(key);
-  return data ? JSON.parse(data) : {};
-}
-
-async function clearTempData(chatId) {
-  const key = `user:${chatId}:temp`;
-  await redis.del(key);
+  if (!redis) return [];
+  const user = await getUser(userId);
+  if (!user?.messages) return [];
+  return user.messages.slice(0, count);
 }
 
 module.exports = {
-  redis,
   saveUser,
   getUser,
-  pushMessage,
-  getMessages,
   saveUserStep,
   getUserStep,
-  saveTempData,
-  getTempData,
-  clearTempData,
+  pushMessage,
+  getMessages,
+  saveUserDestination,
+  saveUserOneWay,
+  getUserOneWay,
 };
