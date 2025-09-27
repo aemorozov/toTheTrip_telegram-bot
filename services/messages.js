@@ -44,17 +44,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
           ],
         },
       };
-      await safeSend(chatId, "👌 Ok! One way ➡️ or round trip 🔄?.", options);
-
-      // const jsonForGetTicketsDestination = await getObjectForAPI(
-      //   userInput,
-      //   originIATA
-      // );
-
-      // console.log(jsonForGetTicketsDestination);
-      // const jsonFromTPAPI = await getTicketsForDestination(
-      //   jsonForGetTicketsDestination
-      // );
+      await safeSend(chatId, "👌 Ok! One way ➡️ or round trip 🔄 ?.", options);
     } catch (err) {
       console.error("❌ handleTextMessage error:", err);
       await safeSend(chatId, "⚠️ Error processing data. Try again later. ");

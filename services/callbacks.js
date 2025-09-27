@@ -59,6 +59,24 @@ async function startMenuButton(chatId, message) {
   });
 }
 
+function getRandomThinkingMessage() {
+  const messages = [
+    "I am looking hard, few sec 👀 ...",
+    "Few sec, checking deals fast ⏳ ...",
+    "Moment, scanning routes now 🌍 ...",
+    "Sec, searching flights 🛫 ...",
+    "One moment, almost ready 🔎 ...",
+    "Few sec, wait a sec ⏱️ ...",
+    "Sec, loading offers 📡 ...",
+    "Moment, crunching data 📊 ...",
+    "One moment, my friend 🔥 ...",
+    "Hold tight, searching 💼 ...",
+  ];
+
+  const randomIndex = Math.floor(Math.random() * messages.length);
+  return messages[randomIndex];
+}
+
 async function handleCallbackQuery(chatId, data) {
   // При нажатии на кнопку возврата к основному меню
   if (data === "start_menu") {
@@ -71,6 +89,7 @@ async function handleCallbackQuery(chatId, data) {
   // При нажатии на кнопку ТОП-10 билетов
   if (data === "get_top_10_round_trip") {
     await saveUserStep(chatId, "no_step");
+    await safeSend(chatId, getRandomThinkingMessage());
     const userObj = await getUser(chatId);
     if (!userObj?.iata_code) {
       await safeSend(
@@ -128,6 +147,7 @@ async function handleCallbackQuery(chatId, data) {
 
   if (data === "get_top_10_one_way") {
     await saveUserStep(chatId, "no_step");
+    await safeSend(chatId, getRandomThinkingMessage());
     const userObj = await getUser(chatId);
     if (!userObj?.iata_code) {
       await safeSend(
@@ -181,7 +201,7 @@ async function handleCallbackQuery(chatId, data) {
   if (data === "to_destination_one_way") {
     const oneWay = true;
     await saveUserStep(chatId, "no_step");
-    await safeSend(chatId, "I am looking hard, few sec 👀...");
+    await safeSend(chatId, getRandomThinkingMessage());
     const userObj = await getUser(chatId);
     const originIATA = userObj.iata_code;
     const jsonForAPI = await getObjectForAPI(
@@ -233,7 +253,7 @@ async function handleCallbackQuery(chatId, data) {
   if (data === "to_destination_round_trip") {
     const oneWay = false;
     await saveUserStep(chatId, "no_step");
-    await safeSend(chatId, "I am looking hard, few sec 👀...");
+    await safeSend(chatId, getRandomThinkingMessage());
     const userObj = await getUser(chatId);
     const originIATA = userObj.iata_code;
     const jsonForAPI = await getObjectForAPI(
@@ -295,7 +315,7 @@ function sortAndLimitTickets(tickets, limit = 10) {
   if (!Array.isArray(tickets)) return [];
 
   return tickets
-    .sort((a, b) => a.price - b.price) // сортировка по цене (от дешёвого к дорогому)
+    .sort((a, b) => a.price - b.price) // сортировка по  цене (от дешёвого к дорогому)
     .slice(0, limit); // берём только первые N
 }
 
