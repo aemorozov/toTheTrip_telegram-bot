@@ -132,11 +132,11 @@ async function handleCallbackQuery(chatId, data) {
 
           return `✈️ to <b>${destination}</b> from <b>${
             t.price
-          }$</b>\n📅 ${formatDateRoundTrip(
+          }$</b>\n📅 <b>${formatDateRoundTrip(
             depart_date
-          )}  🕐 ${depart_time}  🔃 ${depart_transfers_text}\n📅 ${formatDateRoundTrip(
+          )}</b>  🕐 ${depart_time}  🔃 ${depart_transfers_text}\n📅 <b>${formatDateRoundTrip(
             return_date
-          )}  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLinkRoundTrip(
+          )}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLinkRoundTrip(
             link
           )}</a></u>\n`;
         })
@@ -192,12 +192,12 @@ async function handleCallbackQuery(chatId, data) {
     startMenuButton(chatId, message);
   }
 
+  // При нажатии на кнопку добавить пункт прибытия
   if (data === "cheapest_flights_to_destination") {
     await saveUserStep(chatId, "waiting_for_destination");
     handleAddDestinationAndDates(chatId);
   }
 
-  // При нажатии на кнопку добавить пункт прибытия
   if (data === "to_destination_one_way") {
     const oneWay = true;
     await saveUserStep(chatId, "no_step");
