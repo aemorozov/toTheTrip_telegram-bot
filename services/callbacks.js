@@ -87,6 +87,53 @@ async function handleCallbackQuery(chatId, data) {
   }
 
   // При нажатии на кнопку ТОП билетов
+  if (data === "get_top_10_one_way") {
+    await saveUserStep(chatId, "no_step");
+    await safeSend(chatId, getRandomThinkingMessage());
+    const userObj = await getUser(chatId);
+    if (!userObj?.iata_code) {
+      await safeSend(
+        chatId,
+        "❌ Departure city is not set. 🔄 Send /start again."
+      );
+      return;
+    }
+
+    const tickets = await getCheapTicketsOneWay(userObj.iata_code);
+    let translations = [];
+    try {
+      translations = await translateCodesWithGPTOneWay(tickets);
+    } catch (e) {}
+
+    const originIATA = userObj.iata_code;
+    const message =
+      `<b>🔥 TOP cheapest one way flights from ${userObj.city} for you</b>:\n\n` +
+      translations
+        .map((t) => {
+          const destination = t.destination;
+          const depart_date = t.departure;
+          const destination_iata = t.destination_iata;
+          const link = generatePartnerFlightLinkOneWay({
+            originIATA,
+            destination_iata,
+            depart_date,
+          });
+          const transfers = t.transfers;
+          const textForTransfers = transfers === "0" ? "Nonstop" : transfers;
+
+          return `✈️ to <b>${destination}</b> from <b>${
+            t.price
+          }$</b>\n📅 <b>${formatDateOneWay(t?.departure)}</b>  🕐 ${
+            t.departure_time
+          }  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLinkOneWay(
+            link
+          )}</a></u>\n`;
+        })
+        .join("\n");
+
+    startMenuButton(chatId, message);
+  }
+
   if (data === "get_top_10_round_trip") {
     await saveUserStep(chatId, "no_step");
     await safeSend(chatId, getRandomThinkingMessage());
@@ -137,53 +184,6 @@ async function handleCallbackQuery(chatId, data) {
           )}</b>  🕐 ${depart_time}  🔃 ${depart_transfers_text}\n📅 <b>${formatDateRoundTrip(
             return_date
           )}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLinkRoundTrip(
-            link
-          )}</a></u>\n`;
-        })
-        .join("\n");
-
-    startMenuButton(chatId, message);
-  }
-
-  if (data === "get_top_10_one_way") {
-    await saveUserStep(chatId, "no_step");
-    await safeSend(chatId, getRandomThinkingMessage());
-    const userObj = await getUser(chatId);
-    if (!userObj?.iata_code) {
-      await safeSend(
-        chatId,
-        "❌ Departure city is not set. 🔄 Send /start again."
-      );
-      return;
-    }
-
-    const tickets = await getCheapTicketsOneWay(userObj.iata_code);
-    let translations = [];
-    try {
-      translations = await translateCodesWithGPTOneWay(tickets);
-    } catch (e) {}
-
-    const originIATA = userObj.iata_code;
-    const message =
-      `<b>🔥 TOP cheapest one way flights from ${userObj.city} for you</b>:\n\n` +
-      translations
-        .map((t) => {
-          const destination = t.destination;
-          const depart_date = t.departure;
-          const destination_iata = t.destination_iata;
-          const link = generatePartnerFlightLinkOneWay({
-            originIATA,
-            destination_iata,
-            depart_date,
-          });
-          const transfers = t.transfers;
-          const textForTransfers = transfers === "0" ? "Nonstop" : transfers;
-
-          return `✈️ to <b>${destination}</b> from <b>${
-            t.price
-          }$</b>\n📅 <b>${formatDateOneWay(t?.departure)}</b>  🕐 ${
-            t.departure_time
-          }  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLinkOneWay(
             link
           )}</a></u>\n`;
         })
@@ -276,7 +276,7 @@ async function handleCallbackQuery(chatId, data) {
     } catch (e) {}
 
     const message =
-      `<b>🔥 Cheapest round trip flights\nfrom ${userObj.city} to ${userObj.destination_city}</b>:\n\n` +
+      `<b>🔥 Cheapest round trip flights from ${userObj.city} to ${userObj.destination_city}</b>:\n\n` +
       translations
         .map((t) => {
           const depart_date = t.departure;

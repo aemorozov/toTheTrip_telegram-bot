@@ -20,7 +20,7 @@ async function startMenu(chatId, city) {
           ],
           [
             {
-              text: "✈️ TOP cheapest flights one way    ➡️",
+              text: "✈️  TOP cheapest flights one way   ➡️",
               callback_data: "get_top_10_one_way",
             },
           ],
