@@ -66,7 +66,7 @@ function getRandomThinkingMessage() {
     "Moment, scanning routes now 🌍 ...",
     "Sec, searching flights 🛫 ...",
     "One moment, almost ready 🔎 ...",
-    "Few sec, wait a sec ⏱️ ...",
+    "Ok, wait few sec ⏱️ ...",
     "Sec, loading offers 📡 ...",
     "Moment, crunching data 📊 ...",
     "One moment, my friend 🔥 ...",
@@ -86,7 +86,7 @@ async function handleCallbackQuery(chatId, data) {
     await startMenu(chatId, city);
   }
 
-  // При нажатии на кнопку ТОП-10 билетов
+  // При нажатии на кнопку ТОП билетов
   if (data === "get_top_10_round_trip") {
     await saveUserStep(chatId, "no_step");
     await safeSend(chatId, getRandomThinkingMessage());
@@ -126,9 +126,9 @@ async function handleCallbackQuery(chatId, data) {
           });
 
           const depart_transfers_text =
-            depart_transfers === "0" ? "Direct" : depart_transfers;
+            depart_transfers === "0" ? "Nonstop" : depart_transfers;
           const return_transfers_text =
-            return_transfers === "0" ? "Direct" : return_transfers;
+            return_transfers === "0" ? "Nonstop" : return_transfers;
 
           return `✈️ to <b>${destination}</b> from <b>${
             t.price
@@ -177,7 +177,7 @@ async function handleCallbackQuery(chatId, data) {
             depart_date,
           });
           const transfers = t.transfers;
-          const textForTransfers = transfers === "0" ? "Direct" : transfers;
+          const textForTransfers = transfers === "0" ? "Nonstop" : transfers;
 
           return `✈️ to <b>${destination}</b> from <b>${
             t.price
@@ -235,7 +235,7 @@ async function handleCallbackQuery(chatId, data) {
             depart_date,
           });
           const transfers = t.transfers;
-          const textForTransfers = transfers === "0" ? "Direct" : transfers;
+          const textForTransfers = transfers === "0" ? "Nonstop" : transfers;
 
           return `💸 Price from <b>${t.price}$</b>\n📅 <b>${formatDateOneWay(
             t?.departure
@@ -293,9 +293,9 @@ async function handleCallbackQuery(chatId, data) {
             return_date,
           });
           const depart_transfers_text =
-            depart_transfers === "0" ? "Direct" : depart_transfers;
+            depart_transfers === "0" ? "Nonstop" : depart_transfers;
           const return_transfers_text =
-            return_transfers === "0" ? "Direct" : return_transfers;
+            return_transfers === "0" ? "Nonstop" : return_transfers;
 
           return `💸 Price from <b>${t.price}$</b>\n📅 <b>${formatDateOneWay(
             depart_date
