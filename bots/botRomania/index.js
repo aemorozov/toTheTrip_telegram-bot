@@ -48,3 +48,5 @@ async function postCheapFlights() {
     console.error("Error:", err.message);
   }
 }
+
+module.exports = { postCheapFlights };
