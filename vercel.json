@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/postCheapFlights",
+      "path": "/bots/botRomania/postCheapFlights",
       "schedule": "0 9 * * *"
     }
   ]
