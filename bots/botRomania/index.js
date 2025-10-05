@@ -39,62 +39,70 @@ async function saveFlightsDB(newData) {
 // === Основная функция
 async function postCheapFlights() {
   try {
-    // 1️⃣ Получаем спецпредложения из Aviasales
-    const { data } = await axios.get(
-      "https://api.travelpayouts.com/aviasales/v3/get_special_offers",
-      {
-        params: {
-          origin: "BUH",
-          token: TRAVELPAYOUTS_TOKEN,
-          locale: "en",
-          currency: "eur",
-        },
+    // 1️⃣ Все международные аэропорты Румынии
+    const airports = ["BUH", "CLJ", "TSR", "SBZ", "IAS", "CND", "BCM"];
+
+    // 2️⃣ Собираем все рейсы из разных аэропортов
+    const allFlights = [];
+
+    for (const origin of airports) {
+      try {
+        const { data } = await axios.get(
+          "https://api.travelpayouts.com/aviasales/v3/get_special_offers",
+          {
+            params: {
+              origin,
+              token: TRAVELPAYOUTS_TOKEN,
+              locale: "en",
+              currency: "eur",
+            },
+          }
+        );
+
+        const flights = (data?.data || []).map(
+          ({
+            destination,
+            destination_name,
+            origin_airport,
+            departure_at,
+            return_date,
+            price,
+          }) => ({
+            destination,
+            destination_name,
+            origin_airport,
+            departure_at,
+            return_date,
+            price,
+          })
+        );
+
+        allFlights.push(...flights);
+      } catch (err) {
+        console.warn(`⚠️ Error fetching flights for ${origin}:`, err.message);
       }
-    );
+    }
 
-    let flights = data?.data || [];
-    if (!flights.length) return console.log("No flights received");
+    if (!allFlights.length) return console.log("No flights received");
 
-    // 2️⃣ Удаляем ненужные поля
-    flights = flights.map(
-      ({
-        destination,
-        destination_name,
-        origin_airport,
-        departure_at,
-        price,
-        return_date,
-      }) => ({
-        destination,
-        destination_name,
-        origin_airport,
-        departure_at,
-        return_date,
-        price,
-      })
-    );
-
-    // 3️⃣ Получаем данные из Redis
+    // 3️⃣ Загружаем текущие записи из Redis
     const flightsDB = await getFlightsDB();
 
     // 4️⃣ Ищем уникальный билет
     let selectedFlight = null;
-    for (const flight of flights) {
+    for (const flight of allFlights) {
       const date = new Date(flight.departure_at);
       const dateCode = `${String(date.getDate()).padStart(2, "0")}${String(
         date.getMonth() + 1
       ).padStart(2, "0")}`;
       const flightCode = `${flight.destination}${dateCode}`;
 
-      // если для origin ещё нет массива — создаём
       if (!flightsDB[flight.origin_airport]) {
         flightsDB[flight.origin_airport] = [];
       }
 
-      // если направление уже есть — пропускаем
       if (flightsDB[flight.origin_airport].includes(flightCode)) continue;
 
-      // иначе сохраняем и прерываем цикл
       flightsDB[flight.origin_airport].push(flightCode);
       selectedFlight = flight;
       break;
@@ -102,14 +110,14 @@ async function postCheapFlights() {
 
     if (!selectedFlight) return console.log("All flights are duplicates.");
 
-    // 5️⃣ Сохраняем обновлённую базу в Redis (TTL 7 дней)
+    // 5️⃣ Сохраняем обновлённую базу
     await saveFlightsDB(flightsDB);
 
-    // 6️⃣ Создаём короткий текст через GPT
-    const prompt = `Create a short, engaging Romanian message (2-3 sentences) about a cheap flight from Bucharest to ${selectedFlight.destination_name} for ${selectedFlight.price} EUR.`;
+    // 6️⃣ Генерируем короткий румынский текст
+    const prompt = `Creează un text scurt și atractiv (2-3 propoziții) despre un zbor ieftin din ${selectedFlight.origin_airport} spre ${selectedFlight.destination_name} pentru ${selectedFlight.price} EUR. Scrie prietenos și natural.`;
     const AItext = await askAI(prompt);
 
-    // 7️⃣ Формируем партнёрскую ссылку
+    // 7️⃣ Генерируем партнёрскую ссылку
     const link = generatePartnerFlightLink(selectedFlight);
 
     // 8️⃣ Форматируем дату и время
@@ -125,13 +133,14 @@ async function postCheapFlights() {
     const message = `
 ${AItext}
 
-✈️ Destination: <b>${selectedFlight.destination_name}</b>
+✈️ From: <b>${selectedFlight.origin_airport}</b>
+➡️ To: <b>${selectedFlight.destination_name}</b>
 💰 Price: <b>${selectedFlight.price}€</b>
 📅 ${formattedDate} 🕐 ${formattedTime}
 🔗 <a href="${link}">${extractShortLink(link)}</a>
 `;
 
-    // 🔟 Отправляем в Telegram
+    // 🔟 Публикуем в Telegram
     await axios.post(
       `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
       {
@@ -142,7 +151,12 @@ ${AItext}
       }
     );
 
-    console.log("✅ Flight posted:", selectedFlight.destination_name);
+    console.log(
+      "✅ Flight posted:",
+      selectedFlight.origin_airport,
+      "→",
+      selectedFlight.destination_name
+    );
   } catch (err) {
     console.error("❌ Error:", err.message);
   }
