@@ -59,6 +59,8 @@ async function postCheapFlights() {
           }
         );
 
+        console.log(data?.data);
+
         const flights = (data?.data || []).map(
           ({
             destination,
