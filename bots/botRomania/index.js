@@ -11,7 +11,8 @@ const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 // === Сопоставление кодов аэропортов с названиями городов
 const airportCities = {
-  BUH: "București",
+  BBU: "București",
+  OTP: "București",
   CLJ: "Cluj-Napoca",
   TSR: "Timișoara",
   SBZ: "Sibiu",
@@ -41,7 +42,7 @@ async function getFlightsDB() {
   }
 }
 
-// === Сохраняем flights JSON в Redis (с TTL = 7 дней)
+// === Сохраняем flights JSON в Redis (TTL = 7 дней)
 async function saveFlightsDB(newData) {
   await redisRequest("set", "flights", JSON.stringify(newData));
   await redisRequest("expire", "flights", 60 * 60 * 24 * 7);
@@ -130,7 +131,12 @@ async function postCheapFlights() {
       airportCities[selectedFlight.origin_airport] ||
       selectedFlight.origin_airport;
 
-    const destinationFull = `${selectedFlight.destination_name}, ${selectedFlight.destination_country_code}`;
+    const destinationCity =
+      selectedFlight.destination_name ||
+      airportCities[selectedFlight.destination] ||
+      selectedFlight.destination;
+
+    const destinationFull = `${destinationCity}, ${selectedFlight.destination_country_code}`;
 
     // 6️⃣ Создаём текст через GPT
     const prompt = `Creează un text scurt și atractiv (2-3 propoziții) despre un zbor ieftin din ${originCity} spre ${destinationFull} pentru ${selectedFlight.price} EUR. Scrie prietenos și natural.`;
