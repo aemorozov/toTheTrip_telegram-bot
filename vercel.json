@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/postCheapFlights",
-      "schedule": "0 13 * * *"
+      "schedule": "0 12 * * *"
     }
   ]
 }
