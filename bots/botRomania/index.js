@@ -142,14 +142,13 @@ async function postCheapFlights() {
     // Если нет — делаем запрос к Aviasales API, чтобы узнать страну
     if (!destinationCountry) {
       try {
-        const { data: airportData } = await axios.get(
-          `https://api.travelpayouts.com/data/airports.json`
+        const { data } = await axios.get(
+          `https://autocomplete.travelpayouts.com/places2?term=${selectedFlight.destination}&locale=en`
         );
-        const airportInfo = airportData.find(
-          (a) => a.code === selectedFlight.destination
-        );
+        const airportInfo = data.find((p) => p.type === "airport");
         destinationCountry = airportInfo?.country_code || "??";
       } catch (err) {
+        console.warn("⚠️ Country lookup failed:", err.message);
         destinationCountry = "??";
       }
     }
