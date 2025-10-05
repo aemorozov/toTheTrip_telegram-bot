@@ -196,7 +196,7 @@ ${AItext}
 ➡️ Către:  <b>${destinationFull}</b>
 💰 Preț de la:  <b>${selectedFlight.price}$</b>
 📅 ${formattedDate} 🕐 ${formattedTime}
-🔗 https://<a href="${link}">${extractShortLink(link)}</a>
+🔗 <a href="${link}">https://${extractShortLink(link)}</a>
 `;
 
     // 🔟 Отправляем в Telegram
