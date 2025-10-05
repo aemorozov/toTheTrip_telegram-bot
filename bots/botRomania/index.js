@@ -133,11 +133,11 @@ async function postCheapFlights() {
     const message = `
 ${AItext}
 
-✈️ From: <b>${selectedFlight.origin_airport}</b>
-➡️ To: <b>${selectedFlight.destination_name}</b>
-💰 Price: <b>${selectedFlight.price}€</b>
+✈️ De la: <b>${selectedFlight.origin_airport}</b>
+➡️ Către: <b>${selectedFlight.destination_name}</b>
+💰 Preț: <b>${selectedFlight.price}€</b>
 📅 ${formattedDate} 🕐 ${formattedTime}
-🔗 <a href="${link}">${extractShortLink(link)}</a>
+🔗 <a href="${link}">https://${extractShortLink(link)}</a>
 `;
 
     // 🔟 Публикуем в Telegram
