@@ -157,7 +157,9 @@ async function postCheapFlights() {
     const destinationFull = `${destinationCity}, ${destinationCountry}`;
 
     // 6️⃣ Создаём текст через GPT
-    const prompt = `Creează un text scurt și atractiv (2-3 propoziții) despre un zbor ieftin din ${originCity} spre ${destinationFull} pentru ${selectedFlight.price} EUR. Scrie prietenos și natural.`;
+    const prompt = `Creează un text scurt și atractiv (2-3 propoziții) despre un zbor ieftin 
+    din ${originCity} spre ${destinationFull} pentru ${selectedFlight.price} EUR. Scrie prietenos și natural.
+    Add a beutiful title with emojies with tags <b></b>`;
     const AItext = await askAI(prompt);
 
     // 7️⃣ Партнёрская ссылка
