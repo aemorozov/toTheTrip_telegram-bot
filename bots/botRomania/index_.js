@@ -87,9 +87,8 @@ module.exports = { postCheapFlights };
 // 8. Формируем ссылку
 // 9. Формируем сообщение для пользователя
 
+// flights:
 
-flights:
-
-{EVN: [BUH2510, AYT1812], 
-  BUH: [BUD2311, PAR1311]
-}
+// {EVN: [BUH2510, AYT1812],
+//   BUH: [BUD2311, PAR1311]
+// }
