@@ -131,6 +131,11 @@ async function postCheapFlights() {
       airportCities[selectedFlight.origin_airport] ||
       selectedFlight.origin_airport;
 
+    const destinationCity =
+      selectedFlight.destination_name ||
+      airportCities[selectedFlight.destination] ||
+      selectedFlight.destination;
+
     // Если destination_country_code есть в ответе — используем
     let destinationCountry = selectedFlight.destination_country_code;
 
@@ -149,7 +154,7 @@ async function postCheapFlights() {
       }
     }
 
-    const destinationFull = `${destinationCity}, ${selectedFlight.destination_country_code}`;
+    const destinationFull = `${destinationCity}, ${destinationCountry}`;
 
     // 6️⃣ Создаём текст через GPT
     const prompt = `Creează un text scurt și atractiv (2-3 propoziții) despre un zbor ieftin din ${originCity} spre ${destinationFull} pentru ${selectedFlight.price} EUR. Scrie prietenos și natural.`;
