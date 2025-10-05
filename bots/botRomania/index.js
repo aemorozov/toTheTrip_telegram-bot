@@ -182,7 +182,6 @@ async function postCheapFlights() {
 
     // 8️⃣ Формат даты и времени с учётом часового пояса из ISO
     const dt = DateTime.fromISO(selectedFlight.departure_at, { setZone: true });
-    console.log(dt);
 
     const formattedDate = dt.toFormat("dd.MM");
     const formattedTime = dt.toFormat("HH:mm");
@@ -191,10 +190,9 @@ async function postCheapFlights() {
     const message = `
 ${AItext}
 
-✈️ De la:  <b>${originCity}</b>
-➡️ Către:  <b>${destinationFull}</b>
+✈️ <b>${originCity} ➡️ ${destinationFull}</b>
 💰 Preț de la:  <b>${selectedFlight.price}$</b>
-📅 ${formattedDate} 🕐 ${formattedTime}
+📅 ${formattedDate}   🕐 ${formattedTime}
 🔗 <a href="${link}">https://${extractShortLink(link)}</a>
 `;
 
