@@ -7,10 +7,6 @@
     {
       "path": "/api/postCheapFlights",
       "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/postCheapFlights",
-      "schedule": "0 12 * * *"
     }
   ]
 }
