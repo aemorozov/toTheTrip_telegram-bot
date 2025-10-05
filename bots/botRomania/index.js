@@ -2,6 +2,7 @@ const axios = require("axios");
 const { askAI } = require("./askAI");
 const { generatePartnerFlightLink } = require("../generatePartnerFlightLink");
 const { extractShortLink } = require("../encodeLink");
+const { DateTime } = require("luxon");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHANNEL_ID = "@CheapFlightsRomania";
@@ -172,21 +173,18 @@ async function postCheapFlights() {
 
     // 6️⃣ Создаём текст через GPT
     const prompt = `Creează un text scurt și atractiv (2-3 propoziții) despre un zbor ieftin 
-    din ${originCity} spre ${destinationFull} pentru ${selectedFlight.price} EUR. Scrie prietenos și natural.
+    din ${originCity} spre ${destinationFull} pentru ${selectedFlight.price}$. Scrie prietenos și natural.
     Add a beutiful title with emojies with tags <b></b>. After title use only one "\n" (one new free lines)`;
     const AItext = await askAI(prompt);
 
     // 7️⃣ Партнёрская ссылка
     const link = generatePartnerFlightLink(selectedFlight);
 
-    // 8️⃣ Формат даты
-    const date = new Date(selectedFlight.departure_at);
-    const formattedDate = `${String(date.getDate()).padStart(2, "0")}.${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}`;
-    const formattedTime = `${String(date.getHours()).padStart(2, "0")}:${String(
-      date.getMinutes()
-    ).padStart(2, "0")}`;
+    // 8️⃣ Формат даты и времени с учётом часового пояса из ISO
+    const dt = DateTime.fromISO(selectedFlight.departure_at);
+
+    const formattedDate = dt.toFormat("dd.MM");
+    const formattedTime = dt.toFormat("HH:mm");
 
     // 9️⃣ Финальное сообщение
     const message = `
