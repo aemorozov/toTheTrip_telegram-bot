@@ -142,11 +142,26 @@ async function postCheapFlights() {
     // Если нет — делаем запрос к Aviasales API, чтобы узнать страну
     if (!destinationCountry) {
       try {
-        const { data } = await axios.get(
+        // 🔹 1. Пробуем найти по IATA-коду
+        let { data } = await axios.get(
           `https://autocomplete.travelpayouts.com/places2?term=${selectedFlight.destination}&locale=en`
         );
-        const airportInfo = data.find((p) => p.type === "airport");
-        destinationCountry = airportInfo?.country_code || "??";
+
+        let airportInfo = data.find((p) => p.type === "airport");
+        destinationCountry = airportInfo?.country_code;
+
+        // 🔹 2. Если не нашли — пробуем по названию города
+        if (!destinationCountry && selectedFlight.destination_name) {
+          const { data: cityData } = await axios.get(
+            `https://autocomplete.travelpayouts.com/places2?term=${encodeURIComponent(
+              selectedFlight.destination_name
+            )}&locale=en`
+          );
+          const cityInfo = cityData.find(
+            (p) => p.type === "city" || p.type === "airport"
+          );
+          destinationCountry = cityInfo?.country_code || "??";
+        }
       } catch (err) {
         console.warn("⚠️ Country lookup failed:", err.message);
         destinationCountry = "??";
@@ -179,7 +194,7 @@ ${AItext}
 
 ✈️ De la:  <b>${originCity}</b>
 ➡️ Către:  <b>${destinationFull}</b>
-💰 Preț de la:  <b>${selectedFlight.price}€</b>
+💰 Preț de la:  <b>${selectedFlight.price}$</b>
 📅 ${formattedDate} 🕐 ${formattedTime}
 🔗 https://<a href="${link}">${extractShortLink(link)}</a>
 `;
