@@ -131,10 +131,23 @@ async function postCheapFlights() {
       airportCities[selectedFlight.origin_airport] ||
       selectedFlight.origin_airport;
 
-    const destinationCity =
-      selectedFlight.destination_name ||
-      airportCities[selectedFlight.destination] ||
-      selectedFlight.destination;
+    // Если destination_country_code есть в ответе — используем
+    let destinationCountry = selectedFlight.destination_country_code;
+
+    // Если нет — делаем запрос к Aviasales API, чтобы узнать страну
+    if (!destinationCountry) {
+      try {
+        const { data: airportData } = await axios.get(
+          `https://api.travelpayouts.com/data/airports.json`
+        );
+        const airportInfo = airportData.find(
+          (a) => a.code === selectedFlight.destination
+        );
+        destinationCountry = airportInfo?.country_code || "??";
+      } catch (err) {
+        destinationCountry = "??";
+      }
+    }
 
     const destinationFull = `${destinationCity}, ${selectedFlight.destination_country_code}`;
 
