@@ -181,7 +181,8 @@ async function postCheapFlights() {
     const link = generatePartnerFlightLink(selectedFlight);
 
     // 8️⃣ Формат даты и времени с учётом часового пояса из ISO
-    const dt = DateTime.fromISO(selectedFlight.departure_at);
+    const dt = DateTime.fromISO(selectedFlight.departure_at, { setZone: true });
+    console.log(dt);
 
     const formattedDate = dt.toFormat("dd.MM");
     const formattedTime = dt.toFormat("HH:mm");
