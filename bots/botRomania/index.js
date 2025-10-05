@@ -9,7 +9,7 @@ const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-// === Функция для работы с Redis (через REST API Upstash)
+// === Универсальная функция работы с Redis REST API
 async function redisRequest(method, key, value = null) {
   const url = `${UPSTASH_REDIS_REST_URL}/${method}/${encodeURIComponent(key)}${
     value ? `/${encodeURIComponent(value)}` : ""
@@ -18,6 +18,22 @@ async function redisRequest(method, key, value = null) {
     headers: { Authorization: `Bearer ${UPSTASH_REDIS_REST_TOKEN}` },
   });
   return res.json();
+}
+
+// === Получаем flights JSON из Redis
+async function getFlightsDB() {
+  const data = await redisRequest("get", "flights");
+  try {
+    return data.result ? JSON.parse(data.result) : {};
+  } catch {
+    return {};
+  }
+}
+
+// === Сохраняем flights JSON в Redis (с TTL = 7 дней)
+async function saveFlightsDB(newData) {
+  await redisRequest("set", "flights", JSON.stringify(newData));
+  await redisRequest("expire", "flights", 60 * 60 * 24 * 7);
 }
 
 // === Основная функция
@@ -58,27 +74,42 @@ async function postCheapFlights() {
       })
     );
 
-    // 3️⃣ Проверяем уникальность
+    // 3️⃣ Получаем данные из Redis
+    const flightsDB = await getFlightsDB();
+
+    // 4️⃣ Ищем уникальный билет
     let selectedFlight = null;
     for (const flight of flights) {
-      const key = `flight_${flight.destination}_${flight.departure_at}`;
-      const check = await redisRequest("get", key);
-      if (!check.result) {
-        selectedFlight = flight;
-        // 5️⃣ Сохраняем билет в Redis на 7 дней
-        await redisRequest("set", key, "posted");
-        await redisRequest("expire", key, 60 * 60 * 24 * 7);
-        break;
+      const date = new Date(flight.departure_at);
+      const dateCode = `${String(date.getDate()).padStart(2, "0")}${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}`;
+      const flightCode = `${flight.destination}${dateCode}`;
+
+      // если для origin ещё нет массива — создаём
+      if (!flightsDB[flight.origin_airport]) {
+        flightsDB[flight.origin_airport] = [];
       }
+
+      // если направление уже есть — пропускаем
+      if (flightsDB[flight.origin_airport].includes(flightCode)) continue;
+
+      // иначе сохраняем и прерываем цикл
+      flightsDB[flight.origin_airport].push(flightCode);
+      selectedFlight = flight;
+      break;
     }
 
     if (!selectedFlight) return console.log("All flights are duplicates.");
 
-    // 6️⃣ Отправляем краткую инфу в GPT
-    const prompt = `Create a short, engaging English message (2-3 sentences) about a cheap flight from Bucharest to ${selectedFlight.destination_name} for ${selectedFlight.price} EUR.`;
+    // 5️⃣ Сохраняем обновлённую базу в Redis (TTL 7 дней)
+    await saveFlightsDB(flightsDB);
+
+    // 6️⃣ Создаём короткий текст через GPT
+    const prompt = `Create a short, engaging Romanian message (2-3 sentences) about a cheap flight from Bucharest to ${selectedFlight.destination_name} for ${selectedFlight.price} EUR.`;
     const AItext = await askAI(prompt);
 
-    // 7️⃣ Формируем ссылку
+    // 7️⃣ Формируем партнёрскую ссылку
     const link = generatePartnerFlightLink(selectedFlight);
 
     // 8️⃣ Форматируем дату и время
@@ -93,12 +124,11 @@ async function postCheapFlights() {
     // 9️⃣ Формируем сообщение
     const message = `
 ${AItext}
+
 ✈️ Destination: <b>${selectedFlight.destination_name}</b>
 💰 Price: <b>${selectedFlight.price}€</b>
 📅 ${formattedDate} 🕐 ${formattedTime}
 🔗 <a href="${link}">${extractShortLink(link)}</a>
-
-
 `;
 
     // 🔟 Отправляем в Telegram
@@ -108,7 +138,7 @@ ${AItext}
         chat_id: CHANNEL_ID,
         text: message,
         parse_mode: "HTML",
-        disable_web_page_preview: false,
+        disable_web_page_preview: true,
       }
     );
 
