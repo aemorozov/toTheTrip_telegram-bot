@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { askAI } = require("./askAI_");
+const { askAI } = require("./askAI");
 const { generatePartnerFlightLink } = require("../generatePartnerFlightLink");
 const { extractShortLink } = require("../encodeLink");
 
@@ -92,14 +92,13 @@ async function postCheapFlights() {
 
     // 9️⃣ Формируем сообщение
     const message = `
-🔥 <b>Cheap flight from Bucharest!</b>
-
+${AItext}
 ✈️ Destination: <b>${selectedFlight.destination_name}</b>
 💰 Price: <b>${selectedFlight.price}€</b>
 📅 ${formattedDate} 🕐 ${formattedTime}
 🔗 <a href="${link}">${extractShortLink(link)}</a>
 
-${AItext}
+
 `;
 
     // 🔟 Отправляем в Telegram
