@@ -1,0 +1,31 @@
+// getImages.js
+const OpenAI = require("openai");
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+/**
+ * Генерирует красивую реалистичную картинку города через DALL·E 3
+ * @param {string} city - Название города
+ * @param {string} country - Название страны (опционально)
+ * @returns {Promise<string|null>} - URL изображения или null
+ */
+async function getCityImage(city, country = "") {
+  try {
+    const prompt = `Beautiful high-quality travel photo of ${city}, ${country}. 
+    Daylight, realistic scenery, without text, without people, without watermark.`;
+
+    const image = await openai.images.generate({
+      model: "gpt-image-1",
+      prompt,
+      size: "300x200",
+    });
+
+    const imageUrl = image.data[0].url;
+    console.log("🖼️ Generated image for:", city);
+    return imageUrl;
+  } catch (err) {
+    console.warn("⚠️ Image generation failed:", err.message);
+    return null;
+  }
+}
+
+module.exports = { getCityImage };

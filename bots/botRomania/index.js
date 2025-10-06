@@ -3,6 +3,7 @@ const { askAI } = require("./askAI");
 const { generatePartnerFlightLink } = require("../generatePartnerFlightLink");
 const { extractShortLink } = require("../encodeLink");
 const { DateTime } = require("luxon");
+const { getCityImage } = require("./getImages");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHANNEL_ID = "@CheapFlightsRomania";
@@ -179,6 +180,12 @@ async function postCheapFlights() {
 
     const destinationFull = `${destinationCity}, ${destinationCountry}`;
 
+    // === Генерация изображения города ===
+    const imageUrl = await getCityImage(
+      selectedFlight.destination_name,
+      destinationCountry
+    );
+
     // 6️⃣ Создаём текст через GPT
     const prompt = `Creează un text scurt și atractiv (1-2 propoziții) despre un zbor ieftin 
     din ${originCity} spre ${destinationFull} pentru ${selectedFlight.price}$. Scrie prietenos și natural.
@@ -205,15 +212,27 @@ ${AItext}
 `;
 
     // 🔟 Отправляем в Telegram
-    await axios.post(
-      `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
-      {
-        chat_id: CHANNEL_ID,
-        text: message,
-        parse_mode: "HTML",
-        disable_web_page_preview: false,
-      }
-    );
+    if (imageUrl) {
+      await axios.post(
+        `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`,
+        {
+          chat_id: CHANNEL_ID,
+          photo: imageUrl,
+          caption: message,
+          parse_mode: "HTML",
+        }
+      );
+    } else {
+      await axios.post(
+        `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
+        {
+          chat_id: CHANNEL_ID,
+          text: message,
+          parse_mode: "HTML",
+          disable_web_page_preview: false,
+        }
+      );
+    }
 
     console.log(
       `✅ Posted flight: ${originCity} → ${destinationFull} (${selectedFlight.price}€)`
