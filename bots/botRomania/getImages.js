@@ -21,6 +21,17 @@ async function getCityImage(city, country = "") {
 
     const imageUrl = image.data[0].url;
     console.log("🖼️ Generated image for:", city);
+
+    if (!imageUrl) {
+      try {
+        const query = `${city} ${country}`.trim().replace(/\s+/g, "+");
+        const url = `https://source.unsplash.com/1024x1024/?${query}`;
+        return url; // мгновенный линк на случайное фото по теме
+      } catch {
+        return null;
+      }
+    }
+
     return imageUrl;
   } catch (err) {
     console.warn("⚠️ Image generation failed:", err.message);
