@@ -175,7 +175,7 @@ async function postCheapFlights() {
     const destinationFull = `${destinationCity}, ${destinationCountry}`;
 
     // 6️⃣ Создаём текст через GPT
-    const prompt = `Creează un text scurt și atractiv (2-3 propoziții) despre un zbor ieftin 
+    const prompt = `Creează un text scurt și atractiv (1-2 propoziții) despre un zbor ieftin 
     din ${originCity} spre ${destinationFull} pentru ${selectedFlight.price}$. Scrie prietenos și natural.
     Add a beutiful title with emojies with tags <b></b>. After title use only one "\n" (one new free lines)`;
     const AItext = await askAI(prompt);
