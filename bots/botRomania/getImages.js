@@ -1,92 +1,45 @@
 // getImages.js
 const axios = require("axios");
-const OpenAI = require("openai");
 
-const openai = process.env.OPENAI_API_KEY
-  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-  : null;
-const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY || null;
+const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY;
 
 /**
- * Возвращает URL изображения для города.
- * Сначала пробует OpenAI DALL·E (если доступен), затем Unsplash API (если ключ есть),
- * затем source.unsplash.com (без ключа), затем Pexels (если ключ есть).
- *
- * @param {string} city
- * @param {string} country - country code or name (optional)
- * @returns {Promise<string|null>}
+ * Получает фото города назначения.
+ * Возвращает URL изображения (jpg).
  */
-async function getCityImage(city, country = "") {
-  if (!city || !city.trim()) return null;
+async function getCityImage(city, country) {
+  const query = `${city} ${country}`;
+  console.log(`🔍 Searching image for: ${query}`);
 
-  const queryBase = `${city}${country ? ", " + country : ""}`.trim();
-
-  // 1) OpenAI DALL·E (если доступен)
-  if (openai) {
-    try {
-      const prompt = `High-quality realistic travel photo of ${queryBase}. Daylight, cityscape, no text, no people, photographic style, high resolution.`;
-      const resp = await openai.images.generate({
-        model: "gpt-image-1",
-        prompt,
-        size: "1024x1024",
-      });
-      // new OpenAI returns URL in resp.data[0].url (may vary), handle safely
-      const imageUrl = resp?.data?.[0]?.url || resp?.data;
-      if (imageUrl) {
-        console.log("getCityImage: used OpenAI for", queryBase);
-        return imageUrl;
-      }
-    } catch (err) {
-      // если это ошибка верификации — логируем и идём дальше
-      console.warn("getCityImage: OpenAI failed:", err?.message || err);
-      // не прерываем, переходим к следующему источнику
-    }
-  }
-
-  // Helper: safe encoded query
-  const encodedQuery = encodeURIComponent(`${city} ${country}`.trim());
-
-  // 2) Unsplash API (если есть ключ)
-  if (UNSPLASH_KEY) {
-    try {
-      const url = `https://api.unsplash.com/search/photos?query=${encodedQuery}&per_page=1&orientation=landscape`;
-      const res = await axios.get(url, {
-        headers: { Authorization: `Client-ID ${UNSPLASH_KEY}` },
-        timeout: 8000,
-      });
-      const first = res.data?.results?.[0];
-      if (
-        first &&
-        (first.urls?.regular || first.urls?.raw || first.urls?.full)
-      ) {
-        console.log("getCityImage: used Unsplash API for", queryBase);
-        return first.urls.regular || first.urls.full || first.urls.raw;
-      }
-    } catch (err) {
-      console.warn("getCityImage: Unsplash API failed:", err?.message || err);
-    }
-  }
-
-  // 3) Unsplash Source (no API key) — возвращаем URL (Telegram сам подтянет картинку)
   try {
-    // используем формат 1200x628 (хорош для превью)
-    const sourceUrl = `https://source.unsplash.com/1200x628/?${encodedQuery}`;
-    console.log(
-      "getCityImage: using Unsplash Source fallback for",
-      queryBase,
-      "->",
-      sourceUrl
-    );
-    return sourceUrl;
-  } catch (err) {
-    console.warn(
-      "getCityImage: Unsplash Source fallback failed:",
-      err?.message || err
-    );
-  }
+    // 1️⃣ Пытаемся найти город через официальный API Unsplash
+    const response = await axios.get("https://api.unsplash.com/search/photos", {
+      params: {
+        query,
+        per_page: 1,
+        orientation: "landscape",
+      },
+      headers: {
+        Authorization: `Client-ID ${UNSPLASH_KEY}`,
+      },
+    });
 
-  // ничего не получилось
-  return null;
+    const results = response.data.results;
+    if (results && results.length > 0) {
+      const img = results[0].urls.regular || results[0].urls.full;
+      console.log(`✅ Found Unsplash image for ${query}`);
+      return img;
+    } else {
+      console.warn(`⚠️ No Unsplash results for ${query}`);
+      // fallback: просто пробуем Source API
+      return `https://source.unsplash.com/1200x628/?${encodeURIComponent(
+        query
+      )}`;
+    }
+  } catch (err) {
+    console.error("❌ Unsplash API error:", err.message);
+    return `https://source.unsplash.com/1200x628/?${encodeURIComponent(query)}`;
+  }
 }
 
 module.exports = { getCityImage };
