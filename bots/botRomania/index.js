@@ -144,12 +144,15 @@ async function postCheapFlights() {
     if (!destinationCountry) {
       try {
         // 🔹 1. Пробуем найти по IATA-коду
+        console.log("selectedFlight.destination: ", selectedFlight.destination);
         let { data } = await axios.get(
           `https://autocomplete.travelpayouts.com/places2?term=${selectedFlight.destination}&locale=en`
         );
 
         let airportInfo = data.find((p) => p.type === "airport");
+        console.log("airportInfo: ", airportInfo);
         destinationCountry = airportInfo?.country_code;
+        console.log("destinationCountry: ", destinationCountry);
 
         // 🔹 2. Если не нашли — пробуем по названию города
         if (!destinationCountry && selectedFlight.destination_name) {
