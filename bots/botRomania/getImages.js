@@ -1,7 +1,7 @@
 // getImages.js
 const axios = require("axios");
 
-const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY;
+const UNSPLASH_KEY = process.env.UNSPLASH_KEY;
 
 /**
  * Получает фото города назначения.
