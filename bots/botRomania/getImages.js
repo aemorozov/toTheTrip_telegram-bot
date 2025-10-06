@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY;
+const UNSPLASH_KEY = process.env.UNSPLASH_KEY;
 
 async function getCityImage(city, country) {
   const query = `${city} ${country}`;
