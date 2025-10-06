@@ -156,6 +156,10 @@ async function postCheapFlights() {
 
         // 🔹 2. Если не нашли — пробуем по названию города
         if (!destinationCountry && selectedFlight.destination_name) {
+          console.log(
+            "selectedFlight.destination_name: ",
+            selectedFlight.destination_name
+          );
           const { data: cityData } = await axios.get(
             `https://autocomplete.travelpayouts.com/places2?term=${encodeURIComponent(
               selectedFlight.destination_name
@@ -164,6 +168,7 @@ async function postCheapFlights() {
           const cityInfo = cityData.find(
             (p) => p.type === "city" || p.type === "airport"
           );
+          console.log("cityInfo: ", cityInfo);
           destinationCountry = cityInfo?.country_code || "??";
         }
       } catch (err) {
