@@ -190,7 +190,7 @@ async function postCheapFlights() {
     const prompt = `Creează un text scurt și atractiv (1-2 propoziții) despre un zbor ieftin 
     din ${originCity} spre ${destinationFull} pentru ${selectedFlight.price}$. Scrie prietenos și natural.
     Add a beutiful title with emojies with tags <b></b>. After title use only one "\n" (one new free lines)
-    În titlu, folosește doar steagul țării de destinație ca emoji, în niciun caz nu ar trebui să folosești un avion.`;
+    Folosește un singur emoji în titlu - steagul țării de destinație.`;
     const AItext = await askAI(prompt);
 
     // 7️⃣ Партнёрская ссылка
