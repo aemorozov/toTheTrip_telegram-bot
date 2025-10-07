@@ -210,6 +210,8 @@ ${AItext}
 💰 Preț de la:  <b>${selectedFlight.price}$</b>
 📅 ${formattedDate}   🕐 ${formattedTime}
 🔗 <a href="${link}">https://${extractShortLink(link)}</a>
+
+🤖✈️ Bot: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a>
 `;
 
     // 🔟 Отправляем в Telegram

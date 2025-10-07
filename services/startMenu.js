@@ -30,7 +30,16 @@ async function startMenu(chatId, city) {
 
     await safeSend(
       chatId,
-      `-------------  START MENU  -------------\n\n📍 Your city is <strong>${city}</strong>! ✈️\n\n🔄 For update the city, write it.\n\n 👇 👇    Let's go ToTheTrip!    👇 👇`,
+      `-------------  START MENU  -------------
+
+📍 Your city is <strong>${city}</strong>! ✈️
+
+🔄 For update the city, write it.
+
+Chanels:
+🇷🇴 Romania: <a href="https://t.me/CheapFlightsRomania">Join to Cheap Flights Romania</a>
+
+ 👇 👇 👇    Let's go ToTheTrip!    👇 👇 👇`,
       options
     );
   } catch (e) {
