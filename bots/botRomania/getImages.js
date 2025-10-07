@@ -69,7 +69,7 @@ async function getCityImage(city, country = "") {
     Daylight, realistic scenery, without text, without people, without watermark.`;
 
     const image = await openai.images.generate({
-      model: "gpt-image-1",
+      model: "dall-e-2",
       prompt,
       size: "1024x1024",
     });
@@ -79,7 +79,7 @@ async function getCityImage(city, country = "") {
     console.log(imageUrl);
     return imageUrl;
   } catch (err) {
-    console.warn("⚠️ Image generation failed:", err.message);
+    console.error("⚠️ Image generation failed:", err.response?.data || err);
     return null;
   }
 }
