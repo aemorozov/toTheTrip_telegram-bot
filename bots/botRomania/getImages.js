@@ -69,7 +69,7 @@ async function getCityImage(city, country = "") {
     Daylight, realistic scenery, without text, without people, without watermark.`;
 
     const image = await openai.images.generate({
-      model: "dall-e-2",
+      model: "gpt-image-1",
       prompt,
       size: "1024x1024",
     });
