@@ -54,14 +54,16 @@
 // module.exports = { getCityImage };
 
 // getImages.js
+const fs = require("fs");
+const path = require("path");
 const OpenAI = require("openai");
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
- * Генерирует красивую реалистичную картинку города через DALL·E 3
+ * Генерирует красивую реалистичную картинку города через DALL·E 3 (gpt-image-1)
  * @param {string} city - Название города
- * @param {string} country - Название страны (опционально)
- * @returns {Promise<string|null>} - URL изображения или null
+ * @param {string} country - Название страны
+ * @returns {Promise<string|null>} - Путь к сохранённому изображению
  */
 async function getCityImage(city, country = "") {
   try {
@@ -74,10 +76,18 @@ async function getCityImage(city, country = "") {
       size: "1024x1024",
     });
 
-    const imageUrl = image.data[0].url;
-    console.log("🖼️ Generated image for:", city);
-    console.log(image);
-    return imageUrl;
+    // 🖼️ Извлекаем base64
+    const base64Data = image.data?.[0]?.b64_json;
+    if (!base64Data) throw new Error("No base64 image data returned");
+
+    // 💾 Сохраняем PNG во временный файл
+    const outputDir = path.join(__dirname, "generated");
+    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+    const filePath = path.join(outputDir, `${city.replace(/\s+/g, "_")}.png`);
+    fs.writeFileSync(filePath, Buffer.from(base64Data, "base64"));
+
+    console.log("✅ Image saved locally:", filePath);
+    return filePath;
   } catch (err) {
     console.error("⚠️ Image generation failed:", err.response?.data || err);
     return null;
