@@ -76,7 +76,7 @@ async function getCityImage(city, country = "") {
 
     const imageUrl = image.data[0].url;
     console.log("🖼️ Generated image for:", city);
-    console.log(imageUrl);
+    console.log(image);
     return imageUrl;
   } catch (err) {
     console.error("⚠️ Image generation failed:", err.response?.data || err);
