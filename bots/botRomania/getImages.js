@@ -76,20 +76,17 @@ async function getCityImage(city, country = "") {
       size: "1024x1024",
     });
 
-    // 🖼️ Извлекаем base64
     const base64Data = image.data?.[0]?.b64_json;
     if (!base64Data) throw new Error("No base64 image data returned");
 
-    // 💾 Сохраняем PNG во временный файл
-    const outputDir = path.join(__dirname, "generated");
-    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
-    const filePath = path.join(outputDir, `${city.replace(/\s+/g, "_")}.png`);
+    // ✅ Используем временную директорию на Vercel
+    const filePath = path.join("/tmp", `${city.replace(/\s+/g, "_")}.png`);
     fs.writeFileSync(filePath, Buffer.from(base64Data, "base64"));
 
-    console.log("✅ Image saved locally:", filePath);
+    console.log("✅ Image saved temporarily:", filePath);
     return filePath;
   } catch (err) {
-    console.error("⚠️ Image generation failed:", err.response?.data || err);
+    console.error("⚠️ Image generation failed:", err.message);
     return null;
   }
 }
