@@ -211,7 +211,7 @@ ${AItext}
 📅 ${formattedDate}   🕐 ${formattedTime}
 🔗 <a href="${link}">https://${extractShortLink(link)}</a>
 
-🤖 <b>Our Bot: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>
+🤖 <b>Try our bot: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>
 `;
 
     // 🔟 Отправляем в Telegram

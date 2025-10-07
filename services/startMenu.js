@@ -37,10 +37,10 @@ async function startMenu(chatId, city) {
 
 🔄 For update the city, write it.
 
-Channels:
-🇷🇴 <b>Romania: <a href="https://t.me/CheapFlightsRomania">Join to Cheap Flights Romania</a></b>
+Join to our channels:
+🇷🇴 <b><a href="https://t.me/CheapFlightsRomania">Cheap Flights Romania</a></b>
 
- 👇 👇 👇    Let's go ToTheTrip!    👇 👇 👇`,
+ 👇 👇    Let's go ToTheTrip!    👇 👇`,
       options
     );
   } catch (e) {
