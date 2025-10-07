@@ -36,7 +36,7 @@ async function startMenu(chatId, city) {
 
 🔄 For update the city, write it.
 
-<b>Join to our channels:</b>
+<b>You can join to our channels:</b>
 🇷🇴 <b><a href="https://t.me/CheapFlightsRomania">Cheap Flights Romania</a></b>
 
  👇 👇    <b>Choose an option:</b>    👇 👇`,
