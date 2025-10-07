@@ -26,6 +26,7 @@ async function startMenu(chatId, city) {
           ],
         ],
       },
+      disable_web_page_preview: true,
     };
 
     await safeSend(
