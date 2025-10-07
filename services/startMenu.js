@@ -31,8 +31,7 @@ async function startMenu(chatId, city) {
 
     await safeSend(
       chatId,
-      `
-* * * 📍 Your city is <strong>${city}</strong>! ✈️ * * *
+      `📍 Your city is <strong>${city}</strong>! ✈️
 
 🔄 For update the city, write it.
 
