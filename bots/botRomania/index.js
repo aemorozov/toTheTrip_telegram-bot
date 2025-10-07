@@ -223,6 +223,7 @@ ${AItext}
           photo: imageUrl,
           caption: message,
           parse_mode: "HTML",
+          disable_web_page_preview: false,
         }
       );
     } else {
