@@ -177,7 +177,8 @@ async function postCheapFlights() {
     const message = `
 ${AItext}
 
-✈️ <b>#${originCity}  →  ${destinationFull}</b>
+✈️ <b>#${originCity}  →</b>
+🎯 <b>${destinationFull}</b>
 💰 Preț de la:  <b>${selectedFlight.price}$</b>
 📅 ${formattedDate}   🕐 ${formattedTime}
 🔗 <a href="${link}">https://${extractShortLink(link)}</a>
