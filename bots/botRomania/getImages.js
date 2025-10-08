@@ -72,9 +72,8 @@ async function getCityImage(city, country) {
       "https://api.x.ai/v1/images/generations", // Проверь актуальный эндпоинт в доках
       {
         model: "grok-2-image-1212",
-        prompt: `Cope real street photo of ${query} in cinematic style.`, // Промпт для генерации
+        prompt: `Copy real street photo of ${query} in cinematic style, 1024x1024px`, // Промпт для генерации
         n: 1, // Количество изображений
-        size: "1024x1024",
       },
       {
         headers: {
