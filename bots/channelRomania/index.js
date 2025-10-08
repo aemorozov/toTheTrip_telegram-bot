@@ -1,9 +1,9 @@
 const axios = require("axios");
-const { askAI } = require("./askAI");
+const { askAI } = require("../askAI");
 const { generatePartnerFlightLink } = require("../generatePartnerFlightLink");
 const { extractShortLink } = require("../encodeLink");
 const { DateTime } = require("luxon");
-const { getCityImage } = require("./getImages");
+const { getCityImage } = require("../getImages");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHANNEL_ID = "@CheapFlightsRomania";
