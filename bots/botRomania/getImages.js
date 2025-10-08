@@ -9,8 +9,8 @@ async function getCityImage(city, country = "") {
 
     // случайный стиль запроса (чтобы были разные сцены)
     const queryVariants = [
-      `${city}, ${country} city center street daylight`,
-      `${city}, ${country} skyline architecture`,
+      `${city}, ${country} city center street`,
+      `${city}, ${country} skyline`,
       `${city}, ${country} aerial view cityscape`,
     ];
     const query =
