@@ -56,7 +56,6 @@
 const axios = require("axios");
 
 const XAI_API_KEY = process.env.XAI_API_KEY;
-console.log("XAI_API_KEY: ", XAI_API_KEY);
 
 async function getCityImage(city, country) {
   const query = `${city} ${country}`;
@@ -73,7 +72,7 @@ async function getCityImage(city, country) {
       "https://api.x.ai/v1/images/generations", // Проверь актуальный эндпоинт в доках
       {
         model: "grok-2-image-1212",
-        prompt: `A picturesque view of ${query} in a vibrant, cinematic style.`, // Промпт для генерации
+        prompt: `Street view of ${query} in cinematic style.`, // Промпт для генерации
         n: 1, // Количество изображений
       },
       {
