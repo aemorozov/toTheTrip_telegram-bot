@@ -72,7 +72,7 @@ async function getCityImage(city, country) {
       "https://api.x.ai/v1/images/generations", // Проверь актуальный эндпоинт в доках
       {
         model: "grok-2-image-1212",
-        prompt: `A scenic view of ${query} in a vibrant, high-quality style`, // Промпт для генерации
+        prompt: `A picturesque view of ${query} in a vibrant, cinematic style.`, // Промпт для генерации
         n: 1, // Количество изображений
       },
       {
