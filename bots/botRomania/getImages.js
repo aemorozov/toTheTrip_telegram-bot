@@ -56,6 +56,7 @@
 const axios = require("axios");
 
 const XAI_API_KEY = process.env.XAI_API_KEY;
+console.log("XAI_API_KEY: ", XAI_API_KEY);
 
 async function getCityImage(city, country) {
   const query = `${city} ${country}`;
