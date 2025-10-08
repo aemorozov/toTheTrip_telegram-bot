@@ -1,4 +1,4 @@
-import { postCheapFlights } from "../bots/channelRomania/index";
+import { postCheapFlights } from "../channels/channelRomania/index";
 
 export default async function handler(req, res) {
   try {
