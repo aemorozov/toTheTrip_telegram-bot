@@ -9,7 +9,7 @@ async function getIataCode(city) {
 
   const res = await openai.chat.completions.create({
     messages: [{ role: "user", content: prompt }],
-    model: "gpt-4.1-mini",
+    model: "gpt-5-mini",
   });
 
   const code = res.choices[0].message.content.trim().toUpperCase();
