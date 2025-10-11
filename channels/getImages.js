@@ -1,109 +1,63 @@
 const axios = require("axios");
 
-const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_KEY;
+const GOOGLE_PLACES_KEY = process.env.GOOGLE_PLACES_KEY;
 
 async function getCityImage(city, country = "") {
   try {
-    // случайный номер страницы от 1 до 5
-    const randomPage = Math.floor(Math.random() * 5) + 1;
+    if (!GOOGLE_PLACES_KEY) throw new Error("❌ GOOGLE_PLACES_KEY is missing");
 
-    // случайный стиль запроса (чтобы были разные сцены)
-    const queryVariants = [
-      `${city}, ${country} city center street`,
-      `${city}, ${country} skyline`,
-      `${city}, ${country} aerial view cityscape`,
-    ];
-    const query =
-      queryVariants[Math.floor(Math.random() * queryVariants.length)];
+    // 🔍 Формируем запрос (уточнение повышает релевантность)
+    const query = `${city} ${country} city skyline`;
 
-    console.log(`🔍 Searching image for: "${query}" (page ${randomPage})`);
+    console.log(`🔍 Searching city photo via Google Places: "${query}"`);
 
-    const { data } = await axios.get("https://api.unsplash.com/search/photos", {
+    // 1️⃣ Получаем place_id
+    const findPlaceUrl =
+      "https://maps.googleapis.com/maps/api/place/findplacefromtext/json";
+    const findRes = await axios.get(findPlaceUrl, {
       params: {
-        query,
-        per_page: 1,
-        page: randomPage,
-        orientation: "landscape",
-        order_by: "latest", // иногда даёт более свежие и разнообразные фото
-        content_filter: "high",
-      },
-      headers: {
-        Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`,
+        input: query,
+        inputtype: "textquery",
+        fields: "place_id",
+        key: GOOGLE_PLACES_KEY,
       },
     });
 
-    const imageUrl = data?.results?.[0]?.urls?.regular;
-    if (!imageUrl) throw new Error("No image found");
+    const placeId = findRes.data?.candidates?.[0]?.place_id;
+    if (!placeId) throw new Error("❌ City not found in Google Places");
 
-    console.log("🖼️ Found image:", imageUrl);
-    return imageUrl;
+    // 2️⃣ Получаем список фотографий
+    const detailsUrl =
+      "https://maps.googleapis.com/maps/api/place/details/json";
+    const detailsRes = await axios.get(detailsUrl, {
+      params: {
+        place_id: placeId,
+        fields: "photos",
+        key: GOOGLE_PLACES_KEY,
+      },
+    });
+
+    const photos = detailsRes.data?.result?.photos;
+    if (!photos || photos.length === 0)
+      throw new Error("⚠️ No photos found for this city");
+
+    // 3️⃣ Берём случайное фото
+    const randomPhoto = photos[Math.floor(Math.random() * photos.length)];
+    const photoRef = randomPhoto.photo_reference;
+
+    // 4️⃣ Формируем ссылку на изображение
+    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1600&photo_reference=${photoRef}&key=${GOOGLE_PLACES_KEY}`;
+
+    console.log("🖼️ Found Google Places photo:", photoUrl);
+    return photoUrl;
   } catch (err) {
-    console.warn("⚠️ Unsplash API error:", err.message);
-    // fallback — случайное фото
+    console.warn("⚠️ Google Places API error:", err.message);
+
+    // 🔄 Fallback — случайное фото с Unsplash (без ключа)
     return `https://source.unsplash.com/1200x628/?${encodeURIComponent(
       city + " city landscape"
-    )}&sig=${Math.floor(Math.random() * 10000)}`; // уникализатор
+    )}&sig=${Math.floor(Math.random() * 10000)}`;
   }
 }
 
 module.exports = { getCityImage };
-
-// const axios = require("axios");
-
-// const XAI_API_KEY = process.env.XAI_API_KEY;
-
-// async function getCityImage(city, country) {
-//   const query = `${city} ${country}`;
-//   console.log(`🔍 Generating image for: ${query}`);
-
-//   try {
-//     // 1️⃣ Проверка ключа
-//     if (!XAI_API_KEY) {
-//       throw new Error("❌ XAI_API_KEY is missing");
-//     }
-
-//     // 2️⃣ Запрос к xAI API
-//     const response = await axios.post(
-//       "https://api.x.ai/v1/images/generations", // Проверь актуальный эндпоинт в доках
-//       {
-//         model: "grok-2-image-1212",
-//         prompt: `Copy real street photo of ${query} in cinematic style, 1024x1024px`, // Промпт для генерации
-//         n: 1, // Количество изображений
-//       },
-//       {
-//         headers: {
-//           Authorization: `Bearer ${XAI_API_KEY}`,
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-
-//     if (response.status !== 200) {
-//       console.error("❌ xAI API returned non-200:", response.status);
-//       throw new Error(`xAI API error ${response.status}`);
-//     }
-
-//     const results = response.data.data;
-//     if (results && results.length > 0) {
-//       const imgUrl = results[0].url; // URL сгенерированного изображения
-//       console.log(`✅ Generated xAI image for ${query}`);
-//       return imgUrl;
-//     } else {
-//       console.warn(`⚠️ No xAI image results for ${query}`);
-//       // Fallback на случай отсутствия результата
-//       return `https://source.unsplash.com/1200x628/?${encodeURIComponent(
-//         query
-//       )}`;
-//     }
-//   } catch (err) {
-//     console.error("❌ xAI API error:", err.message);
-//     // Fallback к Unsplash, как в твоём коде
-//     const fallback = `https://source.unsplash.com/1200x628/?${encodeURIComponent(
-//       query
-//     )}`;
-//     console.log("🖼️ Using fallback image:", fallback);
-//     return fallback;
-//   }
-// }
-
-// module.exports = { getCityImage };
