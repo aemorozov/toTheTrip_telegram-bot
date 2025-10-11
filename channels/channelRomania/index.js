@@ -158,10 +158,9 @@ async function postCheapFlights() {
     );
 
     // 6️⃣ Создаём текст через GPT
-    const prompt = `Creează un text scurt și atractiv (1 propoziți) despre un zbor ieftin 
-    din ${originCity} spre ${destinationFull} pentru ${selectedFlight.price}$. Scrie prietenos și natural.
-    Add a beutiful title with emojies with tags <b></b>. After title use only one "\n" (one new free lines)
-    Folosește un singur emoji în titlu - steagul țării de destinație.`;
+    const prompt = `Creează un text original, unic și captivant (2 propoziții) despre un zbor ieftin de la ${originCity} la ${destinationFull}. Scrie într-un mod prietenos și natural.
+Adaugă un titlu frumos cu emoji-uri și etichetele <b></b>. Folosește un singur rând gol după titlu.
+Folosește un singur emoji în titlu - steagul țării de destinație.`;
     const AItext = await askAI(prompt);
 
     // 7️⃣ Партнёрская ссылка
