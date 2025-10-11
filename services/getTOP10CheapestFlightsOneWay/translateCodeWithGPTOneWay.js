@@ -18,7 +18,7 @@ ${JSON.stringify(tickets, null, 2)}
   const res = await openai.chat.completions.create({
     model: "gpt-5-mini",
     messages: [{ role: "user", content: prompt }],
-    temperature: 0.2,
+    verbosity: "low",
   });
 
   const raw = res.choices[0]?.message?.content;
