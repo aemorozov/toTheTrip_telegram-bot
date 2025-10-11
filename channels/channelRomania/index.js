@@ -182,7 +182,7 @@ ${AItext}
 📅 ${formattedDate}   🕐 ${formattedTime}
 🔗 <a href="${link}">https://${extractShortLink(link)}</a>
 
-🤖 <b>Încearcă botul nostru:\n<a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>
+🤖 <b>Încearcă botul nostru: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>
 `;
 
     // 🔟 Отправляем в Telegram
