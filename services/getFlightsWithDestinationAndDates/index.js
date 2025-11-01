@@ -7,7 +7,7 @@ const { startMenu } = require("../startMenu");
  * Отправляет пользователю инструкцию
  */
 async function handleAddDestinationAndDates(chatId) {
-  const message = `✈️ Add destination city, please.\nExample: Viena.`;
+  const message = `✈️ Add destination city, please.\nExample: Vienna.`;
   await safeSend(chatId, message, {
     parse_mode: "HTML",
     disable_web_page_preview: true,

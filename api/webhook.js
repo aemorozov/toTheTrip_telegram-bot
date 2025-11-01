@@ -9,6 +9,7 @@ module.exports = async (req, res) => {
 
   const body = req.body || {};
 
+  // Реагируем на сообщения
   if (body.message) {
     const chatId = body.message.chat?.id;
     const userInput = body.message.text?.trim();
@@ -31,6 +32,7 @@ module.exports = async (req, res) => {
     return res.status(200).send("ok");
   }
 
+  // Реагируем на нажатия кнопок выбора (колбеков)
   if (body.callback_query) {
     const chatId = body.callback_query.message?.chat?.id;
     const data = body.callback_query.data;
