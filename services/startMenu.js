@@ -42,14 +42,6 @@ async function startMenu(chatId, city) {
       chatId,
       `📍 Your city is <strong>${city}</strong>! ✈️ Let's trip!
 
-<b>Special offers</b> — <i>hot deals and price drops from ${city}, only today!</i>
-
-<b>Cheapest flights to destination</b> — <i>pick a destination to get the best price from ${city}.</i>
-
-<b>TOP round trip cheapest flights</b> — <i>top cheap return flights from ${city} anywhere!</i>
-
-<b>TOP one way cheapest flights</b> — <i>top one-way flights from ${city} to any city.</i>
-
 🔄 For update the city, write it.
 
 <b>You can join our channels:</b>
