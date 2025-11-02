@@ -11,13 +11,13 @@ async function startMenu(chatId, city) {
         inline_keyboard: [
           [
             {
-              text: `🔥  Special offers for ${dateAndMonth}!  🤑`,
+              text: `🔥       Special offers for today!       🤑`,
               callback_data: "special_offers",
             },
           ],
           [
             {
-              text: `🔥       Best price for your date        🤑`,
+              text: `💰       Best price for your date        📆`,
               callback_data: "price_for_date",
             },
           ],
