@@ -1,12 +1,10 @@
 const { safeSend } = require("../telegram");
-const { getUser, saveUserStep } = require("../db");
-const { startMenu } = require("../startMenu");
 
 /**
- * handleAddDestinationAndDates
+ * handleAddDestination
  * Отправляет пользователю инструкцию
  */
-async function handleAddDestinationAndDates(chatId) {
+async function handleAddDestination(chatId) {
   const message = `✈️ Add destination city, please.\nExample: Vienna.`;
   await safeSend(chatId, message, {
     parse_mode: "HTML",
@@ -15,5 +13,5 @@ async function handleAddDestinationAndDates(chatId) {
 }
 
 module.exports = {
-  handleAddDestinationAndDates,
+  handleAddDestination,
 };
