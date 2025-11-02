@@ -17,6 +17,12 @@ async function startMenu(chatId, city) {
           ],
           [
             {
+              text: `🔥       Best price for your date        🤑`,
+              callback_data: "price_for_date",
+            },
+          ],
+          [
+            {
               text: "💸 Cheapest flights to destination 🌍",
               callback_data: "cheapest_flights_to_destination",
             },
@@ -40,7 +46,8 @@ async function startMenu(chatId, city) {
 
     await safeSend(
       chatId,
-      `📍 Your city is <strong>${city}</strong>! ✈️ Let's trip!
+      `
+📍 Your city is <strong>${city}</strong>! ✈️ Let's trip!
 
 🔄 For update the city, write it.
 

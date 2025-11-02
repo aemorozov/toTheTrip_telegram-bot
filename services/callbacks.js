@@ -14,6 +14,7 @@ const {
   specialOffersOneWay,
   specialOffersRoundTrip,
 } = require("./specialOffers/specialOffers");
+const { addDate } = require("./priceForDate");
 
 // Функция добавления кнопки со ссылкой на основное меню
 async function startMenuButton(chatId, message) {
@@ -307,6 +308,11 @@ async function handleCallbackQuery(chatId, data) {
             .join("\n")
         : `<b>🔥 Special offers from ${originCity} for you</b>\n\n😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
     startMenuButton(chatId, message);
+  }
+
+  if (data === "price_for_date") {
+    await saveUserStep(chatId, "waiting_for_date");
+    addDate(chatId);
   }
 }
 
