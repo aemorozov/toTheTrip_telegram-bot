@@ -122,7 +122,7 @@ async function handleCallbackQuery(chatId, data) {
     );
 
     const message =
-      tickets > 0
+      tickets.length > 0
         ? `<b>🔥 TOP cheapest round trip flights from ${userObj.city} for you</b>:\n\n` +
           tickets
             .map((t) => {

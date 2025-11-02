@@ -62,7 +62,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
       );
 
       const message =
-        ticketsOneWay > 0
+        ticketsRoundTrip.length > 0
           ? `<b>🔥 Cheapest flights from ${originCity} to ${destinationCity} for you</b>\n\n` +
             `<b>➡️✈️ One way tickets:</b>\n\n` +
             ticketsOneWay
