@@ -10,7 +10,7 @@ async function getCheapTicketsOneWay(origin) {
       direct: true,
       one_way: true,
       limit: 10,
-      market: "us",
+      market: "ro",
       token: process.env.TRAVELPAYOUTS_API_TOKEN,
     };
 

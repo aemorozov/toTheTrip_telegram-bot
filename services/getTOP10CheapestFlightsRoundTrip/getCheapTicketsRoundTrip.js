@@ -10,7 +10,7 @@ async function getCheapTicketsRoundTrip(origin) {
       direct: true,
       one_way: false,
       limit: 10,
-      market: "us",
+      market: "ro",
       token: process.env.TRAVELPAYOUTS_API_TOKEN,
     };
 

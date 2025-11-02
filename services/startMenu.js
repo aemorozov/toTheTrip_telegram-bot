@@ -1,6 +1,9 @@
 const { safeSend } = require("./telegram");
+const { DateTime } = require("luxon");
 
 async function startMenu(chatId, city) {
+  const currentDate = new Date();
+  const dateAndMonth = DateTime.fromJSDate(currentDate).toFormat("dd.MM.yyyy");
   try {
     const options = {
       parse_mode: "HTML",
@@ -8,19 +11,25 @@ async function startMenu(chatId, city) {
         inline_keyboard: [
           [
             {
-              text: "✈️ Cheapest flights to destination 🌍",
+              text: `🔥  Special offers for ${dateAndMonth}!  🤑`,
+              callback_data: "special_offers",
+            },
+          ],
+          [
+            {
+              text: "💸 Cheapest flights to destination 🌍",
               callback_data: "cheapest_flights_to_destination",
             },
           ],
           [
             {
-              text: "✈️ TOP cheapest flights round trip 🔄",
+              text: "✈️ TOP round trip cheapest flights 🔄",
               callback_data: "get_top_10_round_trip",
             },
           ],
           [
             {
-              text: "✈️  TOP cheapest flights one way   ➡️",
+              text: "✈️  TOP one way cheapest flights   ➡️",
               callback_data: "get_top_10_one_way",
             },
           ],
@@ -33,11 +42,13 @@ async function startMenu(chatId, city) {
       chatId,
       `📍 Your city is <strong>${city}</strong>! ✈️ Let's trip!
 
-<b>Cheapest flights to destination</b> - <i>select your destination and get the best price on flights from ${city} to the selected city</i>
+<b>Special offers</b> — <i>hot deals and price drops from ${city}, only today!</i>
 
-<b>TOP cheapest flights round trip</b> - <i>the answer will contain the best ticket deals for round-trip tickets from ${city} in any direction and on any dates</i>
+<b>Cheapest flights to destination</b> — <i>pick a destination to get the best price from ${city}.</i>
 
-<b>TOP cheapest flights one way</b> - <i>the answer will contain the best ticket deals for one way tickets from ${city} in any direction and on any dates</i>
+<b>TOP round trip cheapest flights</b> — <i>top cheap return flights from ${city} anywhere!</i>
+
+<b>TOP one way cheapest flights</b> — <i>top one-way flights from ${city} to any city.</i>
 
 🔄 For update the city, write it.
 
