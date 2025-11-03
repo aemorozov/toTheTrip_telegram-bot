@@ -6,7 +6,6 @@ async function specialOffersOneWay(origin) {
       currency: "usd",
       origin,
       limit: 5,
-      market: "ro",
       token: process.env.TRAVELPAYOUTS_API_TOKEN,
     };
 
@@ -33,7 +32,6 @@ async function specialOffersRoundTrip(origin) {
       direct: false,
       one_way: false,
       limit: 5,
-      market: "ro",
       token: process.env.TRAVELPAYOUTS_API_TOKEN,
     };
 

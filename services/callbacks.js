@@ -223,10 +223,10 @@ async function handleCallbackQuery(chatId, data) {
       DateTime.fromJSDate(currentDate).toFormat("dd.MM.yyyy");
 
     const message =
-      ticketsRoundTrip.length > 0
-        ? `<b>🔥 Scpecial offers from ${originCity} for ${dateAndMonth}</b>\n\n` +
-          `<b>➡️✈️ One way tickets:</b>\n\n` +
-          ticketsOneWay
+      `<b>🔥 Scpecial offers from ${originCity} for ${dateAndMonth}</b>\n\n` +
+      `<b>➡️✈️ One way tickets:</b>\n\n` +
+      (ticketsOneWay.length > 0
+        ? ticketsOneWay
             .map((t) => {
               const destination_iata = t.destination;
               const destinationCity = t.desination_city;
@@ -255,9 +255,11 @@ async function handleCallbackQuery(chatId, data) {
                 link
               )}</a></u>\n`;
             })
-            .join("\n") +
-          `\n\n<b>🔁🛬 Round trip tickets:</b>\n\n` +
-          ticketsRoundTrip
+            .join("\n")
+        : `😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`) +
+      `\n\n<b>🔁🛬 Round trip tickets:</b>\n\n` +
+      (ticketsRoundTrip.length > 0
+        ? ticketsRoundTrip
             .map((t) => {
               const destination_iata = t.destination;
               const destinationCity = t.desination_city;
@@ -306,7 +308,8 @@ async function handleCallbackQuery(chatId, data) {
               )}</a></u>\n`;
             })
             .join("\n")
-        : `<b>🔥 Special offers from ${originCity} for you</b>\n\n😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+        : `😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
+    // : `<b>🔥 Special offers from ${originCity} for you</b>\n\n😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
     startMenuButton(chatId, message);
   }
 

@@ -9,7 +9,7 @@ async function getTicketsForDateOneWay(originIATA, date) {
       one_way: true,
       departure_at: date,
       direct: false,
-      market: "ro",
+
       limit: 7,
       page: 1,
       sorting: "price",
@@ -45,7 +45,7 @@ async function getTicketsForDateRoundTrip(originIATA, date) {
       one_way: false,
       departure_at: date,
       direct: false,
-      market: "ro",
+
       limit: 7,
       page: 1,
       sorting: "price",
