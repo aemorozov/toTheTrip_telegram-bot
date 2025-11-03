@@ -3,7 +3,7 @@ const axios = require("axios");
 async function getCheapTicketsRoundTrip(origin) {
   try {
     const params = {
-      currency: "usd",
+      currency: "eur",
       origin,
       unique: true,
       sorting: "price",

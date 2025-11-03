@@ -26,7 +26,7 @@ function generatePartnerFlightLinkRoundTrip({
   searchPath += adults; // количество пассажиров
 
   // 🔹 Формируем URL поиска
-  const baseUrl = `https://www.aviasales.com/search/${searchPath}`;
+  const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
   const encodedUrl = encodeURIComponent(baseUrl);
 
   // 🔹 Собираем партнёрскую ссылку

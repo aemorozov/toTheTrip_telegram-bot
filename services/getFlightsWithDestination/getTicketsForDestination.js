@@ -4,7 +4,7 @@ async function getTicketsForDestinationOneWay(originIATA, destinationIATA) {
   try {
     // гарантируем все ключи на месте
     const paramsOneWay = {
-      currency: "USD",
+      currency: "eur",
       origin: originIATA,
       destination: destinationIATA,
       one_way: true,
@@ -40,7 +40,7 @@ async function getTicketsForDestinationRoundTrip(originIATA, destinationIATA) {
   try {
     // гарантируем все ключи на месте
     const paramsRoundTrip = {
-      currency: "USD",
+      currency: "eur",
       origin: originIATA,
       destination: destinationIATA,
       one_way: false,

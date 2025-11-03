@@ -85,7 +85,7 @@ async function handleCallbackQuery(chatId, data) {
                   setZone: true,
                 }
               ).toFormat("ddMM")}${destination_iata}1`;
-              const baseUrl = `https://www.aviasales.com/search/${searchPath}`;
+              const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
               const encodedUrl = encodeURIComponent(baseUrl);
               const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
@@ -94,7 +94,7 @@ async function handleCallbackQuery(chatId, data) {
 
               return `✈️ to <b>${destination}</b> about <b>${
                 t.price
-              }$</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
+              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
                 link
               )}</a></u>\n`;
             })
@@ -162,7 +162,7 @@ async function handleCallbackQuery(chatId, data) {
                   setZone: true,
                 }
               ).toFormat("ddMM")}1`;
-              const baseUrl = `https://www.aviasales.com/search/${searchPath}`;
+              const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
               const encodedUrl = encodeURIComponent(baseUrl);
               const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
@@ -173,7 +173,7 @@ async function handleCallbackQuery(chatId, data) {
 
               return `✈️ to <b>${destination}</b> about <b>${
                 t.price
-              }$</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
                 link
               )}</a></u>\n`;
             })
@@ -243,7 +243,7 @@ async function handleCallbackQuery(chatId, data) {
                   setZone: true,
                 }
               ).toFormat("ddMM")}${destination_iata}1`;
-              const baseUrl = `https://www.aviasales.com/search/${searchPath}`;
+              const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
               const encodedUrl = encodeURIComponent(baseUrl);
               const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
@@ -251,7 +251,7 @@ async function handleCallbackQuery(chatId, data) {
 
               return `💸 to <b>${destinationCity}</b> about <b>${
                 t.price
-              }$</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
+              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
                 link
               )}</a></u>\n`;
             })
@@ -292,7 +292,7 @@ async function handleCallbackQuery(chatId, data) {
                   setZone: true,
                 }
               ).toFormat("ddMM")}1`;
-              const baseUrl = `https://www.aviasales.com/search/${searchPath}`;
+              const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
               const encodedUrl = encodeURIComponent(baseUrl);
               const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
@@ -303,7 +303,7 @@ async function handleCallbackQuery(chatId, data) {
 
               return `💸 to <b>${destinationCity}</b> about <b>${
                 t.price
-              }$</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
                 link
               )}</a></u>\n`;
             })

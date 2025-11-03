@@ -3,7 +3,7 @@ const axios = require("axios");
 async function specialOffersOneWay(origin) {
   try {
     const params = {
-      currency: "usd",
+      currency: "eur",
       origin,
       limit: 5,
       token: process.env.TRAVELPAYOUTS_API_TOKEN,
@@ -25,7 +25,7 @@ async function specialOffersOneWay(origin) {
 async function specialOffersRoundTrip(origin) {
   try {
     const params = {
-      currency: "usd",
+      currency: "eur",
       origin,
       unique: true,
       sorting: "route",

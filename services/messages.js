@@ -66,10 +66,10 @@ async function handleTextMessage(chatId, userInput, userInfo) {
       );
 
       const message =
-        ticketsRoundTrip.length > 0
-          ? `<b>🔥 Cheapest flights from ${originCity} to ${destinationCity} for you</b>\n\n` +
-            `<b>➡️✈️ One way tickets:</b>\n\n` +
-            ticketsOneWay
+        `<b>🔥 Cheapest flights from ${originCity} to ${destinationCity} for you</b>\n\n` +
+        `<b>➡️✈️ One way tickets:</b>\n\n` +
+        (ticketsOneWay.length > 0
+          ? ticketsOneWay
               .map((t) => {
                 const destination_iata = t.destination;
                 const departure_date = DateTime.fromISO(t.departure_at, {
@@ -85,7 +85,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                     setZone: true,
                   }
                 ).toFormat("ddMM")}${destination_iata}1`;
-                const baseUrl = `https://www.aviasales.com/search/${searchPath}`;
+                const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
                 const encodedUrl = encodeURIComponent(baseUrl);
                 const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
@@ -95,13 +95,15 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
                 return `💸 about <b>${
                   t.price
-                }$</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
                   link
                 )}</a></u>\n`;
               })
-              .join("\n") +
-            `\n\n<b>🔁🛬 Round trip tickets:</b>\n\n` +
-            ticketsRoundTrip
+              .join("\n")
+          : `😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`) +
+        `\n\n<b>🔁🛬 Round trip tickets:</b>\n\n` +
+        (ticketsOneWay.length > 0
+          ? ticketsRoundTrip
               .map((t) => {
                 const destination_iata = t.destination;
                 const departure_date = DateTime.fromISO(t.departure_at, {
@@ -133,7 +135,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                     setZone: true,
                   }
                 ).toFormat("ddMM")}1`;
-                const baseUrl = `https://www.aviasales.com/search/${searchPath}`;
+                const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
                 const encodedUrl = encodeURIComponent(baseUrl);
                 const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
@@ -144,12 +146,12 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
                 return `💸 about <b>${
                   t.price
-                }$</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
                   link
                 )}</a></u>\n`;
               })
               .join("\n")
-          : `<b>🔥 Cheapest flights from ${originCity} to ${destinationCity} for you</b>\n\n😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+          : `😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
       startMenuButton(chatId, message);
     } catch (err) {
       console.error("❌ handleTextMessage error:", err);
@@ -188,10 +190,10 @@ async function handleTextMessage(chatId, userInput, userInfo) {
         : "";
 
       const message =
-        ticketsRoundTrip.length > 0
-          ? `<b>🔥 Best deals from ${originCity} on ${userInput} for you</b>\n\n` +
-            `<b>➡️✈️ One way tickets:</b>\n\n` +
-            ticketsOneWay
+        `<b>🔥 Best deals from ${originCity} on ${userInput} for you</b>\n\n` +
+        `<b>➡️✈️ One way tickets:</b>\n\n` +
+        (ticketsOneWay.length > 0
+          ? ticketsOneWay
               .map((t) => {
                 const destination_iata = t.destination;
                 const destinationCity = t.desination_city;
@@ -208,7 +210,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                     setZone: true,
                   }
                 ).toFormat("ddMM")}${destination_iata}1`;
-                const baseUrl = `https://www.aviasales.com/search/${searchPath}`;
+                const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
                 const encodedUrl = encodeURIComponent(baseUrl);
                 const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
@@ -218,13 +220,15 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
                 return `💸 to <b>${destinationCity}</b> about <b>${
                   t.price
-                }$</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
                   link
                 )}</a></u>\n`;
               })
-              .join("\n") +
-            `\n\n<b>🔁🛬 Round trip tickets:</b>\n\n` +
-            ticketsRoundTrip
+              .join("\n")
+          : `😢💔 Sorry, I didn't find the best results, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`) +
+        `\n\n<b>🔁🛬 Round trip tickets:</b>\n\n` +
+        (ticketsRoundTrip.length > 0
+          ? ticketsRoundTrip
               .map((t) => {
                 const destination_iata = t.destination;
                 const destinationCity = t.desination_city;
@@ -257,7 +261,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                     setZone: true,
                   }
                 ).toFormat("ddMM")}1`;
-                const baseUrl = `https://www.aviasales.com/search/${searchPath}`;
+                const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
                 const encodedUrl = encodeURIComponent(baseUrl);
                 const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
@@ -268,12 +272,12 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
                 return `💸 to <b>${destinationCity}</b> about <b>${
                   t.price
-                }$</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
                   link
                 )}</a></u>\n`;
               })
               .join("\n")
-          : `😢💔 Sorry, I didn't find the best results, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+          : `😢💔 Sorry, I didn't find the best results, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
 
       await startMenuButton(chatId, message);
     } catch (err) {
