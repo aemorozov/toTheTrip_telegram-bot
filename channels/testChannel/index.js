@@ -10,20 +10,7 @@ const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-const airports = [
-  "BUH",
-  // "BUH",
-  // "BUH",
-  // "BUH",
-  // "BUH",
-  // "BUH",
-  // "BUH",
-  // "BUH",
-  // "CLJ",
-  // "IAS",
-  // "TSR",
-  // "SBZ",
-];
+const airports = ["BUH"];
 
 // === Redis helper
 async function redisRequest(method, key, value = null) {
