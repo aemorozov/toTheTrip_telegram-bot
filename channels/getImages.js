@@ -16,7 +16,7 @@ async function getCityImage(cityName) {
       params: {
         query,
         per_page: 1,
-        orientation: "portrait",
+        orientation: "square",
       },
     });
 
