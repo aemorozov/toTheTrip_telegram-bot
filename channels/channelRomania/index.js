@@ -5,7 +5,7 @@ const { getCityName } = require("../../services/db");
 const { getCityImage } = require("../getImages");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
-const CHANNEL_ID = "@cheapflightsforyou";
+const CHANNEL_ID = "@CheapFlightsRomania";
 const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
