@@ -2,14 +2,7 @@ const axios = require("axios");
 const PEXELS_API_KEY = process.env.PEXEL_KEY;
 
 async function getCityImage(cityName) {
-  const queries = [
-    `${cityName} cityscape panorama`,
-    `${cityName} skyline panorama`,
-    `${cityName} old town panorama`,
-    `${cityName} streets panorama`,
-    `${cityName} architecture panorama`,
-  ];
-  const query = queries[Math.floor(Math.random() * queries.length)];
+  const query = `${cityName} panorama`;
   try {
     const res = await axios.get("https://api.pexels.com/v1/search", {
       headers: { Authorization: PEXELS_API_KEY },
