@@ -3,11 +3,11 @@ const PEXELS_API_KEY = process.env.PEXEL_KEY;
 
 async function getCityImage(cityName) {
   const queries = [
-    `${cityName} cityscape`,
-    `${cityName} skyline`,
-    `${cityName} old town`,
-    `${cityName} streets`,
-    `${cityName} architecture`,
+    `${cityName} cityscape panorama`,
+    `${cityName} skyline panorama`,
+    `${cityName} old town panorama`,
+    `${cityName} streets panorama`,
+    `${cityName} architecture panorama`,
   ];
   const query = queries[Math.floor(Math.random() * queries.length)];
   try {
