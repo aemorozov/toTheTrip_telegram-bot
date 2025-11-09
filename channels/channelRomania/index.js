@@ -46,7 +46,7 @@ const hashtags = [
   "#CheapTrip",
   "#TravelEurope",
   "#FlyCheap",
-  "Trip",
+  "#Trip",
 
   // 🇷🇴 Romanian (no diacritics)
   "#Bilete",
