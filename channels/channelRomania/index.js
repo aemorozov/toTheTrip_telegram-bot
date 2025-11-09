@@ -1,12 +1,13 @@
+const CHANNEL_ID = "@CheapFlightsRomania";
 const axios = require("axios");
 const FormData = require("form-data");
 const { DateTime } = require("luxon");
 const { extractShortLink } = require("../encodeLink");
 const { getCityName } = require("../../services/db");
 const { getCityImage } = require("../getImages");
+const { translateToRomanian } = require("./translater");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
-const CHANNEL_ID = "@CheapFlightsRomania";
 const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -139,16 +140,16 @@ async function postCheapFlights() {
   const destinationName = await getCityName(flights[0].destination);
 
   const titles = [
-    "✈️ Best flights from",
-    "👀 Look! Best deals from",
-    "🔥 WOW, it's really cheap! Flights from",
-    "⏰ Don't miss! Cheap flights from",
-    "💰 Hot prices alert! Cheap flights from",
-    "🛫 Fly cheap from",
-    "✨ Amazing deals from",
-    "🎯 Grab it now! Cheap flights from",
-    "🏷️ Unbeatable prices for flights from",
-    "⭐ Exclusive offers from",
+    "✈️ Best round trip flights from",
+    "👀 Look! Best round trip deals from",
+    "🔥 WOW, it's really cheap! Round trip flights from",
+    "⏰ Don't miss! Cheap round trip flights from",
+    "💰 Hot prices alert! Cheap round trip flights from",
+    "🛫 Fly round trip cheap from",
+    "✨ Amazing round trip deals from",
+    "🎯 Grab it now! Cheap round trip flights from",
+    "🏷️ Unbeatable prices for round trip flights from",
+    "⭐ Exclusive round trip offers from",
   ];
 
   const title = titles[Math.floor(Math.random() * titles.length)];
@@ -201,10 +202,12 @@ async function postCheapFlights() {
     return;
   }
 
+  const translateMessage = await translateToRomanian(message);
+
   // === отправляем фото с подписью через FormData
   const form = new FormData();
   form.append("chat_id", CHANNEL_ID);
-  form.append("caption", message);
+  form.append("caption", translateMessage);
   form.append("parse_mode", "HTML");
   form.append("disable_web_page_preview", "true");
   form.append("photo", imageBuffer, `${destinationName}.jpg`);
@@ -282,16 +285,16 @@ async function postTOPFlights() {
   );
 
   const titles = [
-    "💸 TOP cheapest flights from",
-    "🏆 Best price deals from",
-    "🔥 Hottest flight offers from",
-    "✈️ Top budget-friendly flights from",
-    "📉 Lowest fares right now from",
+    "💸 TOP cheapest round trip flights from",
+    "🏆 Best price round trip deals from",
+    "🔥 Hottest round trip flight offers from",
+    "✈️ Top budget-friendly round trip flights from",
+    "📉 Lowest round trip fares right now from",
     "🛫 Fly smart — best prices from",
-    "💰 Unmissable cheap flights from",
-    "🌍 TOP travel deals from",
+    "💰 Unmissable cheap round trip flights from",
+    "🌍 TOP round trip travel deals from",
     "🎯 Cheapest destinations from",
-    "⭐ Best of the best deals from",
+    "⭐ Best of the best round trip deals from",
   ];
 
   const title = titles[Math.floor(Math.random() * titles.length)];
@@ -346,10 +349,11 @@ async function postTOPFlights() {
     return;
   }
 
-  console.log("message length:", message.length);
+  const translateMessage = await translateToRomanian(message);
+
   const form = new FormData();
   form.append("chat_id", CHANNEL_ID);
-  form.append("caption", message);
+  form.append("caption", translateMessage);
   form.append("parse_mode", "HTML");
   form.append("disable_web_page_preview", "true");
   form.append("photo", imageBuffer, `${destinationName}.jpg`);
