@@ -31,6 +31,99 @@ const airports = [
   "TSR",
 ];
 
+// 🔥 Полный массив хэштегов
+const hashtags = [
+  // 🌍 Общие
+  "#Romania",
+  "#Flights",
+  "#CheapFlights",
+  "#TravelDeals",
+  "#BudgetTravel",
+  "#Travel",
+  "#Trip",
+  "#Vacation",
+  "#FlyNow",
+  "#Adventure",
+  "#Explore",
+  "#TravelMore",
+  "#BestDeals",
+  "#LowCostFlights",
+  "#TravelGram",
+  "#Wanderlust",
+
+  // ✈️ Авиакомпании
+  "#Tarom",
+  "#WizzAir",
+  "#BlueAir",
+  "#Ryanair",
+  "#Lufthansa",
+  "#AirFrance",
+  "#KLM",
+  "#BritishAirways",
+  "#Emirates",
+  "#QatarAirways",
+  "#TurkishAirlines",
+  "#LOTPolishAirlines",
+  "#AustrianAirlines",
+  "#SwissAir",
+  "#Finnair",
+  "#Alitalia",
+  "#SAS",
+  "#NorwegianAir",
+  "#easyJet",
+  "#BrusselsAirlines",
+
+  // 💸 Тематические
+  "#CheapTickets",
+  "#LowCostAirlines",
+  "#FlightOffers",
+  "#LastMinuteDeals",
+  "#DiscountFlights",
+  "#BudgetAirlines",
+  "#BestFlightDeals",
+  "#FlySmart",
+  "#TravelTips",
+  "#AirfareDeals",
+  "#PlaneTickets",
+  "#TravelInEurope",
+  "#WeekendTrips",
+  "#TravelCheap",
+  "#HolidayDeals",
+  "#SaveOnTravel",
+  "#SkyDeals",
+  "#FlyForLess",
+  "#BudgetEscape",
+  "#SmartTravel",
+
+  // ✈️ Короткие эмоциональные / мотивационные
+  "#Travel",
+  "#Trip",
+  "#Fly",
+  "#Journey",
+  "#Explore",
+  "#Vacation",
+  "#Adventure",
+  "#Holiday",
+  "#Escape",
+  "#Wander",
+  "#Tour",
+  "#TravelFun",
+  "#TravelTime",
+  "#GoTravel",
+  "#RoadTrip",
+  "#TravelLife",
+  "#TravelNow",
+  "#TravelMore",
+  "#LetsGo",
+  "#TravelDaily",
+];
+
+// ✈️ Функция для выбора случайных 5 хэштегов
+function getRandomHashtags(count = 5) {
+  const shuffled = [...hashtags].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count).join(" ");
+}
+
 function getRandomOrigins(count = 1) {
   const copy = [...airports];
   const origins = [];
@@ -125,10 +218,12 @@ async function postCheapFlights() {
             const sd = extractSearchDateISO(f.link);
             return sd === todayISO || sd === yesterdayISO;
           });
+
+          console.log("finalFlights:", finalFlights);
         }
 
         if (finalFlights.length) {
-          const limitedFlights = filteredFlights.slice(0, 8);
+          const limitedFlights = finalFlights.slice(0, 7);
           flights.push(...limitedFlights);
           break;
         }
@@ -163,8 +258,9 @@ async function postCheapFlights() {
   ];
 
   const title = titles[Math.floor(Math.random() * titles.length)];
+  const randomHashtags = getRandomHashtags(5);
 
-  let message = `<b>${title} ${originName.toUpperCase()} to ${destinationName.toUpperCase()} from ${
+  let message = `<b>${title} #${originName.toUpperCase()} to ${destinationName.toUpperCase()} from ${
     flights[0].price
   }€</b>\n`;
 
@@ -193,7 +289,7 @@ async function postCheapFlights() {
 🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
   }
 
-  message += `\n📢 Share with friends!\n\n🤖 <b>Try our bot: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>`;
+  message += `\n📢 Share with friends!\n\n🤖 <b>Try our bot: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>\n\n${randomHashtags}`;
 
   // === получаем квадратное изображение
   const imageBuffer = await getCityImage(destinationName);
@@ -281,7 +377,7 @@ async function postTOPFlights() {
         if (!filteredFlights.length) continue;
 
         if (filteredFlights.length) {
-          const limitedFlights = filteredFlights.slice(0, 8);
+          const limitedFlights = filteredFlights.slice(0, 7);
           flights.push(...limitedFlights);
           break;
         }
@@ -318,8 +414,9 @@ async function postTOPFlights() {
   ];
 
   const title = titles[Math.floor(Math.random() * titles.length)];
+  const randomHashtags = getRandomHashtags(5);
 
-  let message = `<b>${title} ${originName.toUpperCase()} from ${
+  let message = `<b>${title} #${originName.toUpperCase()} from ${
     flights[0].price
   }€</b>\n`;
 
@@ -350,7 +447,7 @@ async function postTOPFlights() {
 🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
   }
 
-  message += `\n📢 Share with friends!\n\n🤖 <b>Try our bot: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>`;
+  message += `\n📢 Share with friends!\n\n🤖 <b>Try our bot: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>\n\n${randomHashtags}`;
 
   // === получаем квадратное изображение
   const imageBuffer = await getCityImage(destinationName);
