@@ -4,6 +4,7 @@ const { DateTime } = require("luxon");
 const { extractShortLink } = require("../encodeLink");
 const { getCityName } = require("../../services/db");
 const { getCityImage } = require("../getImages");
+const { translateToRomanian } = require("./translater");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHANNEL_ID = "@cheapflightsforyou";
@@ -127,7 +128,8 @@ async function postCheapFlights() {
         }
 
         if (finalFlights.length) {
-          flights.push(...finalFlights);
+          const limitedFlights = filteredFlights.slice(0, 8);
+          flights.push(...limitedFlights);
           break;
         }
       } catch (err) {
@@ -279,7 +281,8 @@ async function postTOPFlights() {
         if (!filteredFlights.length) continue;
 
         if (filteredFlights.length) {
-          flights.push(...filteredFlights);
+          const limitedFlights = filteredFlights.slice(0, 8);
+          flights.push(...limitedFlights);
           break;
         }
       } catch (err) {

@@ -128,7 +128,8 @@ async function postCheapFlights() {
         }
 
         if (finalFlights.length) {
-          flights.push(...finalFlights);
+          const limitedFlights = filteredFlights.slice(0, 8);
+          flights.push(...limitedFlights);
           break;
         }
       } catch (err) {
@@ -280,7 +281,8 @@ async function postTOPFlights() {
         if (!filteredFlights.length) continue;
 
         if (filteredFlights.length) {
-          flights.push(...filteredFlights);
+          const limitedFlights = filteredFlights.slice(0, 8);
+          flights.push(...limitedFlights);
           break;
         }
       } catch (err) {
