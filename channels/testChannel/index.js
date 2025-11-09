@@ -1,4 +1,5 @@
 const axios = require("axios");
+const FormData = require("form-data");
 const { DateTime } = require("luxon");
 const { extractShortLink } = require("../encodeLink");
 const { getCityName } = require("../../services/db");
@@ -10,7 +11,26 @@ const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-const airports = ["BUH"];
+const airports = [
+  "BUH",
+  "BUH",
+  "BUH",
+  "BUH",
+  "BUH",
+  "BUH",
+  "BUH",
+  "BUH",
+  "BUH",
+  "BUH",
+  "BUH",
+  "BUH",
+  "CLJ",
+  "CRA",
+  "IAS",
+  "OMR",
+  "SBZ",
+  "TSR",
+];
 
 // === Redis helper
 async function redisRequest(method, key, value = null) {
@@ -34,138 +54,172 @@ function getRandomOrigins(count = 1) {
 }
 
 async function postCheapFlights() {
-  const origins = getRandomOrigins();
-  let allFlights = [];
   let flights = [];
+  const maxOriginAttempts = 5;
+  let originAttempts = 0;
 
-  for (const origin of origins) {
-    const { data } = await axios.get(
-      "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
-      {
-        params: {
-          currency: "eur",
-          origin,
-          unique: true,
-          sorting: "price",
-          direct: false,
-          one_way: false,
-          limit: 100,
-          token: TRAVELPAYOUTS_TOKEN,
-        },
-      }
-    );
+  while (flights.length === 0 && originAttempts < maxOriginAttempts) {
+    originAttempts++;
+    const origins = getRandomOrigins(3);
 
-    allFlights.push(...data?.data);
-
-    const filteredFlights = allFlights.filter(
-      (f) => f.transfers <= 2 && f.return_transfers <= 2
-    );
-
-    const destinations = filteredFlights.map((f) => f.destination);
-    console.log(destinations);
-
-    // функция, которая делает попытку запроса и повторяет при пустом ответе
-    async function tryDestination() {
-      let attempts = 0;
-      let finalFlights = [];
-
-      while (finalFlights.length <= 1 && attempts < 5) {
-        attempts++;
-
-        const destination =
-          destinations[Math.floor(Math.random() * destinations.length)];
-
-        const { data: finalResponse } = await axios.get(
+    for (const origin of origins) {
+      try {
+        const { data } = await axios.get(
           "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
           {
             params: {
               currency: "eur",
               origin,
-              destination,
-              unique: false,
+              unique: true,
               sorting: "price",
               direct: false,
               one_way: false,
-              limit: 6,
+              limit: 100,
               token: TRAVELPAYOUTS_TOKEN,
             },
           }
         );
 
-        finalFlights = finalResponse?.data || [];
-        console.log(
-          `🔁 Попытка ${attempts}: ${destination} (${finalFlights.length} найдено)`
+        const allFlights = data?.data || [];
+        const filteredFlights = allFlights.filter(
+          (f) => f.transfers <= 2 && f.return_transfers <= 2
         );
-      }
-      return finalFlights;
-    }
 
-    const finalFlights = await tryDestination();
-    flights.push(...finalFlights);
+        if (!filteredFlights.length) continue;
+
+        const destinations = filteredFlights.map((f) => f.destination);
+        let finalFlights = [];
+        let destAttempts = 0;
+        const maxDestAttempts = 5;
+
+        while (finalFlights.length === 0 && destAttempts < maxDestAttempts) {
+          destAttempts++;
+          const destination =
+            destinations[Math.floor(Math.random() * destinations.length)];
+
+          const { data: finalResponse } = await axios.get(
+            "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
+            {
+              params: {
+                currency: "eur",
+                origin,
+                destination,
+                unique: false,
+                sorting: "price",
+                direct: false,
+                one_way: false,
+                limit: 6,
+                token: TRAVELPAYOUTS_TOKEN,
+              },
+            }
+          );
+
+          finalFlights = finalResponse?.data || [];
+        }
+
+        if (finalFlights.length) {
+          flights.push(...finalFlights);
+          break;
+        }
+      } catch (err) {
+        console.warn(`Ошибка при запросе рейсов из ${origin}:`, err.message);
+        continue;
+      }
+    }
   }
 
-  console.log(flights);
+  if (!flights.length) {
+    console.error(
+      "⚠️ Не удалось найти ни одного рейса после нескольких попыток."
+    );
+    return;
+  }
 
-  // узнаем названия городов для сообщения
   const originName = await getCityName(flights[0].origin);
   const destinationName = await getCityName(flights[0].destination);
 
-  // формируем сообщение
-  let message = `🔥 <b>Best flights from ${originName.toUpperCase()} to ${destinationName.toUpperCase()} from ${
+  const titles = [
+    "✈️ Best flights from",
+    "👀 Look! Best deals from",
+    "🔥 WOW, it's really cheap! From",
+    "⏰ Don't miss! Flights from",
+    "💰 Hot prices alert! From",
+    "🛫 Fly cheap from",
+    "✨ Amazing deals from",
+    "🎯 Grab it now! From",
+    "🏷️ Unbeatable prices from",
+    "⭐ Exclusive offers from",
+  ];
+
+  const title = titles[Math.floor(Math.random() * titles.length)];
+
+  let message = `<b>${title} ${originName.toUpperCase()} to ${destinationName.toUpperCase()} from ${
     flights[0].price
   }€</b>\n`;
 
-  // проходим по каждому билеты и формируем предложения в сообщении
   for (const flight of flights) {
-    // работаем со временем и датой
     const dtDeparture = DateTime.fromISO(flight.departure_at, {
       setZone: true,
     });
-    const formattedDateDeparture = dtDeparture.toFormat("dd.MM.yyyy");
-    const formattedTimeDeparture = dtDeparture.toFormat("HH:mm");
     const dtReturn = DateTime.fromISO(flight.return_at, { setZone: true });
-    const formattedDateReturn = dtReturn.toFormat("dd.MM.yyyy");
-    const formattedTimeReturn = dtReturn.toFormat("HH:mm");
 
-    // формируем ссылку
     const short = extractShortLink();
-    const searchPath = `${flight.origin}${DateTime.fromISO(
-      flight.departure_at,
-      {
-        setZone: true,
-      }
-    ).toFormat("ddMM")}${flight.destination}${DateTime.fromISO(
-      flight.return_at,
-      {
-        setZone: true,
-      }
-    ).toFormat("ddMM")}1`;
+    const searchPath = `${flight.origin}${dtDeparture.toFormat("ddMM")}${
+      flight.destination
+    }${dtReturn.toFormat("ddMM")}1`;
     const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
     const encodedUrl = encodeURIComponent(baseUrl);
     const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
-    // добавляем предложение в сообщение
     message += `
 💸 about <b>${flight.price}€</b>
-🛫 <b>${formattedDateDeparture}</b>  🕐 <b>${formattedTimeDeparture}</b>
-🛬 <b>${formattedDateReturn}</b>  🕐 <b>${formattedTimeReturn}</b>
+🛫 <b>${dtDeparture.toFormat("dd.MM.yyyy")}</b>  🕐 <b>${dtDeparture.toFormat(
+      "HH:mm"
+    )}</b>
+🛬 <b>${dtReturn.toFormat("dd.MM.yyyy")}</b>  🕐 <b>${dtReturn.toFormat(
+      "HH:mm"
+    )}</b>
 🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
   }
 
   message += `\n📢 Share with friends!\n\n🤖 <b>Try our bot: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>`;
 
-  // получаем картинку
-  const imageUrl = await getCityImage(destinationName);
+  // === получаем квадратное изображение
+  const imageBuffer = await getCityImage(destinationName);
 
-  await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {
-    chat_id: CHANNEL_ID,
-    photo: imageUrl,
-    caption: message,
-    parse_mode: "HTML",
-    disable_web_page_preview: true,
-  });
+  if (!imageBuffer) {
+    console.warn("⚠️ Не удалось получить изображение. Отправляю без фото.");
+    await axios.post(
+      `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
+      {
+        chat_id: CHANNEL_ID,
+        text: message,
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+      }
+    );
+    return;
+  }
 
-  console.log("✅ Flights posted to Telegram");
+  // === отправляем фото с подписью через FormData
+  const form = new FormData();
+  form.append("chat_id", CHANNEL_ID);
+  form.append("caption", message);
+  form.append("parse_mode", "HTML");
+  form.append("disable_web_page_preview", "true");
+  form.append("photo", imageBuffer, `${destinationName}.jpg`);
+
+  await axios.post(
+    `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`,
+    form,
+    {
+      headers: form.getHeaders(),
+    }
+  );
+
+  console.log(
+    `✅ Flights from ${originName} to ${destinationName} posted to Telegram`
+  );
 }
 
 module.exports = { postCheapFlights };
