@@ -9,8 +9,6 @@ const { translateToRomanian } = require("./translater");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
-const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
-const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 const airports = [
   "BUH",
@@ -33,17 +31,6 @@ const airports = [
   "TSR",
 ];
 
-// === Redis helper
-async function redisRequest(method, key, value = null) {
-  const url = `${UPSTASH_REDIS_REST_URL}/${method}/${encodeURIComponent(key)}${
-    value ? `/${encodeURIComponent(value)}` : ""
-  }`;
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${UPSTASH_REDIS_REST_TOKEN}` },
-  });
-  return res.json();
-}
-
 function getRandomOrigins(count = 1) {
   const copy = [...airports];
   const origins = [];
@@ -53,6 +40,19 @@ function getRandomOrigins(count = 1) {
   }
   return origins;
 }
+
+// helper: извлекает дату в формате "YYYY-MM-DD" из link (search_date=DDMMYYYY)
+function extractSearchDateISO(link) {
+  const m = link && link.match(/search_date=(\d{8})/);
+  if (!m) return null;
+  const s = m[1]; // DDMMYYYY
+  return `${s.slice(4)}-${s.slice(2, 4)}-${s.slice(0, 2)}`; // YYYY-MM-DD
+}
+
+const todayISO = new Date().toISOString().slice(0, 10);
+const yesterdayISO = new Date(Date.now() - 24 * 60 * 60 * 1000)
+  .toISOString()
+  .slice(0, 10);
 
 async function postCheapFlights() {
   let flights = [];
@@ -90,11 +90,13 @@ async function postCheapFlights() {
 
         const destinations = filteredFlights.map((f) => f.destination);
         let finalFlights = [];
+        let prefinalFlights = [];
         let destAttempts = 0;
         const maxDestAttempts = 5;
 
         while (finalFlights.length === 0 && destAttempts < maxDestAttempts) {
           destAttempts++;
+
           const destination =
             destinations[Math.floor(Math.random() * destinations.length)];
 
@@ -109,13 +111,20 @@ async function postCheapFlights() {
                 sorting: "price",
                 direct: false,
                 one_way: false,
-                limit: 6,
+                limit: 15,
                 token: TRAVELPAYOUTS_TOKEN,
               },
             }
           );
 
-          finalFlights = finalResponse?.data || [];
+          // все пришедшие предложения
+          prefinalFlights = finalResponse?.data || [];
+
+          // фильтруем только по свежей search_date (сегодня или вчера)
+          finalFlights = prefinalFlights.filter((f) => {
+            const sd = extractSearchDateISO(f.link);
+            return sd === todayISO || sd === yesterdayISO;
+          });
         }
 
         if (finalFlights.length) {
@@ -248,16 +257,25 @@ async function postTOPFlights() {
               sorting: "price",
               direct: false,
               one_way: false,
-              limit: 6,
+              limit: 20,
               token: TRAVELPAYOUTS_TOKEN,
             },
           }
         );
 
         const allFlights = data?.data || [];
-        const filteredFlights = allFlights.filter(
-          (f) => f.transfers <= 2 && f.return_transfers <= 2
-        );
+
+        console.log("allFlights: ", allFlights);
+        const filteredFlights = allFlights.filter((f) => {
+          const sd = extractSearchDateISO(f.link);
+          return (
+            (sd === todayISO || sd === yesterdayISO) &&
+            f.transfers <= 2 &&
+            f.return_transfers <= 2
+          );
+        });
+
+        console.log("filteredFlights: ", filteredFlights);
 
         if (!filteredFlights.length) continue;
 
