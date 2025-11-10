@@ -9,7 +9,7 @@ async function translateToRomanian(text) {
       {
         role: "user",
         content: `Translate the following text to Romanian without using any diacritics (i.e., characters should be standard ASCII, like in English) and keep all formatting (HTML tags, emojis) intact. 
-Return only the translated text, without any explanations or additional commentary. Don't translate Cheap Flights Bot. Translate "Link" like "Legatura". Don't use abbreviations.
+Return only the translated text, without any explanations or additional commentary. Don't translate Cheap Flights Bot. Translate "Link" like "Legatura". Don't use abbreviations. Date make like that format "12 Ian 2026".
 
 Text to translate:
 ${text}

@@ -36,16 +36,14 @@ const hashtags = [
   // 🌍 English SEO
   "#CheapFlights",
   "#CheapTickets",
-  "#LowCostFlights",
+  "#LowCost",
   "#CheapTravel",
   "#Travel",
   "#Cheap",
   "#Flights",
   "#Tickets",
   "#Discount",
-  "#CheapTrip",
   "#TravelEurope",
-  "#FlyCheap",
   "#Trip",
 
   // 🇷🇴 Romanian (no diacritics)
@@ -56,11 +54,7 @@ const hashtags = [
   "#Romania",
   "#Avion",
   "#Europa",
-  "#LowCost",
-  "#Vacante",
   "#Weekend",
-  "#Vacanta",
-  "#Promotii",
 
   // 🛫 Airlines (часто ищут)
   "#WizzAir",
@@ -246,17 +240,17 @@ async function postCheapFlights() {
     const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
     message += `
-💸 about <b>${flight.price}€</b>
-🛫 <b>${dtDeparture.toFormat("dd.MM.yyyy")}</b>  🕐 <b>${dtDeparture.toFormat(
-      "HH:mm"
-    )}</b>
-🛬 <b>${dtReturn.toFormat("dd.MM.yyyy")}</b>  🕐 <b>${dtReturn.toFormat(
-      "HH:mm"
-    )}</b>
+✈️ about <b>${flight.price}€</b>
+📅 <b>${dtDeparture
+      .setLocale("en")
+      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtDeparture.toFormat("HH:mm")}</b>
+📅 <b>${dtReturn
+      .setLocale("en")
+      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtReturn.toFormat("HH:mm")}</b>
 🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
   }
 
-  message += `\n📢 Share with friends!\n\n🤖 <b>Try our bot: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>\n\n${randomHashtags}`;
+  message += `\n📢 Share with friends!\n\n🤖 <b>@CheapFlightsToTheTripBot</b> - your cheap flights bot\n\n${randomHashtags}`;
 
   // === получаем квадратное изображение
   const imageBuffer = await getCityImage(destinationName);
@@ -404,17 +398,17 @@ async function postTOPFlights() {
     const destinationName = await getCityName(flight.destination);
 
     message += `
-💸 to <b>${destinationName}</b> about <b>${flight.price}€</b>
-🛫 <b>${dtDeparture.toFormat("dd.MM.yyyy")}</b>  🕐 <b>${dtDeparture.toFormat(
-      "HH:mm"
-    )}</b>
-🛬 <b>${dtReturn.toFormat("dd.MM.yyyy")}</b>  🕐 <b>${dtReturn.toFormat(
-      "HH:mm"
-    )}</b>
+✈️ to <b>${destinationName}</b> about <b>${flight.price}€</b>
+📅 <b>${dtDeparture
+      .setLocale("en")
+      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtDeparture.toFormat("HH:mm")}</b>
+📅 <b>${dtReturn
+      .setLocale("en")
+      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtReturn.toFormat("HH:mm")}</b>
 🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
   }
 
-  message += `\n📢 Share with friends!\n\n🤖 <b>Try our bot: <a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>\n\n${randomHashtags}`;
+  message += `\n📢 Share with friends!\n\n🤖 <b>@CheapFlightsToTheTripBot</b> - your cheap flights bot\n\n${randomHashtags}`;
 
   // === получаем квадратное изображение
   const imageBuffer = await getCityImage(destinationName);
