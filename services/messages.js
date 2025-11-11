@@ -74,7 +74,9 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                 const destination_iata = t.destination;
                 const departure_date = DateTime.fromISO(t.departure_at, {
                   setZone: true,
-                }).toFormat("dd.MM");
+                })
+                  .setLocale("en")
+                  .toFormat("dd LLL yyyy");
                 const departure_time = DateTime.fromISO(t.departure_at, {
                   setZone: true,
                 }).toFormat("HH:mm");
@@ -91,16 +93,16 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
                 const transfers = t.transfers;
                 const textForTransfers =
-                  transfers == "0" ? "Direct" : transfers;
+                  transfers == "0" ? "" : `🔃 ${transfers}`;
 
                 return `💸 about <b>${
                   t.price
-                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
                   link
                 )}</a></u>\n`;
               })
               .join("\n")
-          : `😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`) +
+          : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`) +
         `\n\n<b>🔁🛬 Round trip tickets:</b>\n\n` +
         (ticketsOneWay.length > 0
           ? ticketsRoundTrip
@@ -108,7 +110,9 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                 const destination_iata = t.destination;
                 const departure_date = DateTime.fromISO(t.departure_at, {
                   setZone: true,
-                }).toFormat("dd.MM");
+                })
+                  .setLocale("en")
+                  .toFormat("dd LLL yyyy");
                 const departure_time = DateTime.fromISO(t.departure_at, {
                   setZone: true,
                 }).toFormat("HH:mm");
@@ -117,7 +121,9 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
                 const return_date = DateTime.fromISO(t.return_at, {
                   setZone: true,
-                }).toFormat("dd.MM");
+                })
+                  .setLocale("en")
+                  .toFormat("dd LLL yyyy");
                 const return_time = DateTime.fromISO(t.return_at, {
                   setZone: true,
                 }).toFormat("HH:mm");
@@ -140,18 +146,18 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                 const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
                 const depart_transfers_text =
-                  depart_transfers == "0" ? "Direct" : depart_transfers;
+                  depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
                 const return_transfers_text =
-                  return_transfers == "0" ? "Direct" : return_transfers;
+                  return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
 
                 return `💸 about <b>${
                   t.price
-                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
                   link
                 )}</a></u>\n`;
               })
               .join("\n")
-          : `😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
+          : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
       startMenuButton(chatId, message);
     } catch (err) {
       console.error("❌ handleTextMessage error:", err);
@@ -199,7 +205,9 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                 const destinationCity = t.desination_city;
                 const departure_date = DateTime.fromISO(t.departure_at, {
                   setZone: true,
-                }).toFormat("dd.MM");
+                })
+                  .setLocale("en")
+                  .toFormat("dd LLL yyyy");
                 const departure_time = DateTime.fromISO(t.departure_at, {
                   setZone: true,
                 }).toFormat("HH:mm");
@@ -216,16 +224,16 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
                 const transfers = t.transfers;
                 const textForTransfers =
-                  transfers == "0" ? "Direct" : transfers;
+                  transfers == "0" ? "" : `🔃 ${transfers}`;
 
                 return `💸 to <b>${destinationCity}</b> about <b>${
                   t.price
-                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
                   link
                 )}</a></u>\n`;
               })
               .join("\n")
-          : `😢💔 Sorry, I didn't find the best results, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`) +
+          : `😢💔 Sorry, I can't find the best results, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`) +
         `\n\n<b>🔁🛬 Round trip tickets:</b>\n\n` +
         (ticketsRoundTrip.length > 0
           ? ticketsRoundTrip
@@ -234,7 +242,9 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                 const destinationCity = t.desination_city;
                 const departure_date = DateTime.fromISO(t.departure_at, {
                   setZone: true,
-                }).toFormat("dd.MM");
+                })
+                  .setLocale("en")
+                  .toFormat("dd LLL yyyy");
                 const departure_time = DateTime.fromISO(t.departure_at, {
                   setZone: true,
                 }).toFormat("HH:mm");
@@ -243,7 +253,9 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
                 const return_date = DateTime.fromISO(t.return_at, {
                   setZone: true,
-                }).toFormat("dd.MM");
+                })
+                  .setLocale("en")
+                  .toFormat("dd LLL yyyy");
                 const return_time = DateTime.fromISO(t.return_at, {
                   setZone: true,
                 }).toFormat("HH:mm");
@@ -266,18 +278,18 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                 const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
                 const depart_transfers_text =
-                  depart_transfers == "0" ? "Direct" : depart_transfers;
+                  depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
                 const return_transfers_text =
-                  return_transfers == "0" ? "Direct" : return_transfers;
+                  return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
 
                 return `💸 to <b>${destinationCity}</b> about <b>${
                   t.price
-                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
                   link
                 )}</a></u>\n`;
               })
               .join("\n")
-          : `😢💔 Sorry, I didn't find the best results, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
+          : `😢💔 Sorry, I can't find the best results, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
 
       await startMenuButton(chatId, message);
     } catch (err) {

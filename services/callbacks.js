@@ -67,14 +67,16 @@ async function handleCallbackQuery(chatId, data) {
 
     const message =
       tickets.length > 0
-        ? `<b>🔥 TOP cheapest one way flights from ${userObj.city} for you</b>:\n\n` +
+        ? `<b>🔥 TOP cheapest one way flights from ${userObj.city.toUpperCase()} for you</b>:\n\n` +
           tickets
             .map((t) => {
               const destination_iata = t.destination;
               const destination = t.desination_city;
               const departure_date = DateTime.fromISO(t.departure_at, {
                 setZone: true,
-              }).toFormat("dd.MM");
+              })
+                .setLocale("en")
+                .toFormat("dd LLL yyyy");
               const departure_time = DateTime.fromISO(t.departure_at, {
                 setZone: true,
               }).toFormat("HH:mm");
@@ -90,16 +92,17 @@ async function handleCallbackQuery(chatId, data) {
               const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
               const transfers = t.transfers;
-              const textForTransfers = transfers == "0" ? "Direct" : transfers;
+              const textForTransfers =
+                transfers == "0" ? "" : `🔃 ${transfers}`;
 
               return `✈️ to <b>${destination}</b> about <b>${
                 t.price
-              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
+              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${textForTransfers}\n🔗 <u><a href="${link}">https://${extractShortLink(
                 link
               )}</a></u>\n`;
             })
             .join("\n")
-        : `<b>🔥 TOP cheapest one way flights from ${userObj.city} for you</b>:\n\n😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+        : `<b>🔥 TOP cheapest one way flights from ${userObj.city} for you</b>:\n\n😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
     startMenuButton(chatId, message);
   }
 
@@ -128,14 +131,16 @@ async function handleCallbackQuery(chatId, data) {
 
     const message =
       tickets.length > 0
-        ? `<b>🔥 TOP cheapest round trip flights from ${userObj.city} for you</b>:\n\n` +
+        ? `<b>🔥 TOP cheapest round trip flights from ${userObj.city.toUpperCase()} for you</b>:\n\n` +
           tickets
             .map((t) => {
               const destination_iata = t.destination;
               const destination = t.desination_city;
               const departure_date = DateTime.fromISO(t.departure_at, {
                 setZone: true,
-              }).toFormat("dd.MM");
+              })
+                .setLocale("en")
+                .toFormat("dd LLL yyyy");
               const departure_time = DateTime.fromISO(t.departure_at, {
                 setZone: true,
               }).toFormat("HH:mm");
@@ -144,7 +149,9 @@ async function handleCallbackQuery(chatId, data) {
 
               const return_date = DateTime.fromISO(t.return_at, {
                 setZone: true,
-              }).toFormat("dd.MM");
+              })
+                .setLocale("en")
+                .toFormat("dd LLL yyyy");
               const return_time = DateTime.fromISO(t.return_at, {
                 setZone: true,
               }).toFormat("HH:mm");
@@ -167,18 +174,18 @@ async function handleCallbackQuery(chatId, data) {
               const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
               const depart_transfers_text =
-                depart_transfers == "0" ? "Direct" : depart_transfers;
+                depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
               const return_transfers_text =
-                return_transfers == "0" ? "Direct" : return_transfers;
+                return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
 
               return `✈️ to <b>${destination}</b> about <b>${
                 t.price
-              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
                 link
               )}</a></u>\n`;
             })
             .join("\n")
-        : `<b>🔥 TOP cheapest round trip flights from ${userObj.city} for you</b>:\n\n😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+        : `<b>🔥 TOP cheapest round trip flights from ${userObj.city} for you</b>:\n\n😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
 
     startMenuButton(chatId, message);
   }
@@ -223,7 +230,7 @@ async function handleCallbackQuery(chatId, data) {
       DateTime.fromJSDate(currentDate).toFormat("dd.MM.yyyy");
 
     const message =
-      `<b>🔥 Scpecial offers from ${originCity} for ${dateAndMonth}</b>\n\n` +
+      `<b>🔥 Special offers from ${originCity.toUpperCase()}</b>\n\n` +
       `<b>➡️✈️ One way tickets:</b>\n\n` +
       (ticketsOneWay.length > 0
         ? ticketsOneWay
@@ -232,7 +239,9 @@ async function handleCallbackQuery(chatId, data) {
               const destinationCity = t.desination_city;
               const departure_date = DateTime.fromISO(t.departure_at, {
                 setZone: true,
-              }).toFormat("dd.MM");
+              })
+                .setLocale("en")
+                .toFormat("dd LLL yyyy");
               const departure_time = DateTime.fromISO(t.departure_at, {
                 setZone: true,
               }).toFormat("HH:mm");
@@ -256,7 +265,7 @@ async function handleCallbackQuery(chatId, data) {
               )}</a></u>\n`;
             })
             .join("\n")
-        : `😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`) +
+        : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`) +
       `\n\n<b>🔁🛬 Round trip tickets:</b>\n\n` +
       (ticketsRoundTrip.length > 0
         ? ticketsRoundTrip
@@ -265,7 +274,9 @@ async function handleCallbackQuery(chatId, data) {
               const destinationCity = t.desination_city;
               const departure_date = DateTime.fromISO(t.departure_at, {
                 setZone: true,
-              }).toFormat("dd.MM");
+              })
+                .setLocale("en")
+                .toFormat("dd LLL yyyy");
               const departure_time = DateTime.fromISO(t.departure_at, {
                 setZone: true,
               }).toFormat("HH:mm");
@@ -274,7 +285,9 @@ async function handleCallbackQuery(chatId, data) {
 
               const return_date = DateTime.fromISO(t.return_at, {
                 setZone: true,
-              }).toFormat("dd.MM");
+              })
+                .setLocale("en")
+                .toFormat("dd LLL yyyy");
               const return_time = DateTime.fromISO(t.return_at, {
                 setZone: true,
               }).toFormat("HH:mm");
@@ -297,19 +310,19 @@ async function handleCallbackQuery(chatId, data) {
               const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
               const depart_transfers_text =
-                depart_transfers == "0" ? "Direct" : depart_transfers;
+                depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
               const return_transfers_text =
-                return_transfers == "0" ? "Direct" : return_transfers;
+                return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
 
               return `💸 to <b>${destinationCity}</b> about <b>${
                 t.price
-              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  🔃 ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  🔃 ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
                 link
               )}</a></u>\n`;
             })
             .join("\n")
-        : `😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
-    // : `<b>🔥 Special offers from ${originCity} for you</b>\n\n😢💔 Sorry, I didn't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+        : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
+    // : `<b>🔥 Special offers from ${originCity} for you</b>\n\n😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
     startMenuButton(chatId, message);
   }
 

@@ -1,9 +1,6 @@
 const { safeSend } = require("./telegram");
-const { DateTime } = require("luxon");
 
 async function startMenu(chatId, city) {
-  const currentDate = new Date();
-  const dateAndMonth = DateTime.fromJSDate(currentDate).toFormat("dd.MM.yyyy");
   try {
     const options = {
       parse_mode: "HTML",
@@ -11,13 +8,19 @@ async function startMenu(chatId, city) {
         inline_keyboard: [
           [
             {
-              text: `🔥       Special offers for today!       🤑`,
-              callback_data: "special_offers",
+              text: "✈️         TOP  round trip flights         🔄",
+              callback_data: "get_top_10_round_trip",
             },
           ],
           [
             {
-              text: `💰       Best price for your date        📆`,
+              text: "✈️          TOP one way flights           ➡️",
+              callback_data: "get_top_10_one_way",
+            },
+          ],
+          [
+            {
+              text: `💰            Best price for date             📆`,
               callback_data: "price_for_date",
             },
           ],
@@ -29,14 +32,8 @@ async function startMenu(chatId, city) {
           ],
           [
             {
-              text: "✈️ TOP round trip cheapest flights 🔄",
-              callback_data: "get_top_10_round_trip",
-            },
-          ],
-          [
-            {
-              text: "✈️  TOP one way cheapest flights   ➡️",
-              callback_data: "get_top_10_one_way",
+              text: `🔥                 Special offers                  🤑`,
+              callback_data: "special_offers",
             },
           ],
         ],
@@ -47,7 +44,7 @@ async function startMenu(chatId, city) {
     await safeSend(
       chatId,
       `
-📍 Your city is <strong>${city}</strong>! ✈️ Let's trip!
+📍 Your city is <strong>${city.toUpperCase()}</strong>! ✈️ Let's trip!
 
 🔄 For update the city, write it.
 
