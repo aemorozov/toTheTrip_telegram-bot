@@ -239,14 +239,21 @@ async function postCheapFlights() {
     const encodedUrl = encodeURIComponent(baseUrl);
     const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
+    const textForTransfers = flight.transfers;
+    const textForReturnTransfers = flight.return_transfers;
+
     message += `
 ✈️ about <b>${flight.price}€</b>
 📅 <b>${dtDeparture
       .setLocale("en")
-      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtDeparture.toFormat("HH:mm")}</b>
+      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtDeparture.toFormat(
+      "HH:mm"
+    )}</b>${textForTransfers != 0 ? `  🔃 ${textForTransfers}` : ""}
 📅 <b>${dtReturn
       .setLocale("en")
-      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtReturn.toFormat("HH:mm")}</b>
+      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtReturn.toFormat("HH:mm")}</b>${
+      textForReturnTransfers != 0 ? `  🔃 ${textForReturnTransfers}` : ""
+    }
 🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
   }
 
@@ -397,14 +404,21 @@ async function postTOPFlights() {
 
     const destinationName = await getCityName(flight.destination);
 
+    const textForTransfers = flight.transfers;
+    const textForReturnTransfers = flight.return_transfers;
+
     message += `
 ✈️ to <b>${destinationName}</b> about <b>${flight.price}€</b>
 📅 <b>${dtDeparture
       .setLocale("en")
-      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtDeparture.toFormat("HH:mm")}</b>
+      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtDeparture.toFormat(
+      "HH:mm"
+    )}</b>${textForTransfers != 0 ? `  🔃 ${textForTransfers}` : ""}
 📅 <b>${dtReturn
       .setLocale("en")
-      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtReturn.toFormat("HH:mm")}</b>
+      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtReturn.toFormat("HH:mm")}</b>${
+      textForReturnTransfers != 0 ? `  🔃 ${textForReturnTransfers}` : ""
+    }
 🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
   }
 
