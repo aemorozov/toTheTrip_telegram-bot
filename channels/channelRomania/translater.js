@@ -1,15 +1,30 @@
 const titles = [
-  "💸 TOP cheapest round trip flights from",
-  "🏆 Best price round trip deals from",
-  "🔥 Hottest round trip flight offers from",
-  "✈️ Top budget-friendly round trip flights from",
-  "📉 Lowest round trip fares right now from",
-  "🛫 Fly smart — best prices from",
-  "💰 Unmissable cheap round trip flights from",
-  "🌍 TOP round trip travel deals from",
-  "🎯 Cheapest destinations from",
-  "⭐ Best of the best round trip deals from",
+  "💸 TOP zboruri dus-intors la cele mai mici prețuri din",
+  "🏆 Cele mai bune oferte dus-intors din",
+  "🔥 Cele mai tari oferte la zboruri dus-intors din",
+  "✈️ Zboruri dus-intors accesibile din",
+  "📉 Cele mai mici tarife dus-intors acum din",
+  "🛫 Zboara smart — cele mai bune prețuri din",
+  "💰 Oferte ieftine de neratat la zboruri dus-intors din",
+  "🌍 TOP oferte de calatorie dus-intors din",
+  "🎯 Cele mai ieftine destinații din",
+  "⭐ Cele mai bune oferte dus-intors din",
 ];
+
+// const titles = [
+//   "💸 TOP cheapest round trip flights from",
+//   "🏆 Best price round trip deals from",
+//   "🔥 Hottest round trip flight offers from",
+//   "✈️ Top budget-friendly round trip flights from",
+//   "📉 Lowest round trip fares right now from",
+//   "🛫 Fly smart — best prices from",
+//   "💰 Unmissable cheap round trip flights from",
+//   "🌍 TOP round trip travel deals from",
+//   "🎯 Cheapest destinations from",
+//   "⭐ Best of the best round trip deals from",
+// ];
+
+// 🔥 Полный массив хэштегов
 
 // 🔥 Полный массив хэштегов
 const hashtags = [
