@@ -4,7 +4,7 @@ const { DateTime } = require("luxon");
 const { extractShortLink } = require("../encodeLink");
 const { getCityName } = require("../../services/db");
 const { getCityImage } = require("../getImages");
-const { translateToRomanian } = require("./translater");
+const { preMessage } = require("./translater");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHANNEL_ID = "@cheapflightsforyou";
@@ -30,60 +30,6 @@ const airports = [
   "SBZ",
   "TSR",
 ];
-
-// 🔥 Полный массив хэштегов
-const hashtags = [
-  // 🌍 English SEO
-  "#CheapFlights",
-  "#CheapTickets",
-  "#LowCost",
-  "#CheapTravel",
-  "#Travel",
-  "#Cheap",
-  "#Flights",
-  "#Tickets",
-  "#Discount",
-  "#TravelEurope",
-  "#Trip",
-
-  // 🇷🇴 Romanian (no diacritics)
-  "#Bilete",
-  "#Zboruri",
-  "#Calatorii",
-  "#Oferte",
-  "#Romania",
-  "#Avion",
-  "#Europa",
-  "#Weekend",
-
-  // 🛫 Airlines (часто ищут)
-  "#WizzAir",
-  "#Ryanair",
-  "#BlueAir",
-  "#Tarom",
-  "#Lufthansa",
-  "#TurkishAirlines",
-  "#AustrianAirlines",
-  "#KLM",
-  "#AirFrance",
-  "#LOT",
-  "#QatarAirways",
-  "#Emirates",
-  "#BritishAirways",
-  "#AirSerbia",
-  "#AegeanAirlines",
-  "#PegasusAirlines",
-  "#FlyDubai",
-  "#EasyJet",
-  "#SwissAir",
-  "#AirBaltic",
-];
-
-// ✈️ Функция для выбора случайных 5 хэштегов
-function getRandomHashtags(count = 5) {
-  const shuffled = [...hashtags].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count).join(" ");
-}
 
 function getRandomOrigins(count = 1) {
   const copy = [...airports];
@@ -205,31 +151,24 @@ async function postCheapFlights() {
   const originName = await getCityName(flights[0].origin);
   const destinationName = await getCityName(flights[0].destination);
 
-  const titles = [
-    "✈️ Best round trip flights from",
-    "👀 Look! Best round trip deals from",
-    "🔥 WOW, it's really cheap! Round trip flights from",
-    "⏰ Don't miss! Cheap round trip flights from",
-    "💰 Hot prices alert! Cheap round trip flights from",
-    "🛫 Fly round trip cheap from",
-    "✨ Amazing round trip deals from",
-    "🎯 Grab it now! Cheap round trip flights from",
-    "🏷️ Unbeatable prices for round trip flights from",
-    "⭐ Exclusive round trip offers from",
-  ];
-
-  const title = titles[Math.floor(Math.random() * titles.length)];
-  const randomHashtags = getRandomHashtags(5);
-
-  let message = `<b>${title} #${originName.toUpperCase()} to ${destinationName.toUpperCase()} from ${
-    flights[0].price
-  }€</b>\n`;
+  let message = preMessage.header({
+    origin: originName.toUpperCase(),
+    price: flights[0].price,
+    destinationName: destinationName,
+  });
 
   for (const flight of flights) {
     const dtDeparture = DateTime.fromISO(flight.departure_at, {
       setZone: true,
     });
     const dtReturn = DateTime.fromISO(flight.return_at, { setZone: true });
+
+    const depDate = dtDeparture.setLocale("en").toFormat("dd LLL yyyy");
+    const depTime = dtDeparture.toFormat("HH:mm");
+    const depTransfers = flight.transfers;
+    const retDate = dtReturn.setLocale("en").toFormat("dd LLL yyyy");
+    const retTime = dtReturn.toFormat("HH:mm");
+    const retTransfers = flight.return_transfers;
 
     const short = extractShortLink();
     const searchPath = `${flight.origin}${dtDeparture.toFormat("ddMM")}${
@@ -239,25 +178,20 @@ async function postCheapFlights() {
     const encodedUrl = encodeURIComponent(baseUrl);
     const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
-    const textForTransfers = flight.transfers;
-    const textForReturnTransfers = flight.return_transfers;
-
-    message += `
-✈️ about <b>${flight.price}€</b>
-📅 <b>${dtDeparture
-      .setLocale("en")
-      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtDeparture.toFormat(
-      "HH:mm"
-    )}</b>${textForTransfers != 0 ? `  🔃 ${textForTransfers}` : ""}
-📅 <b>${dtReturn
-      .setLocale("en")
-      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtReturn.toFormat("HH:mm")}</b>${
-      textForReturnTransfers != 0 ? `  🔃 ${textForReturnTransfers}` : ""
-    }
-🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
+    message += preMessage.flightItem({
+      price: flight.price,
+      depDate,
+      depTime,
+      depTransfers,
+      retDate,
+      retTime,
+      retTransfers,
+      link,
+      short,
+    });
   }
 
-  message += `\n📢 Share with friends!\n\n🤖 <b>@CheapFlightsToTheTripBot</b> - your cheap flights bot\n\n${randomHashtags}`;
+  message += preMessage.footer();
 
   // === получаем квадратное изображение
   const imageBuffer = await getCityImage(destinationName);
@@ -276,12 +210,10 @@ async function postCheapFlights() {
     return;
   }
 
-  const translateMessage = await translateToRomanian(message);
-
   // === отправляем фото с подписью через FormData
   const form = new FormData();
   form.append("chat_id", CHANNEL_ID);
-  form.append("caption", translateMessage);
+  form.append("caption", message);
   form.append("parse_mode", "HTML");
   form.append("disable_web_page_preview", "true");
   form.append("photo", imageBuffer, `${destinationName}.jpg`);
@@ -368,31 +300,23 @@ async function postTOPFlights() {
     flights[Math.floor(Math.random() * flights.length)].destination
   );
 
-  const titles = [
-    "💸 TOP cheapest round trip flights from",
-    "🏆 Best price round trip deals from",
-    "🔥 Hottest round trip flight offers from",
-    "✈️ Top budget-friendly round trip flights from",
-    "📉 Lowest round trip fares right now from",
-    "🛫 Fly smart — best prices from",
-    "💰 Unmissable cheap round trip flights from",
-    "🌍 TOP round trip travel deals from",
-    "🎯 Cheapest destinations from",
-    "⭐ Best of the best round trip deals from",
-  ];
-
-  const title = titles[Math.floor(Math.random() * titles.length)];
-  const randomHashtags = getRandomHashtags(5);
-
-  let message = `<b>${title} #${originName.toUpperCase()} from ${
-    flights[0].price
-  }€</b>\n`;
+  let message = preMessage.header({
+    origin: originName.toUpperCase(),
+    price: flights[0].price,
+  });
 
   for (const flight of flights) {
     const dtDeparture = DateTime.fromISO(flight.departure_at, {
       setZone: true,
     });
     const dtReturn = DateTime.fromISO(flight.return_at, { setZone: true });
+
+    const depDate = dtDeparture.setLocale("en").toFormat("dd LLL yyyy");
+    const depTime = dtDeparture.toFormat("HH:mm");
+    const depTransfers = flight.transfers;
+    const retDate = dtReturn.setLocale("en").toFormat("dd LLL yyyy");
+    const retTime = dtReturn.toFormat("HH:mm");
+    const retTransfers = flight.return_transfers;
 
     const short = extractShortLink();
     const searchPath = `${flight.origin}${dtDeparture.toFormat("ddMM")}${
@@ -404,25 +328,21 @@ async function postTOPFlights() {
 
     const destinationName = await getCityName(flight.destination);
 
-    const textForTransfers = flight.transfers;
-    const textForReturnTransfers = flight.return_transfers;
-
-    message += `
-✈️ to <b>${destinationName}</b> about <b>${flight.price}€</b>
-📅 <b>${dtDeparture
-      .setLocale("en")
-      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtDeparture.toFormat(
-      "HH:mm"
-    )}</b>${textForTransfers != 0 ? `  🔃 ${textForTransfers}` : ""}
-📅 <b>${dtReturn
-      .setLocale("en")
-      .toFormat("dd LLL yyyy")}</b>  🕐 <b>${dtReturn.toFormat("HH:mm")}</b>${
-      textForReturnTransfers != 0 ? `  🔃 ${textForReturnTransfers}` : ""
-    }
-🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
+    message += preMessage.flightItem({
+      destinationName,
+      price: flight.price,
+      depDate,
+      depTime,
+      depTransfers,
+      retDate,
+      retTime,
+      retTransfers,
+      link,
+      short,
+    });
   }
 
-  message += `\n📢 Share with friends!\n\n🤖 <b>@CheapFlightsToTheTripBot</b> - your cheap flights bot\n\n${randomHashtags}`;
+  message += preMessage.footer();
 
   // === получаем квадратное изображение
   const imageBuffer = await getCityImage(destinationName);
@@ -441,11 +361,9 @@ async function postTOPFlights() {
     return;
   }
 
-  const translateMessage = await translateToRomanian(message);
-
   const form = new FormData();
   form.append("chat_id", CHANNEL_ID);
-  form.append("caption", translateMessage);
+  form.append("caption", message);
   form.append("parse_mode", "HTML");
   form.append("disable_web_page_preview", "true");
   form.append("photo", imageBuffer, `${destinationName}.jpg`);
