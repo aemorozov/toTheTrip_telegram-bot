@@ -104,3 +104,5 @@ const preMessage = {
     return `\n📢 Distribuie prietenilor!\n\n🤖 <b>@CheapFlightsToTheTripBot</b> - botul tău pentru zboruri ieftine\n\n${randomHashtags}`;
   },
 };
+
+module.exports = { preMessage };
