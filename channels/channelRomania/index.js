@@ -10,30 +10,7 @@ const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHANNEL_ID = "@CheapFlightsRomania";
 const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 
-const airports = [
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "BUH",
-  "CLJ",
-  "CRA",
-  "IAS",
-  "OMR",
-  "SBZ",
-  "TSR",
-];
+const airports = ["BUH", "CLJ", "CRA", "IAS", "OMR", "SBZ", "TSR"];
 
 function getRandomOrigins(count = 1) {
   const copy = [...airports];
@@ -45,6 +22,84 @@ function getRandomOrigins(count = 1) {
   return origins;
 }
 
+// Рейтинг система
+function rateFlight(flight) {
+  let rating = 0;
+
+  const price = flight.price;
+  const transfers = flight.transfers;
+  const returnTransfers = flight.return_transfers;
+  const destination = flight.destination;
+  const durationTo = flight.duration_to;
+  const durationBack = flight.duration_back;
+
+  // === 1. Минимальный вес цены (потому что уже отобраны дешевые)
+  if (price < 20) rating += 220;
+  else if (price < 40) rating += 70;
+  else rating += (200 - price) * 0.1; // слабый вес
+
+  // === 2. Прямые рейсы
+  if (transfers === 0) rating += 40;
+  if (returnTransfers === 0) rating += 40;
+
+  // === 3. Штрафы за пересадки
+  if (transfers === 1) rating -= 30;
+  if (returnTransfers === 1) rating -= 30;
+
+  if (transfers > 1 || returnTransfers > 1) rating -= 200;
+
+  // === 4. Интересность направлений
+  const HIGH_INTEREST = [
+    "DXB",
+    "SSH",
+    "HRG",
+    "AYT",
+    "RBA",
+    "RAK",
+    "JTR",
+    "FUE",
+    "TFS",
+    "LPA",
+    "AMM",
+    "TBS",
+    "GYD",
+  ];
+
+  const MEDIUM_INTEREST = [
+    "BCN",
+    "MAD",
+    "OPO",
+    "LIS",
+    "PRG",
+    "AMS",
+    "DUB",
+    "CPH",
+    "HEL",
+    "ARN",
+  ];
+
+  if (HIGH_INTEREST.includes(destination)) rating += 220;
+  if (MEDIUM_INTEREST.includes(destination)) rating += 130;
+
+  // === 5. Частые однообразные направления
+  const TOO_COMMON = ["MXP", "BGY", "FCO", "CIA", "BUD", "VIE", "KRK", "WAW"];
+
+  if (TOO_COMMON.includes(destination)) {
+    // 80% штрафуем, 20% — оставляем шанс
+    if (Math.random() > 0.2) {
+      rating *= 0.4; // уменьшаем эффект привлекательности
+    }
+  }
+
+  // === 6. Удобство перелета (короткие перелеты приятнее)
+  rating += (500 - durationTo) * 0.015;
+  rating += (500 - durationBack) * 0.015;
+
+  // === 7. Немного рандома (естественно и каждый раз уникально)
+  rating += Math.random() * 25;
+
+  return rating;
+}
 // helper: извлекает дату в формате "YYYY-MM-DD" из link (search_date=DDMMYYYY)
 function extractSearchDateISO(link) {
   const m = link && link.match(/search_date=(\d{8})/);
@@ -53,20 +108,188 @@ function extractSearchDateISO(link) {
   return `${s.slice(4)}-${s.slice(2, 4)}-${s.slice(0, 2)}`; // YYYY-MM-DD
 }
 
+// Сегодняшний день
 const todayISO = new Date().toISOString().slice(0, 10);
+// Вчера
 const yesterdayISO = new Date(Date.now() - 24 * 60 * 60 * 1000)
   .toISOString()
   .slice(0, 10);
+// Позавчера
+const dayBeforeYesterdayISO = new Date(Date.now() - 24 * 60 * 60 * 1000 * 2)
+  .toISOString()
+  .slice(0, 10);
+
+async function TopForToday() {
+  const origins = ["BUH", "CLJ", "CRA", "IAS", "OMR", "SBZ", "TSR"];
+
+  const todayISO = new Date().toISOString().slice(0, 10);
+
+  let flights = [];
+  let message = "";
+  let oneOfTheDestination = "";
+
+  console.log(`\n=== 🔎 TOP-5 FOR TODAY FROM ALL ORIGINS ===`);
+
+  try {
+    for (const origin of origins) {
+      console.log(`\n📍 Fetching flights from ${origin}...`);
+
+      const { data } = await axios.get(
+        "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
+        {
+          params: {
+            currency: "eur",
+            origin,
+            unique: true,
+            sorting: "price",
+            direct: false,
+            one_way: false,
+            limit: 500,
+            token: TRAVELPAYOUTS_TOKEN,
+          },
+        }
+      );
+
+      const allFlights = data?.data || [];
+      console.log(`  ➜ Received: ${allFlights.length}`);
+
+      const filteredFlights = allFlights.filter((f) => {
+        const sd = extractSearchDateISO(f.link);
+        return sd === todayISO && f.transfers <= 2 && f.return_transfers <= 2;
+      });
+
+      console.log(`  ➜ Filtered today-only: ${filteredFlights.length}`);
+
+      // добавляем к общему массиву
+      flights.push(...filteredFlights);
+    }
+
+    console.log(
+      `\n📦 TOTAL FLIGHTS COLLECTED FROM ALL ORIGINS: ${flights.length}`
+    );
+
+    if (flights.length === 0) {
+      console.log("⚠️ No flights found for today");
+      return [];
+    }
+
+    // 1. Ставим рейтинг
+    const rated = flights
+      .map((f) => ({ ...f, score: rateFlight(f) }))
+      .sort((a, b) => b.score - a.score);
+
+    // 2. Берём топ 3
+    flights = rated.slice(0, 3).sort((a, b) => a.price - b.price);
+
+    console.log("\n🎯 FINAL SELECTED FLIGHTS:");
+    flights.forEach((f, i) => {
+      console.log(
+        `${i + 1}.`,
+        f.origin,
+        "→",
+        f.destination,
+        f.price,
+        "score:",
+        f.score
+      );
+    });
+  } catch (err) {
+    console.warn(`❌ Error while retrieving flights:`, err.message);
+    return [];
+  }
+
+  // === Формирование сообщения
+  for (const flight of flights) {
+    const dtDeparture = DateTime.fromISO(flight.departure_at, {
+      setZone: true,
+    });
+    const dtReturn = DateTime.fromISO(flight.return_at, { setZone: true });
+
+    const depDate = dtDeparture.setLocale("en").toFormat("dd LLL yyyy");
+    const depTime = dtDeparture.toFormat("HH:mm");
+    const depTransfers = flight.transfers;
+    const retDate = dtReturn.setLocale("en").toFormat("dd LLL yyyy");
+    const retTime = dtReturn.toFormat("HH:mm");
+    const retTransfers = flight.return_transfers;
+
+    const short = extractShortLink();
+    const searchPath = `${flight.origin}${dtDeparture.toFormat("ddMM")}${
+      flight.destination
+    }${dtReturn.toFormat("ddMM")}1`;
+    const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
+    const encodedUrl = encodeURIComponent(baseUrl);
+    const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
+
+    const originName = await getCityName(flight.origin);
+    const destinationName = await getCityName(flight.destination);
+    flight.destinationName = destinationName;
+
+    message += preMessage.flightItem({
+      originName,
+      destinationName,
+      price: flight.price,
+      depDate,
+      depTime,
+      depTransfers,
+      retDate,
+      retTime,
+      retTransfers,
+      link,
+      short,
+    });
+  }
+
+  message += preMessage.footer();
+
+  oneOfTheDestination = flights[0].destinationName;
+
+  const imageBuffer = await getCityImage(oneOfTheDestination);
+
+  if (!imageBuffer) {
+    console.warn("⚠️ No image, sending text only.");
+    await axios.post(
+      `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
+      {
+        chat_id: CHANNEL_ID,
+        text: message,
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+      }
+    );
+    return;
+  }
+
+  // === отправляем фото с подписью
+  const form = new FormData();
+  form.append("chat_id", CHANNEL_ID);
+  form.append("caption", message);
+  form.append("parse_mode", "HTML");
+  form.append("disable_web_page_preview", "true");
+  form.append("photo", imageBuffer, `img.jpg`);
+
+  await axios.post(
+    `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`,
+    form,
+    {
+      headers: form.getHeaders(),
+    }
+  );
+
+  console.log(`\n✅ Flights posted to Telegram`);
+}
 
 async function postCheapFlights() {
   let flights = [];
+  let directFlights = [];
+  let transfersFlights = [];
   const maxOriginAttempts = 5;
   let originAttempts = 0;
+  let price = "";
 
   while (flights.length === 0 && originAttempts < maxOriginAttempts) {
     originAttempts++;
-    const origins = getRandomOrigins(3);
-
+    const origins = getRandomOrigins(1);
+    // получаем все возможные направления для нашего ориджин, только что бы собрать пул из направлений
     for (const origin of origins) {
       try {
         const { data } = await axios.get(
@@ -87,17 +310,17 @@ async function postCheapFlights() {
 
         const allFlights = data?.data || [];
         const filteredFlights = allFlights.filter(
-          (f) => f.transfers <= 2 && f.return_transfers <= 2
+          (f) => f.transfers <= 1 && f.return_transfers <= 1
         );
 
         if (!filteredFlights.length) continue;
 
         const destinations = filteredFlights.map((f) => f.destination);
         let finalFlights = [];
-        let prefinalFlights = [];
         let destAttempts = 0;
-        const maxDestAttempts = 5;
+        const maxDestAttempts = 10;
 
+        // выбираем рандомное направление и ищем по нему все дешевые билеты
         while (finalFlights.length === 0 && destAttempts < maxDestAttempts) {
           destAttempts++;
 
@@ -121,22 +344,41 @@ async function postCheapFlights() {
             }
           );
 
-          // все пришедшие предложения
-          prefinalFlights = finalResponse?.data || [];
-
-          // фильтруем только по свежей search_date (сегодня или вчера)
-          finalFlights = prefinalFlights.filter((f) => {
+          // фильтруем только по свежей search_date (сегодня или вчера) и по пересадкам
+          finalFlights = finalResponse?.data.filter((f) => {
             const sd = extractSearchDateISO(f.link);
-            return sd === todayISO || sd === yesterdayISO;
+            return (
+              (sd === todayISO ||
+                sd === yesterdayISO ||
+                sd === dayBeforeYesterdayISO) &&
+              f.transfers <= 1 &&
+              f.return_transfers <= 1
+            );
           });
-
-          console.log("finalFlights:", finalFlights);
         }
 
-        if (finalFlights.length) {
-          const limitedFlights = finalFlights.slice(0, 7);
-          flights.push(...limitedFlights);
-          break;
+        if (finalFlights.length > 1) {
+          directFlights = finalFlights.filter(
+            (f) => f.transfers == 0 && f.return_transfers == 0
+          );
+
+          directFlights = directFlights.slice(0, 5);
+
+          transfersFlights = finalFlights.filter(
+            (f) => f.transfers > 0 || f.return_transfers > 0
+          );
+
+          transfersFlights = transfersFlights.slice(0, 2);
+
+          const combined = [...directFlights, ...transfersFlights];
+
+          price = Math.min(...combined.map((f) => f.price));
+
+          if (directFlights.length > 0 || transfersFlights.length > 0) {
+            continue;
+          } else {
+            break;
+          }
         }
       } catch (err) {
         console.warn(`Ошибка при запросе рейсов из ${origin}:`, err.message);
@@ -145,23 +387,58 @@ async function postCheapFlights() {
     }
   }
 
-  if (!flights.length) {
-    console.error(
-      "⚠️ Не удалось найти ни одного рейса после нескольких попыток."
-    );
-    return;
-  }
-
-  const originName = await getCityName(flights[0].origin);
-  const destinationName = await getCityName(flights[0].destination);
+  const originName =
+    (await getCityName(directFlights[0].origin)) ||
+    (await getCityName(transfersFlights[0].origin));
+  const destinationName =
+    (await getCityName(directFlights[0].destination)) ||
+    (await getCityName(transfersFlights[0].destination));
 
   let message = preMessage.header({
     origin: originName.toUpperCase(),
-    price: flights[0].price,
+    price: price,
     destinationName: destinationName,
   });
 
-  for (const flight of flights) {
+  directFlights.length > 0 ? (message += preMessage.directFlights()) : "";
+
+  for (const flight of directFlights) {
+    const dtDeparture = DateTime.fromISO(flight.departure_at, {
+      setZone: true,
+    });
+    const dtReturn = DateTime.fromISO(flight.return_at, { setZone: true });
+
+    const depDate = dtDeparture.setLocale("en").toFormat("dd LLL yyyy");
+    const depTime = dtDeparture.toFormat("HH:mm");
+    const depTransfers = flight.transfers;
+    const retDate = dtReturn.setLocale("en").toFormat("dd LLL yyyy");
+    const retTime = dtReturn.toFormat("HH:mm");
+    const retTransfers = flight.return_transfers;
+
+    const short = extractShortLink();
+    const searchPath = `${flight.origin}${dtDeparture.toFormat("ddMM")}${
+      flight.destination
+    }${dtReturn.toFormat("ddMM")}1`;
+    const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
+    const encodedUrl = encodeURIComponent(baseUrl);
+    const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
+
+    message += preMessage.flightItem({
+      price: flight.price,
+      depDate,
+      depTime,
+      depTransfers,
+      retDate,
+      retTime,
+      retTransfers,
+      link,
+      short,
+    });
+  }
+
+  transfersFlights.length > 0 ? (message += preMessage.tramsferFlights()) : "";
+
+  for (const flight of transfersFlights) {
     const dtDeparture = DateTime.fromISO(flight.departure_at, {
       setZone: true,
     });
@@ -220,7 +497,7 @@ async function postCheapFlights() {
   form.append("caption", message);
   form.append("parse_mode", "HTML");
   form.append("disable_web_page_preview", "true");
-  form.append("photo", imageBuffer, `${destinationName}.jpg`);
+  form.append("photo", imageBuffer, "image.jpg");
 
   await axios.post(
     `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`,
@@ -230,9 +507,7 @@ async function postCheapFlights() {
     }
   );
 
-  console.log(
-    `✅ Flights from ${originName} to ${destinationName} posted to Telegram`
-  );
+  console.log(`✅ Flights posted to Telegram`);
 }
 
 // функция для постинга ТОП билетов
@@ -385,4 +660,4 @@ async function postTOPFlights() {
   );
 }
 
-module.exports = { postCheapFlights, postTOPFlights };
+module.exports = { postCheapFlights, postTOPFlights, TopForToday };

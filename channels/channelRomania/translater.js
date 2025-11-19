@@ -11,22 +11,6 @@ const titles = [
   "⭐ Cele mai bune oferte dus-intors din",
 ];
 
-// const titles = [
-//   "💸 TOP cheapest round trip flights from",
-//   "🏆 Best price round trip deals from",
-//   "🔥 Hottest round trip flight offers from",
-//   "✈️ Top budget-friendly round trip flights from",
-//   "📉 Lowest round trip fares right now from",
-//   "🛫 Fly smart — best prices from",
-//   "💰 Unmissable cheap round trip flights from",
-//   "🌍 TOP round trip travel deals from",
-//   "🎯 Cheapest destinations from",
-//   "⭐ Best of the best round trip deals from",
-// ];
-
-// 🔥 Полный массив хэштегов
-
-// 🔥 Полный массив хэштегов
 const hashtags = [
   // 🌍 English SEO
   "#CheapFlights",
@@ -85,13 +69,22 @@ const randomHashtags = getRandomHashtags(7);
 
 const preMessage = {
   header({ origin, price, destinationName = null }) {
-    return `<b>${title} #${origin}${
+    return `<b>${title} ${origin}${
       destinationName ? ` catre ${destinationName.toUpperCase()}` : ""
     } de la ${price}€</b>\n`;
   },
 
+  directFlights() {
+    return `\n<b>Zboruri directe:</b>\n`;
+  },
+
+  tramsferFlights() {
+    return `\n<b>Zboruri cu escală:</b>\n`;
+  },
+
   flightItem({
-    destinationName = null,
+    originName,
+    destinationName,
     price,
     depDate,
     depTime,
@@ -103,9 +96,8 @@ const preMessage = {
     short,
   }) {
     return `
-✈️ ${
-      destinationName ? `catre <b>${destinationName}</b> ` : ""
-    }aproximativ <b>${price}€</b>
+✈️ <b>${originName}</b> - <b>${destinationName}</b>
+💸 aprox. <b>${price}€</b>
 📅 <b>${depDate}</b>  🕐 <b>${depTime}</b>${
       depTransfers == 0 ? "" : `  🔃 ${depTransfers}`
     }
