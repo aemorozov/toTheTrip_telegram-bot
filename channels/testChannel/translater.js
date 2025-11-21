@@ -96,7 +96,7 @@ const preMessage = {
     short,
   }) {
     return `
-✈️ <b>${originName}</b> - <b>${destinationName}</b>
+✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b>
 💸 aprox. <b>${price}€</b>
 📅 <b>${depDate}</b>  🕐 <b>${depTime}</b>${
       depTransfers == 0 ? "" : `  🔃 ${depTransfers}`
