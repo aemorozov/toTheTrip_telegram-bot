@@ -9,6 +9,7 @@ const { preMessage } = require("./translater");
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHANNEL_ID = "@CheapFlightsRomania";
 const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
+
 const airports = ["BUH", "CLJ", "CRA", "IAS", "OMR", "SBZ", "TSR"];
 
 function getRandomOrigins(count = 1) {
@@ -23,113 +24,24 @@ function getRandomOrigins(count = 1) {
 
 // Рейтинг система
 function rateFlight(f) {
-  let score = 0;
-
   const price = f.price;
   const transfers = f.transfers;
-  const returnTransfers = f.return_transfers;
-
   const durationTo = f.duration_to;
   const durationBack = f.duration_back;
-  const avgDuration = (durationTo + durationBack) / 2;
+  const duration = durationTo < durationBack ? durationTo : durationBack;
 
-  const dep = new Date(f.departure_at);
-  const ret = new Date(f.return_at);
-  const tripDays = (ret - dep) / (1000 * 60 * 60 * 24);
-
-  const origin = f.origin;
-  const dest = f.destination;
-
-  // ============================================================
-  // 0. Жёсткое обнуление: если билет точно НЕ интересный → score = -9999
-  // ============================================================
-
-  // ❌ Короткие направления + пересадки
-  if (avgDuration < 240 && (transfers > 0 || returnTransfers > 0)) {
-    return -9999;
+  // === 1) Короткие (до 3 часов) ===
+  if (duration <= 180) {
+    return transfers === 0 && price <= 100;
   }
 
-  // ❌ Короткие поездки 1–3 дня + любые пересадки
-  if (tripDays < 4 && (transfers > 0 || returnTransfers > 0)) {
-    return -9999;
+  // === 2) Средние (до 7 часов) ===
+  if (duration <= 420) {
+    return transfers === 0 && price <= 300;
   }
 
-  // ❌ Короткие направления + высокая цена
-  if (avgDuration < 240 && price > 150) {
-    return -9999;
-  }
-
-  // ❌ Слишком далёкие ненужные маршруты без крутизны
-  if (transfers >= 2 && price > 300 && avgDuration < 400) {
-    return -9999;
-  }
-
-  // ============================================================
-  // 1. Цена (минимальный вес)
-  // ============================================================
-  if (price < 50) score += 80;
-  else if (price < 100) score += 40;
-  else if (price < 200) score += 10;
-  else score -= (price - 200) * 0.2;
-
-  // ============================================================
-  // 2. Пересадки
-  // ============================================================
-  if (transfers === 0) score += 40;
-  if (returnTransfers === 0) score += 40;
-
-  if (transfers === 1) score -= 20;
-  if (returnTransfers === 1) score -= 20;
-
-  if (transfers >= 2 || returnTransfers >= 2) score -= 120;
-
-  // ============================================================
-  // 3. Дальность (avgDuration)
-  // ============================================================
-  if (avgDuration < 180) score += 5; // короткие
-  else if (avgDuration < 300) score += 25; // средние → оптимально для Европы
-  else if (avgDuration < 450) score += 60; // дальние, но не супердальние
-  else if (avgDuration < 680) score += 120; // дальняк = интересно
-  else score += 160; // сверхдальняк = топ
-
-  // ============================================================
-  // 4. Вылет не из Бухареста
-  // ============================================================
-  if (origin !== "BUH") score += 40;
-
-  // ============================================================
-  // 5. Направления: скучные vs интересные
-  // ============================================================
-
-  const BORING_EU = ["SOF", "VAR", "ATH", "IST", "RMO", "BRI", "VLC", "NCE"];
-  const LOWCOST_HUBS = ["BGY", "MXP", "FCO", "CIA", "BUD", "VIE", "WAW"];
-
-  const COOL_MID = ["BER", "BCN", "PAR", "MAD", "AMS", "DUB", "LIS"];
-  const EXOTIC = ["MLE", "PUJ", "MRU", "SEZ", "CUN", "DOH", "DXB", "ZNZ"];
-  const RUSSIA = ["LED", "AER", "VKO", "SVO", "DME", "ASF", "KZN"];
-
-  if (BORING_EU.includes(dest)) score -= 60;
-  if (LOWCOST_HUBS.includes(dest) && price > 80) score -= 80;
-
-  if (COOL_MID.includes(dest)) score += 70;
-  if (EXOTIC.includes(dest)) score += 160;
-  if (RUSSIA.includes(dest)) {
-    if (transfers <= 1) score += 140;
-    else score += 80;
-  }
-
-  // ============================================================
-  // 6. Длительность поездки
-  // ============================================================
-  if (tripDays >= 5 && tripDays <= 10) score += 40;
-  if (tripDays > 14) score -= 20; // слишком длинные → редко кликают
-
-  // ============================================================
-  // 7. Рандом для разнообразия
-  // ============================================================
-  score += Math.random() * 20;
-
-  return score;
+  // === 3) Дальние (больше 7 часов) ===
+  return transfers <= 2 && price <= 900;
 }
 
 // helper: извлекает дату в формате "YYYY-MM-DD" из link (search_date=DDMMYYYY)
@@ -208,27 +120,10 @@ async function TopForToday() {
     }
 
     // 1. Ставим рейтинг
-    const rated = flights
-      .map((f) => ({ ...f, score: rateFlight(f) }))
-      .sort((a, b) => b.score - a.score);
-
-    const ramdom3to6 = 3 + Math.floor(Math.random() * 4);
+    const rated = flights.filter(rateFlight).slice(0, 7);
 
     // 2. Берём топ
-    flights = rated.slice(0, ramdom3to6).sort((a, b) => a.price - b.price);
-
-    console.log("\n🎯 FINAL SELECTED FLIGHTS:");
-    flights.forEach((f, i) => {
-      console.log(
-        `${i + 1}.`,
-        f.origin,
-        "→",
-        f.destination,
-        f.price,
-        "score:",
-        f.score
-      );
-    });
+    flights = rated.sort((a, b) => a.price - b.price);
   } catch (err) {
     console.warn(`❌ Error while retrieving flights:`, err.message);
     return [];
@@ -274,15 +169,20 @@ async function TopForToday() {
       short,
     });
   }
-
   message += preMessage.footer();
 
-  oneOfTheDestination = flights[0].destinationName;
+  // === Выбираем случайный город из списка рейсов ===
+  const randomFlight = flights[flights.length - 1];
+  const city = randomFlight.destinationName;
 
-  const imageBuffer = await getCityImage(oneOfTheDestination);
+  console.log("📸 Choosing image for:", city);
 
-  if (!imageBuffer) {
-    console.warn("⚠️ No image, sending text only.");
+  // === Получаем фото для этого города (БЕЗ цены!) ===
+  const imgBuffer = await getCityImage(city);
+
+  if (!imgBuffer) {
+    console.warn(`⚠️ No image for ${city}, sending text only.`);
+
     await axios.post(
       `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
       {
@@ -295,20 +195,17 @@ async function TopForToday() {
     return;
   }
 
-  // === отправляем фото с подписью
+  // === Отправляем ОДНУ фотографию ===
   const form = new FormData();
   form.append("chat_id", CHANNEL_ID);
   form.append("caption", message);
   form.append("parse_mode", "HTML");
-  form.append("disable_web_page_preview", "true");
-  form.append("photo", imageBuffer, `img.jpg`);
+  form.append("photo", imgBuffer, `${city}.jpg`);
 
   await axios.post(
     `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`,
     form,
-    {
-      headers: form.getHeaders(),
-    }
+    { headers: form.getHeaders() }
   );
 
   console.log(`\n✅ Flights posted to Telegram`);
