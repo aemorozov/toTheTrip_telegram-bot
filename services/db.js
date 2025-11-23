@@ -53,7 +53,7 @@ async function updateUser(chatId, updates) {
 /**
  * Сохранить пользователя (нового или обновить старого)
  */
-async function saveUser(userInfo, iata, city) {
+async function saveUser(userInfo, iata, city, country) {
   if (!redis) return;
   const userKey = `user:${userInfo.id}`;
   const existing = safeParseMaybeJson(await redis.get(userKey)) || {};
@@ -69,6 +69,7 @@ async function saveUser(userInfo, iata, city) {
     is_premium: userInfo.is_premium,
     iata_code: iata,
     city: city,
+    country: country,
     destination_iata: existing.destination_iata || "",
     destination_city: existing.destination_city || "",
     one_way: existing.one_way ?? null,

@@ -66,7 +66,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
       );
 
       const message =
-        `<b>🔥 Cheapest flights from ${originCity} to ${destinationCity} for you</b>\n\n` +
+        `<b>🔥 Cheapest flights from ${originCity.toUpperCase()} to ${destinationCity.toUpperCase()} for you</b>\n\n` +
         `<b>➡️✈️ One way tickets:</b>\n\n` +
         (ticketsOneWay.length > 0
           ? ticketsOneWay
@@ -196,7 +196,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
         : "";
 
       const message =
-        `<b>🔥 Best deals from ${originCity} on ${userInput} for you</b>\n\n` +
+        `<b>🔥 Best deals from ${originCity.toUpperCase()} on ${userInput} for you</b>\n\n` +
         `<b>➡️✈️ One way tickets:</b>\n\n` +
         (ticketsOneWay.length > 0
           ? ticketsOneWay
@@ -302,11 +302,12 @@ async function handleTextMessage(chatId, userInput, userInfo) {
     const iataAndCity = await getIataCode(userInput);
     const iata = iataAndCity[0];
     const city = iataAndCity[1];
-    console.log("iata: ", iata, "city: ", city);
+    const country = iataAndCity[2];
+    console.log("iata: ", iata, "city: ", city, "country: ", country);
     if (!iata) throw new Error("Unable to determine IATA code");
 
     // save user
-    await saveUser(userInfo, iata, city);
+    await saveUser(userInfo, iata, city, country);
 
     // send options
     await startMenu(chatId, city);

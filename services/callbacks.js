@@ -40,7 +40,8 @@ async function handleCallbackQuery(chatId, data) {
     await saveUserStep(chatId, "no_step");
     const userObj = await getUser(chatId);
     const city = userObj?.city;
-    await startMenu(chatId, city);
+    const country = userObj?.country;
+    await startMenu(chatId, city, country);
   }
 
   // При нажатии на кнопку ТОП билетов
