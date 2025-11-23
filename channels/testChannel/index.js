@@ -2,7 +2,7 @@ const axios = require("axios");
 const FormData = require("form-data");
 const { DateTime } = require("luxon");
 const { extractShortLink } = require("../encodeLink");
-const { getCityName } = require("./getCityName");
+const { getCityName } = require("../getCityName");
 const { getCityImage } = require("../getImages");
 const { preMessage } = require("./translater");
 
@@ -159,20 +159,20 @@ async function TopForToday() {
 
     // Определяем координаты и расстояние
     for (const flight of flights) {
-      const [originName, originLon, originLat] = await getCityName(
-        flight.origin
-      );
-      const [destinationName, destLon, destLat] = await getCityName(
-        flight.destination
-      );
+      const [originName, originLon, originLat, originCountry] =
+        await getCityName(flight.origin);
+      const [destinationName, destLon, destLat, destinationCountry] =
+        await getCityName(flight.destination);
 
       flight.originName = originName;
       flight.originLon = originLon;
       flight.originLat = originLat;
+      flight.originCountry = originCountry;
 
       flight.destinationName = destinationName;
       flight.destinationLon = destLon;
       flight.destinationLat = destLat;
+      flight.destinationCountry = destinationCountry;
 
       flight.distance = haversineDistance(
         originLon,
@@ -241,14 +241,15 @@ async function TopForToday() {
   }
   message += preMessage.footer();
 
-  // === Выбираем случайный город из списка рейсов для фото ===
-  const randomFlight = flights[flights.length - 1];
+  // === Выбираем случайный город из списка рейсов для фото (нет, первый) ===
+  const randomFlight = flights[0];
   const city = randomFlight.destinationName;
+  const country = randomFlight.destinationCountry;
 
   console.log("📸 Choosing image for:", city);
 
   // === Получаем фото для этого города ===
-  const imgBuffer = await getCityImage(city);
+  const imgBuffer = await getCityImage(city, country);
 
   if (!imgBuffer) {
     console.warn(`⚠️ No image for ${city}, sending text only.`);

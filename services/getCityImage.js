@@ -6,7 +6,7 @@ const PEXELS_API_KEY = process.env.PEXEL_KEY;
 // 👉 Основная функция
 async function getCityImage(city) {
   const queries = [
-    `${city} city center bright color`,
+    `${city} center panorama`,
     // `${city} skyline`,
     // `${city} old town`,
     // `${city} streets`,
@@ -20,7 +20,7 @@ async function getCityImage(city) {
       headers: { Authorization: PEXELS_API_KEY },
       params: {
         query,
-        per_page: 50,
+        per_page: 5,
         orientation: "landscape",
       },
     });

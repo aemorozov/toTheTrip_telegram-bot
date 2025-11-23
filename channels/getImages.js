@@ -4,13 +4,11 @@ const sharp = require("sharp");
 const PEXELS_API_KEY = process.env.PEXEL_KEY;
 
 // 👉 Основная функция
-async function getCityImage(cityName) {
+async function getCityImage(cityName, country) {
   const queries = [
-    `${cityName} cityscape bright`,
-    `${cityName} skyline bright`,
-    `${cityName} old town bright`,
-    `${cityName} streets bright`,
-    `${cityName} panorama bright`,
+    `panorama to ${cityName}, ${country}`,
+    `skyline ${cityName}, ${country}`,
+    `streets ${cityName}, ${country}`,
   ];
 
   const query = queries[Math.floor(Math.random() * queries.length)];
