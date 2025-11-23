@@ -12,4 +12,16 @@ async function safeSend(chatId, text, opts = {}) {
   }
 }
 
-module.exports = { bot, safeSend };
+async function safeSendPhoto(chatId, photoBuffer, caption = "", opts = {}) {
+  try {
+    await bot.sendPhoto(chatId, photoBuffer, {
+      caption,
+      parse_mode: "HTML",
+      ...opts,
+    });
+  } catch (err) {
+    console.error(`❌ bot.sendPhoto error for ${chatId}:`, err);
+  }
+}
+
+module.exports = { bot, safeSend, safeSendPhoto };
