@@ -2,7 +2,7 @@ const axios = require("axios");
 const FormData = require("form-data");
 const { DateTime } = require("luxon");
 const { extractShortLink } = require("../encodeLink");
-const { getCityName } = require("../../services/db");
+const { getCityName } = require("./getCityName");
 const { getCityImage } = require("../getImages");
 const { preMessage } = require("./translater");
 
