@@ -22,26 +22,55 @@ function getRandomOrigins(count = 1) {
   return origins;
 }
 
+// Формула рассчёта расстояния между городами
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Радиус Земли в километрах
+
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
 // Рейтинг система
 function rateFlight(f) {
   const price = f.price;
-  const transfers = f.transfers;
-  const durationTo = f.duration_to;
-  const durationBack = f.duration_back;
-  const duration = durationTo < durationBack ? durationTo : durationBack;
+  const dist = f.distance;
+  const transfers = Math.max(f.transfers, f.return_transfers);
 
-  // === 1) Короткие (до 3 часов) ===
-  if (duration <= 180) {
-    return transfers === 0 && price <= 100;
+  // === 1. Супер дешёвые — всегда да
+  if (price < 100) return true;
+
+  // === 2. До 3000 км — принимаем ТОЛЬКО прямые
+  if (dist < 3000) {
+    return transfers === 0 && price <= 250;
   }
 
-  // === 2) Средние (до 7 часов) ===
-  if (duration <= 420) {
-    return transfers === 0 && price <= 300;
+  // === 3. 3000–4500 км — 1 пересадка допускается, но должны быть причины:
+  if (dist < 4500) {
+    if (transfers === 0 && price <= 400) return true;
+    if (transfers === 1 && price <= 300) return true; // пересадка только если дешёвый
+    return false;
   }
 
-  // === 3) Дальние (больше 7 часов) ===
-  return transfers <= 2 && price <= 900;
+  // === 4. От 4500 км и выше — пересадки нормальны
+  // но цена должна соответствовать дальности
+  if (dist >= 4500) {
+    if (transfers <= 1 && price <= 600) return true;
+    if (transfers <= 2 && price <= 800) return true;
+    return false;
+  }
+
+  return false;
 }
 
 // helper: извлекает дату в формате "YYYY-MM-DD" из link (search_date=DDMMYYYY)
@@ -50,6 +79,15 @@ function extractSearchDateISO(link) {
   if (!m) return null;
   const s = m[1]; // DDMMYYYY
   return `${s.slice(4)}-${s.slice(2, 4)}-${s.slice(0, 2)}`; // YYYY-MM-DD
+}
+
+// 🌀 Перемешиваем массив (Fisher–Yates shuffle)
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
 // Сегодняшний день
@@ -70,10 +108,10 @@ async function TopForToday() {
 
   let flights = [];
   let message = "";
-  let oneOfTheDestination = "";
 
   console.log(`\n=== 🔎 TOP-5 FOR TODAY FROM ALL ORIGINS ===`);
 
+  // Делаем запросы по всем городам, определяем расстояния, опередляем интересные рейсы и формируем конечный массив для сообщения
   try {
     for (const origin of origins) {
       console.log(`\n📍 Fetching flights from ${origin}...`);
@@ -119,11 +157,40 @@ async function TopForToday() {
       return [];
     }
 
-    // 1. Ставим рейтинг
-    const rated = flights.filter(rateFlight).slice(0, 7);
+    // Определяем координаты и расстояние
+    for (const flight of flights) {
+      const [originName, originLon, originLat] = await getCityName(
+        flight.origin
+      );
+      const [destinationName, destLon, destLat] = await getCityName(
+        flight.destination
+      );
 
-    // 2. Берём топ
-    flights = rated.sort((a, b) => a.price - b.price);
+      flight.originName = originName;
+      flight.originLon = originLon;
+      flight.originLat = originLat;
+
+      flight.destinationName = destinationName;
+      flight.destinationLon = destLon;
+      flight.destinationLat = destLat;
+
+      flight.distance = haversineDistance(
+        originLon,
+        originLat,
+        destLon,
+        destLat
+      );
+    }
+
+    console.log(flights);
+
+    // 1. Фильтруем крутые перелёты
+    const rated = flights.filter(rateFlight);
+
+    // 2. Выбираем рандомные и берём топ
+    flights = shuffle(rated)
+      .slice(0, 6)
+      .sort((a, b) => a.price - b.price);
   } catch (err) {
     console.warn(`❌ Error while retrieving flights:`, err.message);
     return [];
@@ -151,9 +218,12 @@ async function TopForToday() {
     const encodedUrl = encodeURIComponent(baseUrl);
     const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
 
-    const originName = await getCityName(flight.origin);
-    const destinationName = await getCityName(flight.destination);
-    flight.destinationName = destinationName;
+    const originName = flight.originName
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, ""); // убираем диакритику
+    const destinationName = flight.destinationName
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, ""); // убираем диакритику
 
     message += preMessage.flightItem({
       originName,
@@ -171,13 +241,13 @@ async function TopForToday() {
   }
   message += preMessage.footer();
 
-  // === Выбираем случайный город из списка рейсов ===
+  // === Выбираем случайный город из списка рейсов для фото ===
   const randomFlight = flights[flights.length - 1];
   const city = randomFlight.destinationName;
 
   console.log("📸 Choosing image for:", city);
 
-  // === Получаем фото для этого города (БЕЗ цены!) ===
+  // === Получаем фото для этого города ===
   const imgBuffer = await getCityImage(city);
 
   if (!imgBuffer) {
@@ -195,7 +265,7 @@ async function TopForToday() {
     return;
   }
 
-  // === Отправляем ОДНУ фотографию ===
+  // === Отправляем фотографию с текстом ===
   const form = new FormData();
   form.append("chat_id", CHANNEL_ID);
   form.append("caption", message);

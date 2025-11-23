@@ -66,12 +66,13 @@ function getRandomHashtags(count = 7) {
 
 const title = titles[Math.floor(Math.random() * titles.length)];
 const randomHashtags = getRandomHashtags(7);
+const exchange = 5;
 
 const preMessage = {
   header({ origin, price, destinationName = null }) {
     return `<b>${title} ${origin}${
       destinationName ? ` catre ${destinationName.toUpperCase()}` : ""
-    } de la ${price}€</b>\n`;
+    } de la ${price * exchange}RON</b>\n`;
   },
 
   directFlights() {
@@ -96,9 +97,10 @@ const preMessage = {
     short,
   }) {
     return `
-✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b> aprox. <b>${price}€</b>
-📅 ${depDate}  🕐 ${depTime}${depTransfers == 0 ? "" : `  🔃 ${depTransfers}`}
-📅 ${retDate}  🕐 ${retTime}${retTransfers == 0 ? "" : `  🔃 ${retTransfers}`}
+✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b> 
+💶 aprox. <b>${price * exchange}</b> RON (${price}€)
+📅 ${depDate}  ${depTime}${depTransfers == 0 ? "" : `  🔃 ${depTransfers}`}
+📅 ${retDate}  ${retTime}${retTransfers == 0 ? "" : `  🔃 ${retTransfers}`}
 🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
   },
 
