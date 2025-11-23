@@ -109,7 +109,7 @@ async function TopForToday() {
   let flights = [];
   let message = "";
 
-  console.log(`\n=== 🔎 TOP-5 FOR TODAY FROM ALL ORIGINS ===`);
+  console.log(`\n=== 🔎 TOP FOR TODAY FROM ALL ORIGINS ===`);
 
   // Делаем запросы по всем городам, определяем расстояния, опередляем интересные рейсы и формируем конечный массив для сообщения
   try {
@@ -150,8 +150,6 @@ async function TopForToday() {
       `\n📦 TOTAL FLIGHTS COLLECTED FROM ALL ORIGINS: ${flights.length}`
     );
 
-    console.log("flights: ", flights);
-
     if (flights.length === 0) {
       console.log("⚠️ No flights found for today");
       return [];
@@ -181,8 +179,6 @@ async function TopForToday() {
         destLat
       );
     }
-
-    console.log(flights);
 
     // 1. Фильтруем крутые перелёты
     const rated = flights.filter(rateFlight);
@@ -246,7 +242,7 @@ async function TopForToday() {
   const city = randomFlight.destinationName;
   const country = randomFlight.destinationCountry;
 
-  console.log("📸 Choosing image for:", city);
+  console.log("📸 Choosing image for:", city, country);
 
   // === Получаем фото для этого города ===
   const imgBuffer = await getCityImage(city, country);
