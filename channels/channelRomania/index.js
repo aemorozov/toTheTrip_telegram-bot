@@ -5,6 +5,7 @@ const { extractShortLink } = require("../encodeLink");
 const { getCityName } = require("../getCityName");
 const { getCityImage } = require("../getImages");
 const { preMessage } = require("./translater");
+const { wasPosted, addPosted } = require("../../services/db");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHANNEL_ID = "@CheapFlightsRomania";
