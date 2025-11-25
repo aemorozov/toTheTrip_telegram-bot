@@ -241,6 +241,20 @@ async function getCityName(iataCode) {
   return null;
 }
 
+async function wasPosted(uid) {
+  return await redis.exists(`posted:${uid}`);
+}
+
+async function addPosted(uid) {
+  const msToMidnight = new Date().setHours(24, 0, 0, 0) - Date.now();
+  const secondsLeft = Math.max(60, Math.floor(msToMidnight / 1000));
+
+  await redis.set(`posted:${uid}`, "1", {
+    ex: secondsLeft,
+    nx: true,
+  });
+}
+
 module.exports = {
   getCityName,
   saveUser,
@@ -252,4 +266,6 @@ module.exports = {
   saveUserDestination,
   saveUserOneWay,
   getUserOneWay,
+  wasPosted,
+  addPosted,
 };
