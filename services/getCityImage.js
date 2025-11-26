@@ -100,7 +100,7 @@ SELECT ?place ?placeLabel WHERE {
 
 // ----------------------------------------
 
-async function getCityImage(cityName, country = "") {
+async function getCityImage(cityName, country) {
   try {
     // ⭐️ 0. Normalize via Aviasales
     const resolved = await resolveCityViaAviasales(cityName);
@@ -132,16 +132,10 @@ async function getCityImage(cityName, country = "") {
     }
 
     // 3️⃣ fallback если landmarks пустой
-    if (!searchQueries.length) {
-      searchQueries = [
-        `${cityName} ${country} skyline`,
-        `${cityName} ${country} historic center`,
-        `${cityName} ${country} architecture`,
-        `${cityName} ${country} panorama`,
-        `${cityName} ${country} aerial`,
-        `${cityName} ${country} landmarks`,
-      ];
-    }
+    searchQueries.push(
+      `${cityName} ${country} panorama`,
+      `${cityName} ${country} landmarks`
+    );
 
     // 🔀 перемешиваем запросы
     searchQueries = searchQueries.sort(() => Math.random() - 0.5);
