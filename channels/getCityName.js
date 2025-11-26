@@ -19,8 +19,6 @@ async function getCityName(iataCode) {
     const match = data.find((p) => p.code === code && p.type === "city");
     const found = match || data.find((p) => p.code === code);
 
-    console.log("found: ", found);
-
     const name = found.name;
     const lon = found.coordinates.lon;
     const lat = found.coordinates.lat;

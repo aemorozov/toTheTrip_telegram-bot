@@ -5,7 +5,6 @@ async function startMenu(chatId, city, country) {
   try {
     // 1️⃣ Получаем фотографию города
     const photo = await getCityImage(city, country);
-    console.log("country: ", country);
 
     const caption = `
 📍 Your city is <strong>${city.toUpperCase()}</strong>!
