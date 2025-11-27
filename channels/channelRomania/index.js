@@ -1,9 +1,9 @@
 const axios = require("axios");
 const FormData = require("form-data");
 const { DateTime } = require("luxon");
-const { extractShortLink } = require("../encodeLink");
+const { extractShortLink } = require("../../services/encodeLink");
 const { getCityName } = require("../getCityName");
-const { getCityImage } = require("../getImages");
+const { getCityImage } = require("../../services/getCityImage");
 const { preMessage } = require("./translater");
 const { wasPosted, addPosted } = require("../../services/db");
 

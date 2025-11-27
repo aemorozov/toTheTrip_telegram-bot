@@ -5,13 +5,7 @@ const PEXELS_API_KEY = process.env.PEXEL_KEY;
 
 // --------------- UTILS -----------------
 
-/**
- * 1️⃣ Нормализуем название города через Aviasales places2
- * Возвращает:
- * city: Bucharest
- * country: Romania
- * iata: BUH
- */
+// 1️⃣ Нормализуем название города через Aviasales places2
 async function resolveCityViaAviasales(city) {
   try {
     const res = await axios.get("https://places.aviasales.com/v2/places.json", {
@@ -67,12 +61,8 @@ SELECT ?place ?placeLabel WHERE {
   ?place wdt:P31/wdt:P279* ?type .
   VALUES ?type {
     wd:Q124714      # monument
-    wd:Q570116      # historic site
-    wd:Q839954      # architectural building
-    wd:Q498238      # museum
     wd:Q5705        # palace
     wd:Q3947        # park
-    wd:Q875744      # cathedral
     wd:Q4989906     # tourist attraction
   }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
@@ -88,8 +78,6 @@ SELECT ?place ?placeLabel WHERE {
       headers: { Accept: "application/sparql-results+json" },
     });
 
-    console.log("res.data.results?.bindings: ", res.data.results?.bindings);
-
     if (!res.data.results?.bindings?.length) return [];
 
     return res.data.results.bindings.map((b) => b.placeLabel.value);
@@ -100,108 +88,59 @@ SELECT ?place ?placeLabel WHERE {
 
 // ----------------------------------------
 
-async function getCityImage(cityName, country) {
+async function getCityImage(cityName, country = "") {
   try {
-    // ⭐️ 0. Normalize via Aviasales
+    // 1️⃣ Normalization (free + fast)
     const resolved = await resolveCityViaAviasales(cityName);
     cityName = resolved.city;
     country = resolved.country;
-    console.log("Resolved via Aviasales →", cityName, country);
+    console.log("Resolved:", cityName, country);
 
-    // 1️⃣ Get city QID
-    const qid = await fetchCityQID(cityName);
-    console.log("QID:", qid);
+    // 2️⃣ Один запрос к Pexels
+    const query = `${cityName} ${country} landmark street sky`;
 
-    let searchQueries = [];
+    const res = await axios.get("https://api.pexels.com/v1/search", {
+      headers: { Authorization: PEXELS_API_KEY },
+      params: {
+        query,
+        per_page: 15, // выбираем 15 штук
+        orientation: "landscape",
+      },
+    });
 
-    // 2️⃣ Wikidata landmarks
-    if (qid) {
-      const landmarks = await fetchLandmarks(qid);
+    const photos = res.data.photos || [];
+    if (!photos.length) return null;
 
-      if (landmarks.length) {
-        searchQueries = landmarks.map((lm) => `${lm} ${cityName} ${country}`);
+    console.log("photos: ", photos);
 
-        // remove duplicates
-        searchQueries = [...new Set(searchQueries)];
+    const bestPhoto = photos[Math.floor(Math.random() * photos.length)];
 
-        // filter garbage
-        searchQueries = searchQueries.filter(
-          (q) => q.length > 10 && q.split(" ").length >= 3
-        );
-      }
-    }
+    const url = bestPhoto.src.large2x || bestPhoto.src.large;
+    if (!url) return null;
 
-    // 3️⃣ fallback если landmarks пустой
-    searchQueries.push(
-      `${cityName} ${country} panorama`,
-      `${cityName} ${country} landmarks`
-    );
+    // 4️⃣ Качаем → кропим → 1080×1080 → JPEG → отдаём
+    const { data } = await axios.get(url, { responseType: "arraybuffer" });
+    const input = sharp(Buffer.from(data));
+    const meta = await input.metadata();
 
-    // 🔀 перемешиваем запросы
-    searchQueries = searchQueries.sort(() => Math.random() - 0.5);
+    const size = Math.min(meta.width, meta.height);
 
-    // ⭐️ только первые 3 проверяем
-    const limitedQueries = searchQueries.slice(0, 10); // 10 вариантов
-    let attempts = 0;
-
-    const collected = [];
-
-    for (const query of limitedQueries) {
-      if (attempts >= 3) break; // 👈 ОСТАНОВКА ПОСЛЕ 3
-      attempts++;
-
-      console.log("🔎 Searching:", query);
-
-      const res = await axios.get("https://api.pexels.com/v1/search", {
-        headers: { Authorization: PEXELS_API_KEY },
-        params: {
-          query,
-          per_page: 5,
-          orientation: "landscape",
-        },
-      });
-
-      if (!res.data.photos?.length) continue;
-
-      for (const photo of res.data.photos) {
-        if (collected.length >= 3) break; // максимум 3 картинки
-
-        const url = photo.src.large2x || photo.src.large;
-        if (!url) continue;
-
-        const { data } = await axios.get(url, { responseType: "arraybuffer" });
-        const input = sharp(Buffer.from(data));
-        const meta = await input.metadata();
-
-        if (!meta.width || !meta.height) continue;
-
-        const size = Math.min(meta.width, meta.height);
-
-        const square = await input
-          .extract({
-            left: Math.floor((meta.width - size) / 2),
-            top: Math.floor((meta.height - size) / 2),
-            width: size,
-            height: size,
-          })
-          .resize(1080, 1080)
-          .jpeg({ quality: 90 })
-          .toBuffer();
-
-        collected.push(square);
-      }
-    }
-
-    console.log("📸 Collected:", collected.length);
-
-    if (!collected.length) return null;
-
-    // отдаём случайную
-    return collected[Math.floor(Math.random() * collected.length)];
+    return await input
+      .extract({
+        left: Math.floor((meta.width - size) / 2),
+        top: Math.floor((meta.height - size) / 2),
+        width: size,
+        height: size,
+      })
+      .resize(1080, 1080)
+      .jpeg({ quality: 90 })
+      .toBuffer();
   } catch (err) {
-    console.error("CityImage error:", err.message);
+    console.error("getCityImage error:", err.message);
     return null;
   }
 }
+
+module.exports = { getCityImage };
 
 module.exports = { getCityImage };
