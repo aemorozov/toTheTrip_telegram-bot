@@ -11,7 +11,10 @@ const redis = new Redis({
 async function handleCommandStart(chatId, userInfo) {
   // const languageCode = userInfo.language_code || "en";
   // await safeSend(chatId, `🌍 ${languages[languageCode].helloMessage}:`);
-  await safeSend(chatId, `🌍 Please enter your departure city:`);
+  await safeSend(
+    chatId,
+    `🌍 Enter only your departure city and I’ll give you a menu where you can choose the cheapest tickets ✈️💸:`
+  );
 }
 
 async function chats(chatId) {

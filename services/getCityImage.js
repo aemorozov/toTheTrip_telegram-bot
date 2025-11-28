@@ -30,80 +30,136 @@ async function resolveCityViaAviasales(city) {
   }
 }
 
-/**
- * 2️⃣ Получаем QID города по названию
- */
-async function fetchCityQID(cityName) {
-  try {
-    const url = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${cityName}&language=en&format=json&limit=1`;
+// Регионы России
+// 📌 Regional city groups (EN)
+const SIBERIA = [
+  "Krasnoyarsk",
+  "Novosibirsk",
+  "Irkutsk",
+  "Kemerovo",
+  "Tomsk",
+  "Tyumen",
+  "Omsk",
+  "Barnaul",
+  "Novokuznetsk",
+  "Chita",
+  "Ulan-Ude",
+  "Bratsk",
+];
 
-    console.log("url: ", url);
-    const res = await axios.get(url, {
-      headers: {
-        "User-Agent": "TelegramCityBot/1.0", // ← ОБЯЗАТЕЛЬНО
-      },
-    });
+const URAL = [
+  "Yekaterinburg",
+  "Chelyabinsk",
+  "Perm",
+  "Ufa",
+  "Magnitogorsk",
+  "Nizhny Tagil",
+  "Sterlitamak",
+  "Orsk",
+  "Miass",
+  "Kurgan",
+  "Salavat",
+];
 
-    return res.data.search?.[0]?.id || null;
-  } catch {
-    return null;
-  }
-}
+const VOLGA = [
+  "Kazan",
+  "Samara",
+  "Nizhny Novgorod",
+  "Ulyanovsk",
+  "Saratov",
+  "Volgograd",
+  "Orenburg",
+  "Penza",
+  "Tolyatti",
+  "Izhevsk",
+  "Yoshkar-Ola",
+  "Kirov",
+  "Cheboksary",
+  "Astrakhan",
+];
 
-/**
- * 3️⃣ Получаем landmarks города по QID (Wikidata SPARQL)
- */
-async function fetchLandmarks(qid) {
-  const endpoint = "https://query.wikidata.org/sparql";
-  const query = `
-SELECT ?place ?placeLabel WHERE {
-  ?place wdt:P131* wd:${qid}.  
-  ?place wdt:P31/wdt:P279* ?type .
-  VALUES ?type {
-    wd:Q124714      # monument
-    wd:Q5705        # palace
-    wd:Q3947        # park
-    wd:Q4989906     # tourist attraction
-  }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-      ?place wikibase:sitelinks ?links.
-    }
-    ORDER BY DESC(?links)
-    LIMIT 20
-  `;
+const FAR_EAST = [
+  "Vladivostok",
+  "Khabarovsk",
+  "Yakutsk",
+  "Magadan",
+  "Yuzhno-Sakhalinsk",
+  "Petropavlovsk-Kamchatsky",
+  "Anadyr",
+  "Birobidzhan",
+  "Blagoveshchensk",
+  "Nakhodka",
+];
 
-  try {
-    const res = await axios.get(endpoint, {
-      params: { query },
-      headers: { Accept: "application/sparql-results+json" },
-    });
+const NORTHWEST = [
+  "Murmansk",
+  "Arkhangelsk",
+  "Petrozavodsk",
+  "Pskov",
+  "Kaliningrad",
+  "Novgorod",
+  "Vologda",
+  "Cherepovets",
+  "Syktyvkar",
+];
 
-    if (!res.data.results?.bindings?.length) return [];
-
-    return res.data.results.bindings.map((b) => b.placeLabel.value);
-  } catch {
-    return [];
-  }
-}
-
-// ----------------------------------------
+const CAUCASUS = [
+  "Makhachkala",
+  "Grozny",
+  "Nalchik",
+  "Vladikavkaz",
+  "Stavropol",
+  "Pyatigorsk",
+  "Kislovodsk",
+  "Mineralnye Vody",
+  "Cherkessk",
+  "Sochi",
+];
 
 async function getCityImage(cityName, country = "") {
   try {
-    // 1️⃣ Normalization (free + fast)
+    // -------------------------------
+    // 1️⃣ Normalize city/country via Aviasales
+    // -------------------------------
     const resolved = await resolveCityViaAviasales(cityName);
     cityName = resolved.city;
     country = resolved.country;
-    console.log("Resolved:", cityName, country);
 
-    // 2️⃣ Один запрос к Pexels
-    const query = `${cityName} ${country} landmark street sky`;
+    // Не указываем "Russia" в запросах
+    if (country === "Russia") {
+      country = "";
+    }
 
+    // -------------------------------
+    // 2️⃣ Если город в пресете → заменяем на регион
+    // -------------------------------
+    let regionQuery = null;
+
+    // Проверка на принадлежность к региону России
+    if (SIBERIA.includes(cityName)) regionQuery = "Siberia";
+    if (URAL.includes(cityName)) regionQuery = "Ural";
+    if (VOLGA.includes(cityName)) regionQuery = "Volga";
+    if (FAR_EAST.includes(cityName)) regionQuery = "Far East Russia";
+    if (NORTHWEST.includes(cityName)) regionQuery = "Northwest Russia";
+    if (CAUCASUS.includes(cityName)) regionQuery = "Caucasus Russia";
+
+    // -------------------------------
+    // 3️⃣ Строим поисковый запрос
+    // -------------------------------
+    const query = regionQuery
+      ? `${regionQuery} landmark city street`
+      : `${cityName} ${country} landmark street sky`;
+
+    console.log("PEXELS QUERY →", query);
+
+    // -------------------------------
+    // 4️⃣ Запрос в Pexels
+    // -------------------------------
     const res = await axios.get("https://api.pexels.com/v1/search", {
       headers: { Authorization: PEXELS_API_KEY },
       params: {
         query,
-        per_page: 15, // выбираем 15 штук
+        per_page: 15,
         orientation: "landscape",
       },
     });
@@ -111,14 +167,13 @@ async function getCityImage(cityName, country = "") {
     const photos = res.data.photos || [];
     if (!photos.length) return null;
 
-    console.log("photos: ", photos);
-
     const bestPhoto = photos[Math.floor(Math.random() * photos.length)];
-
     const url = bestPhoto.src.large2x || bestPhoto.src.large;
     if (!url) return null;
 
-    // 4️⃣ Качаем → кропим → 1080×1080 → JPEG → отдаём
+    // -------------------------------
+    // 5️⃣ Кроп и отдача
+    // -------------------------------
     const { data } = await axios.get(url, { responseType: "arraybuffer" });
     const input = sharp(Buffer.from(data));
     const meta = await input.metadata();
@@ -140,7 +195,5 @@ async function getCityImage(cityName, country = "") {
     return null;
   }
 }
-
-module.exports = { getCityImage };
 
 module.exports = { getCityImage };

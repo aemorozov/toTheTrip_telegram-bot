@@ -97,7 +97,7 @@ const preMessage = {
     short,
   }) {
     return `
-✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b> (dus-intors)
+✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b>
 💶 aprox. <b>${price * exchange}</b> RON (${price}€)
 📅 ${depDate}  ${depTime}${depTransfers == 0 ? "" : `  🔃 ${depTransfers}`}
 📅 ${retDate}  ${retTime}${retTransfers == 0 ? "" : `  🔃 ${retTransfers}`}

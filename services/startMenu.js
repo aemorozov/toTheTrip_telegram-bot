@@ -9,12 +9,14 @@ async function startMenu(chatId, city, country) {
     const caption = `
 📍 Your city is <strong>${city.toUpperCase()}</strong>!
 
-🔄 Want to update the city? Write it.
+✈️ You can choose from several types of options and you’ll get a list of the cheapest tickets!
+
+🔄 If you want to change your departure city, tap /start and write a new one.
 
 <b>You can join our channels:</b>
 🇷🇴 <b><a href="https://t.me/CheapFlightsRomania">Cheap Flights Romania</a></b>
 
-👇 👇 <b>Choose an option:</b> 👇 👇
+👇 👇 👇 👇 👇 👇 👇 👇 👇
     `;
 
     const options = {
