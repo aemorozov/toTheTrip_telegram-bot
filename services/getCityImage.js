@@ -147,7 +147,7 @@ async function getCityImage(cityName, country = "") {
     // 3️⃣ Строим поисковый запрос
     // -------------------------------
     const query = regionQuery
-      ? `${regionQuery} landmark city street`
+      ? `${regionQuery}`
       : `${cityName} ${country} landmark street sky`;
 
     console.log("PEXELS QUERY →", query);
