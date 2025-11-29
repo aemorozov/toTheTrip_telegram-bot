@@ -14,6 +14,7 @@ async function startMenu(chatId, city, country) {
 🔄 If you want to change your departure city, tap /start and write a new one.
 
 <b>You can join our channels:</b>
+🇮🇹 <b><a href="https://t.me/CheapFlightsItaly">Cheap Flights Italy</a></b>
 🇷🇴 <b><a href="https://t.me/CheapFlightsRomania">Cheap Flights Romania</a></b>
 
 👇 👇 👇 👇 👇 👇 👇 👇 👇
