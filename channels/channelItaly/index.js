@@ -73,16 +73,6 @@ function rateFlight(f) {
   return false;
 }
 
-function getRandomOrigins(count = 1) {
-  const copy = [...airports];
-  const origins = [];
-  while (origins.length < count && copy.length) {
-    const idx = Math.floor(Math.random() * copy.length);
-    origins.push(copy.splice(idx, 1)[0]);
-  }
-  return origins;
-}
-
 // Формула рассчёта расстояния между городами
 function haversineDistance(lat1, lon1, lat2, lon2) {
   const R = 6371; // Радиус Земли в километрах
