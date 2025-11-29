@@ -99,8 +99,12 @@ const preMessage = {
     return `
 ✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b>
 💶 approx. <b>${price}€</b>
-📅 ${depDate}  🕓 ${depTime}${depTransfers == 0 ? "" : `  🔃 ${depTransfers}`}
-📅 ${retDate}  🕓 ${retTime}${retTransfers == 0 ? "" : `  🔃 ${retTransfers}`}
+📅 <b>${depDate}  🕓 ${depTime}</b>${
+      depTransfers == 0 ? "" : `  🔃 ${depTransfers}`
+    }
+📅 <b>${retDate}  🕓 ${retTime}</b>${
+      retTransfers == 0 ? "" : `  🔃 ${retTransfers}`
+    }
 🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
   },
 
