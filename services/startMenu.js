@@ -44,7 +44,7 @@ async function startMenu(chatId, city, country) {
           ],
           [
             {
-              text: "💸    Best price for destination    🌍",
+              text: "💸     Best price for destination     🌍",
               callback_data: "cheapest_flights_to_destination",
             },
           ],
