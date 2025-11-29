@@ -13,35 +13,6 @@ const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 
 const airports = ["BUH", "CLJ", "CRA", "IAS", "OMR", "SBZ", "TSR"];
 
-function getRandomOrigins(count = 1) {
-  const copy = [...airports];
-  const origins = [];
-  while (origins.length < count && copy.length) {
-    const idx = Math.floor(Math.random() * copy.length);
-    origins.push(copy.splice(idx, 1)[0]);
-  }
-  return origins;
-}
-
-// Формула рассчёта расстояния между городами
-function haversineDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Радиус Земли в километрах
-
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c;
-}
-
 // Рейтинг система
 function rateFlight(f) {
   const price = f.price;
@@ -81,6 +52,35 @@ function rateFlight(f) {
   return false;
 }
 
+function getRandomOrigins(count = 1) {
+  const copy = [...airports];
+  const origins = [];
+  while (origins.length < count && copy.length) {
+    const idx = Math.floor(Math.random() * copy.length);
+    origins.push(copy.splice(idx, 1)[0]);
+  }
+  return origins;
+}
+
+// Формула рассчёта расстояния между городами
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Радиус Земли в километрах
+
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
 // helper: извлекает дату в формате "YYYY-MM-DD" из link (search_date=DDMMYYYY)
 function extractSearchDateISO(link) {
   const m = link && link.match(/search_date=(\d{8})/);
@@ -99,10 +99,18 @@ function shuffle(arr) {
 }
 
 // Присваиваем уникальный ID для записи в БД
-function getFlightUID(flight) {
-  const dep = flight.departure_at.slice(0, 10); // YYYY-MM-DD
-  const ret = flight.return_at.slice(0, 10);
-  return `${flight.origin}-${flight.destination}-${dep}-${ret}`;
+function getFlightUID(f) {
+  const dep =
+    f.departure_at.slice(0, 10).replace(/-/g, "").slice(6, 10) +
+    f.departure_at.slice(5, 7);
+  const ret =
+    f.return_at.slice(0, 10).replace(/-/g, "").slice(6, 10) +
+    f.return_at.slice(5, 7);
+
+  return `${f.originName}-${f.destinationName}-${dep}-${ret}-${f.price}`
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // убираем диакритику
+    .replace(/\s+/g, ""); // убираем пробелы
 }
 
 // Сегодняшний день
@@ -203,11 +211,12 @@ async function TopForToday() {
   //         👉 3. Удаляем рейсы, которые мы уже постили
   // ===============================================================
   const freshFlights = [];
-  for (const f of flights) {
-    const uid = getFlightUID(f);
+  for (const flight of flights) {
+    const uid = getFlightUID(flight);
+
     if (!(await wasPosted(uid))) {
-      f.uid = uid;
-      freshFlights.push(f);
+      flight.uid = uid;
+      freshFlights.push(flight);
     }
   }
 

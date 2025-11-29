@@ -99,13 +99,13 @@ const preMessage = {
     return `
 ✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b> (dus-intors)
 💶 aprox. <b>${price * exchange}</b> RON (${price}€)
-📅 ${depDate}  ${depTime}${depTransfers == 0 ? "" : `  🔃 ${depTransfers}`}
-📅 ${retDate}  ${retTime}${retTransfers == 0 ? "" : `  🔃 ${retTransfers}`}
+📅 ${depDate}  🕓 ${depTime}${depTransfers == 0 ? "" : `  🔃 ${depTransfers}`}
+📅 ${retDate}  🕓 ${retTime}${retTransfers == 0 ? "" : `  🔃 ${retTransfers}`}
 🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
   },
 
   footer() {
-    return `\n📢 Distribuie prietenilor!\n\n🤖 <b>@CheapFlightsToTheTripBot</b> - botul tău pentru zboruri ieftine\n\n${randomHashtags}`;
+    return `\n📢 Distribuie prietenilor!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>\n\n${randomHashtags}`;
   },
 };
 
