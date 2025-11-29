@@ -24,31 +24,31 @@ async function startMenu(chatId, city, country) {
         inline_keyboard: [
           [
             {
-              text: "✈️        TOP round trip flights        🔄",
+              text: "✈️        TOP round trip flights         🔄",
               callback_data: "get_top_10_round_trip",
             },
           ],
           [
             {
-              text: "✈️          TOP one way flights         ➡️",
+              text: "✈️          TOP one way flights          ➡️",
               callback_data: "get_top_10_one_way",
             },
           ],
           [
             {
-              text: "💰           Best price for date          📆",
+              text: "💰          Best price for a date         📆",
               callback_data: "price_for_date",
             },
           ],
           [
             {
-              text: "💸    Best flights to destination    🌍",
+              text: "💸    Best price for destination    🌍",
               callback_data: "cheapest_flights_to_destination",
             },
           ],
           [
             {
-              text: "🔥              Special offers                🤑",
+              text: "🔥          Special daily offers           🤑",
               callback_data: "special_offers",
             },
           ],

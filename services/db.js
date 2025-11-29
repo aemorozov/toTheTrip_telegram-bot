@@ -241,18 +241,28 @@ async function getCityName(iataCode) {
   return null;
 }
 
+function getPostedKey() {
+  const d = new Date();
+  return `postedFlights:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 async function wasPosted(uid) {
-  return await redis.exists(`posted:${uid}`);
+  const key = getPostedKey();
+  return await redis.sismember(key, uid); // 0 или 1
 }
 
 async function addPosted(uid) {
-  const msToMidnight = new Date().setHours(24, 0, 0, 0) - Date.now();
-  const secondsLeft = Math.max(60, Math.floor(msToMidnight / 1000));
+  const key = getPostedKey();
 
-  await redis.set(`posted:${uid}`, "1", {
-    ex: secondsLeft,
-    nx: true,
-  });
+  await redis.sadd(key, uid);
+
+  const sec = Math.floor(
+    (new Date().setHours(24, 0, 0, 0) - Date.now()) / 1000
+  );
+  await redis.expire(key, sec);
 }
 
 module.exports = {
