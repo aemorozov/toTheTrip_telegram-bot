@@ -8,53 +8,69 @@ const { preMessage } = require("./translater");
 const { wasPosted, addPosted } = require("../../services/db");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
-const CHANNEL_ID = "@cheapflightsforyou";
+const CHANNEL_ID = "@CheapFlightsItaly";
 const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 
-const airports = ["BUH", "CLJ", "CRA", "IAS", "OMR", "SBZ", "TSR"];
+const airports = [
+  "ROM", // Roma (Fiumicino + Ciampino)
+  "MIL", // Milano (Malpensa + Linate + Bergamo)
+  "VCE", // Venezia
+  "NAP", // Napoli
+  "BLQ", // Bologna
+  "FLR", // Firenze
+  "TRN", // Torino
+  "VRN", // Verona
+  "PSA", // Pisa
+  "CAG", // Cagliari
+  "PMO", // Palermo
+  "CTA", // Catania
+  "BRI", // Bari
+  "OLB", // Olbia
+  "AOI", // Ancona
+  "TSF", // Treviso
+  "LMP", // Lampedusa
+  "REG", // Reggio Calabria
+  "PEG", // Perugia
+  "RMI", // Rimini
+];
 
-// // Рейтинг система
-// function rateFlight(f) {
-//   const price = f.price;
-//   const dist = f.distance;
-//   const transfers = Math.max(f.transfers, f.return_transfers);
-
-//   // === 1. Супер дешёвые и без пресадок — всегда да
-//   if (price < 100) {
-//     return transfers === 0;
-//   }
-
-//   // === 2. До 2000 км — принимаем ТОЛЬКО прямые
-//   if (dist < 2000) {
-//     return transfers === 0 && price <= 150;
-//   }
-
-//   // === 2. До 3500 км — принимаем ТОЛЬКО прямые
-//   if (dist < 3500) {
-//     return transfers === 0 && price <= 200;
-//   }
-
-//   // === 3. 3500–5000 км — 1 пересадка допускается, но должны быть причины:
-//   if (dist < 5000) {
-//     if (transfers === 0 && price <= 400) return true;
-//     if (transfers === 1 && price <= 300) return true; // пересадка только если дешёвый
-//     return false;
-//   }
-
-//   // === 4. От 5000 км и выше — пересадки нормальны
-//   // но цена должна соответствовать дальности
-//   if (dist >= 5000) {
-//     if (transfers <= 1 && price <= 800) return true;
-//     if (transfers <= 2 && price <= 800) return true;
-//     return false;
-//   }
-
-//   return false;
-// }
-
-// Рейтинг система пустая, для тестов
+// Рейтинг система
 function rateFlight(f) {
-  return true;
+  const price = f.price;
+  const dist = f.distance;
+  const transfers = Math.max(f.transfers, f.return_transfers);
+
+  // === 1. Супер дешёвые и без пресадок — всегда да
+  if (price < 100) {
+    return transfers === 0;
+  }
+
+  // === 2. До 2000 км — принимаем ТОЛЬКО прямые
+  if (dist < 2000) {
+    return transfers === 0 && price <= 150;
+  }
+
+  // === 2. До 3500 км — принимаем ТОЛЬКО прямые
+  if (dist < 3500) {
+    return transfers === 0 && price <= 250;
+  }
+
+  // === 3. 3500–5000 км — 1 пересадка допускается, но должны быть причины:
+  if (dist < 5000) {
+    if (transfers === 0 && price <= 400) return true;
+    if (transfers === 1 && price <= 300) return true; // пересадка только если дешёвый
+    return false;
+  }
+
+  // === 4. От 5000 км и выше — пересадки нормальны
+  // но цена должна соответствовать дальности
+  if (dist >= 5000) {
+    if (transfers <= 1 && price <= 800) return true;
+    if (transfers <= 2 && price <= 800) return true;
+    return false;
+  }
+
+  return false;
 }
 
 function getRandomOrigins(count = 1) {
@@ -239,12 +255,7 @@ async function TopForToday() {
   // ===============================================================
   //         👉 5. Добавляем его в список postedFlights
   // ===============================================================
-  await addPosted(randomFlight.uid, {
-    price: randomFlight.price,
-    origin: randomFlight.originName,
-    destination: randomFlight.destinationName,
-    distance: randomFlight.distance,
-  });
+  await addPosted(randomFlight.uid);
   console.log(`💾 Stored UID: ${randomFlight.uid}`);
 
   // ===============================================================
