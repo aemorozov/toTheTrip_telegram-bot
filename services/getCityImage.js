@@ -113,7 +113,6 @@ const CAUCASUS = [
   "Kislovodsk",
   "Mineralnye Vody",
   "Cherkessk",
-  "Sochi",
 ];
 
 async function getCityImage(cityName, country = "") {
@@ -146,7 +145,8 @@ async function getCityImage(cityName, country = "") {
     // -------------------------------
     // 3️⃣ Строим поисковый запрос
     // -------------------------------
-    const query = regionQuery ? `${regionQuery}` : `${cityName} landmark`;
+    const query = regionQuery ? `${regionQuery}` : `${cityName} landmarks`;
+    // : `${cityName} ${country} landmark street sky`;
 
     console.log("PEXELS QUERY →", query);
 
@@ -158,7 +158,7 @@ async function getCityImage(cityName, country = "") {
       params: {
         query,
         per_page: 15,
-        orientation: "landscape",
+        orientation: "all",
       },
     });
 
@@ -186,6 +186,11 @@ async function getCityImage(cityName, country = "") {
         height: size,
       })
       .resize(1080, 1080)
+      .modulate({
+        brightness: 1.1, // +5%
+        saturation: 1.1, // немного насыщеннее
+        contrast: 1.1, // псевдоконтраст через исправление гаммы
+      })
       .jpeg({ quality: 90 })
       .toBuffer();
   } catch (err) {
