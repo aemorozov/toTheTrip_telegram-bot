@@ -187,9 +187,9 @@ async function getCityImage(cityName, country = "") {
       })
       .resize(1080, 1080)
       .modulate({
-        brightness: 1.1, // +5%
+        brightness: 1.15, // +5%
         saturation: 1.1, // немного насыщеннее
-        contrast: 1.1, // псевдоконтраст через исправление гаммы
+        contrast: 1.15, // псевдоконтраст через исправление гаммы
       })
       .jpeg({ quality: 90 })
       .toBuffer();
