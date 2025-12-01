@@ -225,6 +225,8 @@ async function TopForTodaySpain() {
   for (const flight of flights) {
     const uid = getFlightUID(flight);
 
+    console.log(`UID:`, uid);
+
     if (!(await wasPosted(uid))) {
       flight.uid = uid;
       freshFlights.push(flight);

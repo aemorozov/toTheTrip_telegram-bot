@@ -137,7 +137,7 @@ const dayBeforeYesterdayISO = new Date(Date.now() - 24 * 60 * 60 * 1000 * 2)
 async function TopForTodayGermany() {
   let flights = [];
 
-  console.log(`\n=== 🔎 TOP FOR TODAY FROM ALL ORIGINS ===`);
+  console.log(`\n=== 🔎 TOP FOR TODAY FROM GERMANY ===`);
 
   // Делаем запросы по всем городам, определяем расстояния, опередляем интересные рейсы и формируем конечный массив для сообщения
   try {
@@ -223,6 +223,8 @@ async function TopForTodayGermany() {
   const freshFlights = [];
   for (const flight of flights) {
     const uid = getFlightUID(flight);
+
+    console.log(`UID:`, uid);
 
     if (!(await wasPosted(uid))) {
       flight.uid = uid;

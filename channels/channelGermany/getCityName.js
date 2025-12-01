@@ -25,7 +25,7 @@ async function getCityName(iataCode) {
     const contry = found.country_name;
 
     if (found) {
-      console.log(`✅ Found via Travelpayouts: ${found.code} → ${name}`);
+      // console.log(`✅ Found via Travelpayouts: ${found.code} → ${name}`);
 
       return [name, lon, lat, contry];
     } else {
