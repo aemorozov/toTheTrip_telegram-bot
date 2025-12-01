@@ -157,8 +157,8 @@ async function getCityImage(cityName, country = "") {
       headers: { Authorization: PEXELS_API_KEY },
       params: {
         query,
-        per_page: 15,
-        orientation: "all",
+        per_page: 5,
+        orientation: "landscape",
       },
     });
 
@@ -166,7 +166,7 @@ async function getCityImage(cityName, country = "") {
     if (!photos.length) return null;
 
     const bestPhoto = photos[Math.floor(Math.random() * photos.length)];
-    const url = bestPhoto.src.large;
+    const url = bestPhoto.src.large2x || bestPhoto.src.large;
     if (!url) return null;
 
     // -------------------------------
@@ -185,6 +185,13 @@ async function getCityImage(cityName, country = "") {
         width: size,
         height: size,
       })
+      .resize(1080, 1080)
+      .modulate({
+        brightness: 1.15, // +5%
+        saturation: 1.1, // немного насыщеннее
+        contrast: 1.15, // псевдоконтраст через исправление гаммы
+      })
+      .jpeg({ quality: 90 })
       .toBuffer();
   } catch (err) {
     console.error("getCityImage error:", err.message);
