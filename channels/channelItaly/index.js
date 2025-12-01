@@ -8,6 +8,7 @@ const { preMessage } = require("./translater");
 const { wasPosted, addPosted } = require("../../services/db");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+// const CHANNEL_ID = "@cheapflightsforyou";
 const CHANNEL_ID = "@CheapFlightsItaly";
 const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 
@@ -65,8 +66,8 @@ function rateFlight(f) {
   // === 4. От 5000 км и выше — пересадки нормальны
   // но цена должна соответствовать дальности
   if (dist >= 5000) {
-    if (transfers <= 1 && price <= 800) return true;
-    if (transfers <= 2 && price <= 800) return true;
+    if (transfers <= 1 && price <= 900) return true;
+    if (transfers <= 2 && price <= 600) return true;
     return false;
   }
 

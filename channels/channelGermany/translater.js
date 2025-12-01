@@ -72,7 +72,7 @@ const preMessage = {
   header({ origin, price, destinationName = null }) {
     return `<b>${title} ${origin}${
       destinationName ? ` nach ${destinationName.toUpperCase()}` : ""
-    } ab ${price * exchange} EUR</b>\n`;
+    } ab ${price}€</b>\n`;
   },
 
   directFlights() {

@@ -1,14 +1,14 @@
 const titles = [
-  "💸 TOP zboruri dus-intors la cele mai mici prețuri din",
-  "🏆 Cele mai bune oferte dus-intors din",
-  "🔥 Cele mai tari oferte la zboruri dus-intors din",
-  "✈️ Zboruri dus-intors accesibile din",
-  "📉 Cele mai mici tarife dus-intors acum din",
-  "🛫 Zboara smart — cele mai bune prețuri din",
-  "💰 Oferte ieftine de neratat la zboruri dus-intors din",
-  "🌍 TOP oferte de calatorie dus-intors din",
-  "🎯 Cele mai ieftine destinații din",
-  "⭐ Cele mai bune oferte dus-intors din",
+  "💸 TOP vols aller-retour aux prix les plus bas depuis",
+  "🏆 Meilleures offres de vols aller-retour depuis",
+  "🔥 Meilleures offres sur les vols aller-retour depuis",
+  "✈️ Vols aller-retour à prix avantageux depuis",
+  "📉 Les tarifs aller-retour les plus bas en ce moment depuis",
+  "🛫 Voyage malin — les meilleurs prix depuis",
+  "💰 Offres imbattables sur les vols aller-retour depuis",
+  "🌍 TOP offres de voyage aller-retour depuis",
+  "🎯 Les destinations les moins chères depuis",
+  "⭐ Les meilleures offres de vols aller-retour depuis",
 ];
 
 const hashtags = [
@@ -26,13 +26,13 @@ const hashtags = [
   "#Trip",
 
   // 🇷🇴 Romanian (no diacritics)
-  "#Bilete",
-  "#Zboruri",
-  "#Calatorii",
-  "#Oferte",
-  "#Romania",
+  "#Billets",
+  "#Vols",
+  "#Voyages",
+  "#Offres",
+  "#France",
   "#Avion",
-  "#Europa",
+  "#Europe",
   "#Weekend",
 
   // 🛫 Airlines (часто ищут)
@@ -58,7 +58,7 @@ const hashtags = [
   "#AirBaltic",
 ];
 
-// ✈️ Функция для выбора случайных 5 хэштегов
+// ✈️ Функция для выбора случайных 7 хэштегов
 function getRandomHashtags(count = 7) {
   const shuffled = [...hashtags].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count).join(" ");
@@ -71,16 +71,16 @@ const exchange = 5;
 const preMessage = {
   header({ origin, price, destinationName = null }) {
     return `<b>${title} ${origin}${
-      destinationName ? ` catre ${destinationName.toUpperCase()}` : ""
-    } de la ${price * exchange}RON (${price}€)</b>\n`;
+      destinationName ? ` vers ${destinationName.toUpperCase()}` : ""
+    } à partir de ${price}€</b>\n`;
   },
 
   directFlights() {
-    return `\n<b>Zboruri directe:</b>\n`;
+    return `\n<b>Vols directs :</b>\n`;
   },
 
   tramsferFlights() {
-    return `\n<b>Zboruri cu escală:</b>\n`;
+    return `\n<b>Vols avec escale :</b>\n`;
   },
 
   flightItem({
@@ -98,18 +98,18 @@ const preMessage = {
   }) {
     return `
 ✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b>
-💶 aprox. <b>${price * exchange}</b> RON (${price}€)
+💶 env. <b>${price}€</b>
 📅 <b>${depDate}  🕓 ${depTime}</b>${
-      depTransfers == 0 ? "" : `  🔃 ${depTransfers}`
+      depTransfers == 0 ? "" : `  🔃 ${depTransfers} escale(s)`
     }
 📅 <b>${retDate}  🕓 ${retTime}</b>${
-      retTransfers == 0 ? "" : `  🔃 ${retTransfers}`
+      retTransfers == 0 ? "" : `  🔃 ${retTransfers} escale(s)`
     }
-🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
+🔗 Lien : <a href="${link}"><b>https://${short}</b></a>\n`;
   },
 
   footer() {
-    return `\n📢 Distribuie prietenilor!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>\n\n${randomHashtags}`;
+    return `\n📢 Partage-le avec tes amis !\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>\n\n${randomHashtags}`;
   },
 };
 

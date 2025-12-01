@@ -8,31 +8,31 @@ const { preMessage } = require("./translater");
 const { wasPosted, addPosted } = require("../../services/db");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
-const CHANNEL_ID = "@CheapFlightsSpain";
+const CHANNEL_ID = "@CheapFlightsFrance";
 // const CHANNEL_ID = "@cheapflightsforyou";
 const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 
 const airports = [
-  "MAD", // Madrid (Barajas)
-  "BCN", // Barcelona (El Prat)
-  "AGP", // Málaga
-  "PMI", // Palma de Mallorca
-  "ALC", // Alicante
-  "VLC", // Valencia
-  "SVQ", // Sevilla
-  "BIL", // Bilbao
-  "TFS", // Tenerife Sud
-  "TFN", // Tenerife Nord
-  "LPA", // Gran Canaria / Las Palmas
-  "IBZ", // Ibiza
-  "FUE", // Fuerteventura
-  "ACE", // Lanzarote
-  "ZAZ", // Zaragoza
-  "GRO", // Girona (low-cost hub)
-  "OVD", // Oviedo / Asturias
-  "SDR", // Santander
-  "MLN", // Melilla
-  "MAH", // Menorca
+  "PAR", // Paris (CDG + ORY + BVA)
+  "LYS", // Lyon
+  "NCE", // Nice
+  "MRS", // Marseille
+  "TLS", // Toulouse
+  "BOD", // Bordeaux
+  "NTE", // Nantes
+  "LIL", // Lille
+  "MPL", // Montpellier
+  "RNS", // Rennes
+  "BSL", // Basel-Mulhouse (EuroAirport)
+  "GVA", // Geneva (часто FR/CH hub)
+  "AJA", // Ajaccio (Corsica)
+  "BIA", // Bastia (Corsica)
+  "FSC", // Figari (Corsica)
+  "BZR", // Béziers
+  "PUF", // Pau
+  "TLN", // Toulon / Hyères
+  "PGF", // Perpignan
+  "ETZ", // Metz / Nancy
 ];
 
 // Рейтинг система
@@ -136,7 +136,7 @@ const dayBeforeYesterdayISO = new Date(Date.now() - 24 * 60 * 60 * 1000 * 2)
   .toISOString()
   .slice(0, 10);
 
-async function TopForTodaySpain() {
+async function TopForTodayFrance() {
   let flights = [];
 
   console.log(`\n=== 🔎 TOP FOR TODAY FROM ALL ORIGINS ===`);
@@ -345,4 +345,4 @@ async function TopForTodaySpain() {
   console.log(`\n✅ Posted: ${randomFlight.uid}`);
 }
 
-module.exports = { TopForTodaySpain };
+module.exports = { TopForTodayFrance };
