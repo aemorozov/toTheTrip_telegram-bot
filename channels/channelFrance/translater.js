@@ -100,10 +100,10 @@ const preMessage = {
 ✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b>
 💶 env. <b>${price}€</b>
 📅 <b>${depDate}  🕓 ${depTime}</b>${
-      depTransfers == 0 ? "" : `  🔃 ${depTransfers} escale(s)`
+      depTransfers == 0 ? "" : `  🔃 ${depTransfers}`
     }
 📅 <b>${retDate}  🕓 ${retTime}</b>${
-      retTransfers == 0 ? "" : `  🔃 ${retTransfers} escale(s)`
+      retTransfers == 0 ? "" : `  🔃 ${retTransfers}`
     }
 🔗 Lien : <a href="${link}"><b>https://${short}</b></a>\n`;
   },
