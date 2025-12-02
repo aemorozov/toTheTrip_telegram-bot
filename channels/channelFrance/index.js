@@ -6,6 +6,10 @@ const { getCityName } = require("./getCityName");
 const { getCityImage } = require("../getCityImage");
 const { preMessage } = require("./translater");
 const { wasPosted, addPosted } = require("../../bot/db");
+const { haversineDistance } = require("../haversineDistance");
+const { extractSearchDateISO } = require("../extractSearchDateISO");
+const { shuffle } = require("../shuffle");
+const { getFlightUID } = require("../getFlightUID");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHANNEL_ID = "@CheapFlightsFrance";
@@ -72,57 +76,6 @@ function rateFlight(f) {
   }
 
   return false;
-}
-
-// Формула рассчёта расстояния между городами
-function haversineDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Радиус Земли в километрах
-
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c;
-}
-
-// helper: извлекает дату в формате "YYYY-MM-DD" из link (search_date=DDMMYYYY)
-function extractSearchDateISO(link) {
-  const m = link && link.match(/search_date=(\d{8})/);
-  if (!m) return null;
-  const s = m[1]; // DDMMYYYY
-  return `${s.slice(4)}-${s.slice(2, 4)}-${s.slice(0, 2)}`; // YYYY-MM-DD
-}
-
-// 🌀 Перемешиваем массив (Fisher–Yates shuffle)
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-// Присваиваем уникальный ID для записи в БД
-function getFlightUID(f) {
-  const dep =
-    f.departure_at.slice(0, 10).replace(/-/g, "").slice(6, 10) +
-    f.departure_at.slice(5, 7);
-  const ret =
-    f.return_at.slice(0, 10).replace(/-/g, "").slice(6, 10) +
-    f.return_at.slice(5, 7);
-
-  return `${f.originName}-${f.destinationName}-${dep}-${ret}-${f.price}`
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // убираем диакритику
-    .replace(/\s+/g, ""); // убираем пробелы
 }
 
 // Сегодняшний день
