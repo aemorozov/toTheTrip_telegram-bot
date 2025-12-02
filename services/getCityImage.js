@@ -157,7 +157,7 @@ async function getCityImage(cityName, country = "") {
       headers: { Authorization: PEXELS_API_KEY },
       params: {
         query,
-        per_page: 25,
+        per_page: 15,
         orientation: "all",
       },
     });
