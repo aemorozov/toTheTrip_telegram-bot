@@ -1,11 +1,11 @@
 const axios = require("axios");
 const FormData = require("form-data");
 const { DateTime } = require("luxon");
-const { extractShortLink } = require("../../services/encodeLink");
+const { extractShortLink } = require("../../bot/encodeLink");
 const { getCityName } = require("./getCityName");
 const { getCityImage } = require("../getCityImage");
 const { preMessage } = require("./translater");
-const { wasPosted, addPosted } = require("../../services/db");
+const { wasPosted, addPosted } = require("../../bot/db");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 // const CHANNEL_ID = "@cheapflightsforyou";

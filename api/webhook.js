@@ -1,10 +1,10 @@
 require("dotenv").config();
-const { bot, safeSend } = require("../services/telegram");
-const { handleCommandStart } = require("../services/commands");
-const { handleTextMessage } = require("../services/messages");
-const { handleCallbackQuery } = require("../services/callbacks");
+const { bot, safeSend } = require("../bot/telegram");
+const { handleCommandStart } = require("../bot/commands");
+const { handleTextMessage } = require("../bot/messages");
+const { handleCallbackQuery } = require("../bot/callbacks");
 const { Redis } = require("@upstash/redis");
-const { startMenuButton } = require("../services/callbacks");
+const { startMenuButton } = require("../bot/callbacks");
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
