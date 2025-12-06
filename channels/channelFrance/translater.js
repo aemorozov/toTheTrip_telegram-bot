@@ -67,15 +67,14 @@ function getRandomHashtags(count = 7) {
 function getFlightDigestTitle() {
   const now = new Date();
   const hour = now.getHours();
-
   const weekdays = [
-    "Понедельник",
-    "Вторник",
-    "Среда",
-    "Четверг",
-    "Пятница",
-    "Суббота",
-    "Воскресенье",
+    "Lundi", // Понедельник
+    "Mardi", // Вторник
+    "Mercredi", // Среда
+    "Jeudi", // Четверг
+    "Vendredi", // Пятница
+    "Samedi", // Суббота
+    "Dimanche", // Воскресенье
   ];
 
   const weekdayStr = weekdays[now.getDay() - 1];
