@@ -40,42 +40,21 @@ const airports = [
 ];
 
 // Рейтинг система
-function rateFlight(f) {
-  const price = f.price;
-  const dist = f.distance;
-  const transfers = Math.max(f.transfers, f.return_transfers);
-
-  // === 1. Супер дешёвые и без пресадок — всегда да
-  if (price < 100) {
-    return transfers === 0;
-  }
-
-  // === 2. До 2000 км — принимаем ТОЛЬКО прямые
-  if (dist < 2000) {
-    return transfers === 0 && price <= 150;
-  }
-
-  // === 2. До 3500 км — принимаем ТОЛЬКО прямые
-  if (dist < 3500) {
-    return transfers === 0 && price <= 250;
-  }
-
-  // === 3. 3500–5000 км — 1 пересадка допускается, но должны быть причины:
-  if (dist < 5000) {
-    if (transfers === 0 && price <= 400) return true;
-    if (transfers === 1 && price <= 300) return true; // пересадка только если дешёвый
-    return false;
-  }
-
-  // === 4. От 5000 км и выше — пересадки нормальны
-  // но цена должна соответствовать дальности
-  if (dist >= 5000) {
-    if (transfers <= 1 && price <= 1000) return true;
-    if (transfers <= 2 && price <= 600) return true;
-    return false;
-  }
-
-  return false;
+// === 1. Супер дешёвые и без пресадок — всегда да
+if (price < 100) {
+  f.transfers === 0
+    ? console.log(
+        "Rated: ",
+        f.originName,
+        f.destinationName,
+        dist,
+        price,
+        "Transfers: ",
+        f.transfers,
+        f.return_transfers
+      )
+    : "";
+  return f.transfers === 0;
 }
 
 // Сегодняшний день
