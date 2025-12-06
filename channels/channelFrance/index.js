@@ -371,7 +371,7 @@ async function TopForTodayFrance() {
       headers: form.getHeaders(),
     }
   );
-  console.log(`\n✅ Posted: ${randomFlight.uid}`);
+  console.log(`\n✅ Posted.`);
 }
 
 module.exports = { TopForTodayFrance };
