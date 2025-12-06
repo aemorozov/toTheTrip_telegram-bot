@@ -45,23 +45,6 @@ function rateFlight(f) {
   const dist = f.distance;
   const transfers = Math.max(f.transfers, f.return_transfers);
 
-  // === 1. Супер дешёвые и без пресадок — всегда да
-  // if (price < 70) {
-  //   f.transfers === 0
-  //     ? console.log(
-  //         "Rated: ",
-  //         f.originName,
-  //         f.destinationName,
-  //         dist,
-  //         price,
-  //         "Transfers: ",
-  //         f.transfers,
-  //         f.return_transfers
-  //       )
-  //     : "";
-  //   return f.transfers === 0;
-  // }
-
   // === 2. До 2000 км — принимаем ТОЛЬКО прямые
   if (dist < 2000) {
     transfers === 0 && price <= 70

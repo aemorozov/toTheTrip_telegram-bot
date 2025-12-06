@@ -44,33 +44,87 @@ function rateFlight(f) {
   const dist = f.distance;
   const transfers = Math.max(f.transfers, f.return_transfers);
 
-  // === 1. Супер дешёвые и без пресадок — всегда да
-  if (price < 100) {
-    return transfers === 0;
-  }
-
   // === 2. До 2000 км — принимаем ТОЛЬКО прямые
   if (dist < 2000) {
-    return transfers === 0 && price <= 150;
+    transfers === 0 && price <= 70
+      ? console.log(
+          "Rated: ",
+          f.originName,
+          f.destinationName,
+          dist,
+          price,
+          "Transfers: ",
+          f.transfers,
+          f.return_transfers
+        )
+      : "";
+    return transfers === 0 && price <= 70;
   }
 
   // === 2. До 3500 км — принимаем ТОЛЬКО прямые
   if (dist < 3500) {
-    return transfers === 0 && price <= 250;
+    transfers === 0 && price <= 130
+      ? console.log(
+          "Rated: ",
+          f.originName,
+          f.destinationName,
+          dist,
+          price,
+          "Transfers: ",
+          f.transfers,
+          f.return_transfers
+        )
+      : "";
+    return transfers === 0 && price <= 130;
   }
 
   // === 3. 3500–5000 км — 1 пересадка допускается, но должны быть причины:
   if (dist < 5000) {
-    if (transfers === 0 && price <= 400) return true;
-    if (transfers === 1 && price <= 300) return true; // пересадка только если дешёвый
+    transfers === 0 && price <= 200
+      ? console.log(
+          "Rated: ",
+          f.originName,
+          f.destinationName,
+          dist,
+          price,
+          "Transfers: ",
+          f.transfers,
+          f.return_transfers
+        )
+      : "";
+    transfers === 1 && price <= 150
+      ? console.log(
+          "Rated: ",
+          f.originName,
+          f.destinationName,
+          dist,
+          price,
+          "Transfers: ",
+          f.transfers,
+          f.return_transfers
+        )
+      : "";
+    if (transfers === 0 && price <= 200) return true;
+    if (transfers === 1 && price <= 150) return true; // пересадка только если дешёвый
     return false;
   }
 
   // === 4. От 5000 км и выше — пересадки нормальны
   // но цена должна соответствовать дальности
   if (dist >= 5000) {
-    if (transfers <= 1 && price <= 900) return true;
-    if (transfers <= 2 && price <= 600) return true;
+    transfers <= 1 && price <= 400
+      ? console.log(
+          "Rated: ",
+          f.originName,
+          f.destinationName,
+          dist,
+          price,
+          "Transfers: ",
+          f.transfers,
+          f.return_transfers
+        )
+      : "";
+    if (transfers <= 1 && price <= 400) return true;
     return false;
   }
 
