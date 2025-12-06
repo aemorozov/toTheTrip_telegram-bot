@@ -308,4 +308,4 @@ async function TopForToday() {
   console.log(`\n✅ Posted`);
 }
 
-module.exports = { TopForToday, rateFlight };
+module.exports = { TopForToday };

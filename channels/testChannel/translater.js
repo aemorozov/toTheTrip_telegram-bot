@@ -64,6 +64,47 @@ function getRandomHashtags(count = 7) {
   return shuffled.slice(0, count).join(" ");
 }
 
+function getFlightDigestTitle() {
+  const now = new Date();
+  const hour = now.getHours();
+
+  const weekdays = [
+    "Понедельник",
+    "Вторник",
+    "Среда",
+    "Четверг",
+    "Пятница",
+    "Суббота",
+    "Воскресенье",
+  ];
+
+  const weekdayStr = weekdays[now.getDay() - 1];
+
+  const morning = [
+    `Кажется сегодня ${weekdayStr.toLowerCase()}? Вот и наша утренняя подборка лучших билетов ✈️`,
+    `🌅 Доброе утро! Держи свежую подборку выгодных билетов!`,
+    `Врываемся в ${weekdayStr.toLowerCase()} с дешевыми билетами прямо с утра!`,
+    `☕️ Утренний улёт: сегодня ${weekdayStr.toLowerCase()}, а значит мы ловим приятные цены на билеты`,
+    `💡 Давай утром посмотрим куда можно улететь!`,
+    `🔥 Вот это утро! Держи маршруты, за которые не стыдно`,
+  ];
+
+  const evening = [
+    `${weekdayStr}, вечер? Отличное время глянуть куда можно сорваться ✈️🔥`,
+    `🌇 Добрый вечер! Пора расслабиться и посмотреть лучшие билеты на сегодня 😉`,
+    `Ну что, ${weekdayStr.toLowerCase()} почти позади — кто-то заслужил себе маленькое приключение!`,
+    `✨ Вечерний улёт: дешёвые билеты, уютная атмосфера и лёгкая мечта о путешествиях.`,
+    `😎 Пока другие идут спать — мы выбираем направления. Лови свежую вечернюю подборку!`,
+    `🌘 Сегодня ${weekdayStr.toLowerCase()} и моё настроение улететь — 100%. А что думаешь ты?`,
+    `🔥 Вечер — время сильных решений. Вот куда можно улететь, если немного рискнуть 😉`,
+  ];
+
+  const isMorning = hour >= 6 && hour < 12;
+  const list = isMorning ? morning : evening;
+
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 const title = titles[Math.floor(Math.random() * titles.length)];
 const randomHashtags = getRandomHashtags(7);
 const exchange = 5;
@@ -98,7 +139,7 @@ const preMessage = {
   }) {
     return `
 ✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b>
-💶 aprox. <b>${price * exchange}</b> RON (${price}€)
+💶 aprox. <b>${price * exchange} RON</b> (${price}€)
 📅 <b>${depDate}  🕓 ${depTime}</b>${
       depTransfers == 0 ? "" : `  🔃 ${depTransfers}`
     }
@@ -113,4 +154,4 @@ const preMessage = {
   },
 };
 
-module.exports = { preMessage };
+module.exports = { preMessage, getFlightDigestTitle };

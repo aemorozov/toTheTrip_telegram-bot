@@ -1,8 +1,8 @@
-import { TopForTodayRomania } from "../channels/channelRomania";
+import { TopForToday } from "../channels/channelRomania";
 
 export default async function handler(req, res) {
   try {
-    await TopForTodayRomania();
+    await TopForToday();
     res.status(200).json({ ok: true, message: "Flights posted" });
   } catch (err) {
     console.error("Cron error:", err);

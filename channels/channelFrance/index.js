@@ -160,7 +160,7 @@ const dayBeforeYesterdayISO = new Date(Date.now() - 24 * 60 * 60 * 1000 * 2)
   .toISOString()
   .slice(0, 10);
 
-async function TopForTodayFrance() {
+async function TopForToday() {
   let flights = [];
 
   console.log(`\n=== 🔎 TOP FOR TODAY FROM ALL ORIGINS ===`);
@@ -374,4 +374,4 @@ async function TopForTodayFrance() {
   console.log(`\n✅ Posted.`);
 }
 
-module.exports = { TopForTodayFrance };
+module.exports = { TopForToday };

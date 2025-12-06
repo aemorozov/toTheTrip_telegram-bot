@@ -4,7 +4,7 @@ async function getCityName(iataCode) {
   if (!iataCode) return null;
 
   const code = iataCode.trim().toUpperCase();
-  console.log(`\n🟢 Looking for city name by IATA: "${code}"`);
+  // console.log(`\n🟢 Looking for city name by IATA: "${code}"`);
 
   // 2️⃣ Поиск в Travelpayouts
   try {
@@ -25,7 +25,7 @@ async function getCityName(iataCode) {
     const contry = found.country_name;
 
     if (found) {
-      console.log(`✅ Found via Travelpayouts: ${found.code} → ${name}`);
+      // console.log(`✅ Found via Travelpayouts: ${found.code} → ${name}`);
 
       return [name, lon, lat, contry];
     } else {
