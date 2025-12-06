@@ -46,7 +46,7 @@ function rateFlight(f) {
   const transfers = Math.max(f.transfers, f.return_transfers);
 
   // === 1. Супер дешёвые и без пресадок — всегда да
-  if (price < 100) {
+  if (price < 80) {
     f.transfers === 0
       ? console.log(
           "Rated: ",
@@ -64,7 +64,7 @@ function rateFlight(f) {
 
   // === 2. До 2000 км — принимаем ТОЛЬКО прямые
   if (dist < 2000) {
-    transfers === 0 && price <= 150
+    transfers === 0 && price <= 120
       ? console.log(
           "Rated: ",
           f.originName,
@@ -76,12 +76,12 @@ function rateFlight(f) {
           f.return_transfers
         )
       : "";
-    return transfers === 0 && price <= 150;
+    return transfers === 0 && price <= 120;
   }
 
   // === 2. До 3500 км — принимаем ТОЛЬКО прямые
   if (dist < 3500) {
-    transfers === 0 && price <= 200
+    transfers === 0 && price <= 170
       ? console.log(
           "Rated: ",
           f.originName,
@@ -93,12 +93,12 @@ function rateFlight(f) {
           f.return_transfers
         )
       : "";
-    return transfers === 0 && price <= 200;
+    return transfers === 0 && price <= 170;
   }
 
   // === 3. 3500–5000 км — 1 пересадка допускается, но должны быть причины:
   if (dist < 5000) {
-    transfers === 0 && price <= 400
+    transfers === 0 && price <= 300
       ? console.log(
           "Rated: ",
           f.originName,
@@ -110,7 +110,7 @@ function rateFlight(f) {
           f.return_transfers
         )
       : "";
-    transfers === 1 && price <= 300
+    transfers === 1 && price <= 250
       ? console.log(
           "Rated: ",
           f.originName,
@@ -122,8 +122,8 @@ function rateFlight(f) {
           f.return_transfers
         )
       : "";
-    if (transfers === 0 && price <= 400) return true;
-    if (transfers === 1 && price <= 300) return true; // пересадка только если дешёвый
+    if (transfers === 0 && price <= 300) return true;
+    if (transfers === 1 && price <= 250) return true; // пересадка только если дешёвый
     return false;
   }
 
@@ -191,7 +191,11 @@ async function TopForTodayFrance() {
 
       const filteredFlights = allFlights.filter((f) => {
         const sd = extractSearchDateISO(f.link);
-        return sd === todayISO && f.transfers <= 2 && f.return_transfers <= 2;
+        return (
+          (sd === todayISO || sd === yesterdayISO) &&
+          f.transfers <= 2 &&
+          f.return_transfers <= 2
+        );
       });
 
       console.log(`  ➜ Filtered today-only: ${filteredFlights.length}`);
@@ -237,7 +241,7 @@ async function TopForTodayFrance() {
     const rated = flights.filter(rateFlight);
 
     // === shuffle and sort
-    flights = shuffle(rated).sort((a, b) => a.price - b.price);
+    flights = rated;
   } catch (err) {
     console.warn(`❌ Error while retrieving flights:`, err.message);
     return;
@@ -250,8 +254,6 @@ async function TopForTodayFrance() {
   for (const flight of flights) {
     const uid = getFlightUID(flight);
 
-    console.log(`UID:`, uid);
-
     if (!(await wasPosted(uid))) {
       flight.uid = uid;
       freshFlights.push(flight);
@@ -263,62 +265,70 @@ async function TopForTodayFrance() {
     return;
   }
 
-  // ===============================================================
-  //         👉 4. Выбираем случайный рейс
-  // ===============================================================
-  const randomFlight =
-    freshFlights[Math.floor(Math.random() * freshFlights.length)];
+  for (const flight of freshFlights) {
+    await addPosted(flight.uid, {
+      price: flight.price,
+      origin: flight.originName,
+      destination: flight.destinationName,
+      distance: flight.distance,
+    });
+    // console.log(`💾 Stored UID: ${flight.uid}`);
+  }
 
-  // ===============================================================
-  //         👉 5. Добавляем его в список postedFlights
-  // ===============================================================
-  await addPosted(randomFlight.uid);
-  console.log(`💾 Stored UID: ${randomFlight.uid}`);
+  let count = 0;
 
-  // ===============================================================
-  //         👉 6. Формируем сообщение только для 1 рейса
-  // ===============================================================
-
-  const dtDeparture = DateTime.fromISO(randomFlight.departure_at, {
-    setZone: true,
-  });
-  const dtReturn = DateTime.fromISO(randomFlight.return_at, { setZone: true });
-
-  const depDate = dtDeparture.setLocale("en").toFormat("dd LLL yyyy");
-  const depTime = dtDeparture.toFormat("HH:mm");
-  const retDate = dtReturn.setLocale("en").toFormat("dd LLL yyyy");
-  const retTime = dtReturn.toFormat("HH:mm");
-
-  const short = extractShortLink();
-  const searchPath = `${randomFlight.origin}${dtDeparture.toFormat("ddMM")}${
-    randomFlight.destination
-  }${dtReturn.toFormat("ddMM")}1`;
-  const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
-  const encodedUrl = encodeURIComponent(baseUrl);
-
-  const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
-
-  const originName = randomFlight.originName
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  const destinationName = randomFlight.destinationName
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-
+  const title = getFlightDigestTitle();
+  const randomNumber = Math.random() < 0.5 ? 3 : 4;
   const message =
-    preMessage.flightItem({
-      originName,
-      destinationName,
-      price: randomFlight.price,
-      depDate,
-      depTime,
-      depTransfers: randomFlight.transfers,
-      retDate,
-      retTime,
-      retTransfers: randomFlight.return_transfers,
-      link,
-      short,
-    }) + preMessage.footer();
+    `<b>${title}</b>\n` +
+    freshFlights
+      .map((flight) => {
+        count++;
+        if (count > randomNumber) return;
+        const dtDeparture = DateTime.fromISO(flight.departure_at, {
+          setZone: true,
+        });
+        const dtReturn = DateTime.fromISO(flight.return_at, {
+          setZone: true,
+        });
+
+        const depDate = dtDeparture.setLocale("en").toFormat("dd LLL yyyy");
+        const depTime = dtDeparture.toFormat("HH:mm");
+        const retDate = dtReturn.setLocale("en").toFormat("dd LLL yyyy");
+        const retTime = dtReturn.toFormat("HH:mm");
+
+        const short = extractShortLink();
+        const searchPath = `${flight.origin}${dtDeparture.toFormat("ddMM")}${
+          flight.destination
+        }${dtReturn.toFormat("ddMM")}1`;
+        const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
+        const encodedUrl = encodeURIComponent(baseUrl);
+
+        const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
+
+        const originName = flight.originName
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+        const destinationName = flight.destinationName
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+
+        return preMessage.flightItem({
+          originName,
+          destinationName,
+          price: flight.price,
+          depDate,
+          depTime,
+          depTransfers: flight.transfers,
+          retDate,
+          retTime,
+          retTransfers: flight.return_transfers,
+          link,
+          short,
+        });
+      })
+      .join("") +
+    preMessage.footer();
 
   // ===============================================================
   //         👉 7. Получаем фото
