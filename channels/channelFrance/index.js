@@ -333,14 +333,9 @@ async function TopForTodayFrance() {
   // ===============================================================
   //         👉 7. Получаем фото
   // ===============================================================
-  console.log(
-    "📸 Choosing image for:",
-    destinationName,
-    randomFlight.destinationCountry
-  );
   const imgBuffer = await getCityImage(
-    destinationName,
-    randomFlight.destinationCountry
+    freshFlights[0].destinationName,
+    freshFlights[0].destinationCountry
   );
 
   // ===============================================================
