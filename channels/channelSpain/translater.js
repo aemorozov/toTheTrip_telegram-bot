@@ -64,6 +64,47 @@ function getRandomHashtags(count = 7) {
   return shuffled.slice(0, count).join(" ");
 }
 
+function getFlightDigestTitle() {
+  const now = new Date();
+  const hour = now.getHours();
+
+  const weekdays = [
+    "Lunes",
+    "Martes",
+    "Miércoles",
+    "Jueves",
+    "Viernes",
+    "Sábado",
+    "Domingo",
+  ];
+
+  const weekdayStr = weekdays[now.getDay() - 1];
+
+  const morning = [
+    `¿Parece que hoy es ${weekdayStr.toLowerCase()}? Pues aquí tienes nuestra selección matinal de los mejores vuelos ✈️`,
+    `🌅 ¡Buenos días! Aquí va una selección fresquita con las mejores ofertas de hoy.`,
+    `Empezamos este ${weekdayStr.toLowerCase()} con vuelos baratos desde primera hora.`,
+    `☕️ Despegue matutino: hoy es ${weekdayStr.toLowerCase()}, así que aprovechemos los mejores precios ✈️`,
+    `💡 ¿Y si miramos esta mañana a dónde podríamos volar?`,
+    `🔥 ¡Vaya manera de empezar el día! Aquí tienes rutas de las que uno puede presumir 😉`,
+  ];
+
+  const evening = [
+    `${weekdayStr}, ¿por la noche? Momento perfecto para ver a dónde escaparse ✈️🔥`,
+    `🌇 ¡Buenas noches! Hora de relajarse y revisar las mejores ofertas del día 😉`,
+    `Este ${weekdayStr.toLowerCase()} está llegando a su fin… quizá es el momento ideal para una pequeña aventura.`,
+    `✨ Vuelos nocturnos: buenas ofertas, ambiente acogedor y ese deseo suave de viajar…`,
+    `😎 Mientras otros se van a dormir, nosotros elegimos destinos. Aquí tienes la selección de esta noche.`,
+    `🌘 Es ${weekdayStr.toLowerCase()} y mis ganas de viajar están al 100%. ¿Y las tuyas?`,
+    `🔥 La noche es para decisiones valientes. Aquí tienes a dónde podrías volar si te animas 😉`,
+  ];
+
+  const isMorning = hour >= 6 && hour < 12;
+  const list = isMorning ? morning : evening;
+
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 const title = titles[Math.floor(Math.random() * titles.length)];
 const randomHashtags = getRandomHashtags(7);
 const exchange = 5;
@@ -113,4 +154,4 @@ const preMessage = {
   },
 };
 
-module.exports = { preMessage };
+module.exports = { preMessage, getFlightDigestTitle };

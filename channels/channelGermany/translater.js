@@ -64,6 +64,47 @@ function getRandomHashtags(count = 7) {
   return shuffled.slice(0, count).join(" ");
 }
 
+function getFlightDigestTitle() {
+  const now = new Date();
+  const hour = now.getHours();
+
+  const weekdays = [
+    "Montag", // Понедельник
+    "Dienstag", // Вторник
+    "Mittwoch", // Среда
+    "Donnerstag", // Четверг
+    "Freitag", // Пятница
+    "Samstag", // Суббота
+    "Sonntag", // Воскресенье
+  ];
+
+  const weekdayStr = weekdays[now.getDay() - 1];
+
+  const morning = [
+    `Ist heute etwa ${weekdayStr.toLowerCase()}? Zeit für unsere morgendliche Auswahl der besten Flugangebote ✈️`,
+    `🌅 Guten Morgen! Hier kommt deine frische Auswahl an tollen Flugdeals!`,
+    `Starten wir in diesen ${weekdayStr.toLowerCase()} mit günstigen Flügen gleich am Morgen!`,
+    `☕️ Morgenabflug: Es ist ${weekdayStr.toLowerCase()} – perfekte Zeit, um die besten Preise mitzunehmen ✈️`,
+    `💡 Lass uns heute Morgen schauen, wohin man spontan wegfliegen könnte!`,
+    `🔥 Was für ein Start in den Tag! Hier sind Routen, auf die man stolz sein kann 😉`,
+  ];
+
+  const evening = [
+    `${weekdayStr} am Abend? Perfekt, um zu schauen, wohin man spontan entfliehen kann ✈️🔥`,
+    `🌇 Guten Abend! Zeit zum Entspannen — und für die besten Flugangebote des Tages 😉`,
+    `Na, der ${weekdayStr.toLowerCase()} geht langsam zu Ende… vielleicht Zeit für ein kleines Abenteuer?`,
+    `✨ Abendflüge: gute Deals, gemütliche Stimmung und ein leiser Wunsch nach Fernweh…`,
+    `😎 Während andere schlafen gehen, wählen wir Reiseziele. Hier ist die abendliche Auswahl!`,
+    `🌘 Es ist ${weekdayStr.toLowerCase()} und mein Reiselust-Level liegt bei 100 %. Und deins?`,
+    `🔥 Abends trifft man die mutigsten Entscheidungen. Hier ein paar Ziele, falls du dich traust 😉`,
+  ];
+
+  const isMorning = hour >= 6 && hour < 12;
+  const list = isMorning ? morning : evening;
+
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 const title = titles[Math.floor(Math.random() * titles.length)];
 const randomHashtags = getRandomHashtags(7);
 const exchange = 5;
@@ -113,4 +154,4 @@ const preMessage = {
   },
 };
 
-module.exports = { preMessage };
+module.exports = { preMessage, getFlightDigestTitle };

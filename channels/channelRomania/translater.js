@@ -64,6 +64,47 @@ function getRandomHashtags(count = 7) {
   return shuffled.slice(0, count).join(" ");
 }
 
+function getFlightDigestTitle() {
+  const now = new Date();
+  const hour = now.getHours();
+
+  const weekdays = [
+    "Luni", // Понедельник
+    "Marți", // Вторник
+    "Miercuri", // Среда
+    "Joi", // Четверг
+    "Vineri", // Пятница
+    "Sâmbătă", // Суббота
+    "Duminică", // Воскресенье
+  ];
+
+  const weekdayStr = weekdays[now.getDay() - 1];
+
+  const morning = [
+    `Se pare că azi e ${weekdayStr.toLowerCase()}… Iată selecția noastră matinală cu cele mai bune bilete ✈️`,
+    `🌅 Bună dimineața! Uite o selecție proaspătă cu cele mai bune oferte de azi!`,
+    `Începem acest ${weekdayStr.toLowerCase()} cu zboruri ieftine încă de dimineață!`,
+    `☕️ Decolare matinală: e ${weekdayStr.toLowerCase()}, așa că profităm de cele mai bune prețuri ✈️`,
+    `💡 Hai să vedem de dimineață unde am putea zbura azi!`,
+    `🔥 Ce dimineață! Iată câteva rute de care poți fi mândru 😉`,
+  ];
+
+  const evening = [
+    `${weekdayStr}, seara? Moment perfect să vezi unde poți evada ✈️🔥`,
+    `🌇 Bună seara! E timpul să te relaxezi și să verifici cele mai bune oferte ale zilei 😉`,
+    `Ei bine… acest ${weekdayStr.toLowerCase()} se apropie de final — poate e momentul pentru o mică aventură?`,
+    `✨ Zborurile de seară: oferte bune, atmosferă cozy și poftă de plecat undeva…`,
+    `😎 În timp ce alții merg la culcare, noi alegem destinații. Uite selecția serii!`,
+    `🌘 E ${weekdayStr.toLowerCase()} și chef-ul meu de călătorie e 100%. Dar al tău?`,
+    `🔥 Seara e momentul deciziilor curajoase. Iată unde ai putea zbura dacă îndrăznești 😉`,
+  ];
+
+  const isMorning = hour >= 6 && hour < 12;
+  const list = isMorning ? morning : evening;
+
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 const title = titles[Math.floor(Math.random() * titles.length)];
 const randomHashtags = getRandomHashtags(7);
 const exchange = 5;
@@ -113,4 +154,4 @@ const preMessage = {
   },
 };
 
-module.exports = { preMessage };
+module.exports = { preMessage, getFlightDigestTitle };

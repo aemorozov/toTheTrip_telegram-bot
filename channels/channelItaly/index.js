@@ -89,7 +89,7 @@ const dayBeforeYesterdayISO = new Date(Date.now() - 24 * 60 * 60 * 1000 * 2)
   .toISOString()
   .slice(0, 10);
 
-async function TopForTodayItaly() {
+async function TopForToday() {
   let flights = [];
 
   console.log(`\n=== 🔎 TOP FOR TODAY FROM ALL ORIGINS ===`);
@@ -120,7 +120,11 @@ async function TopForTodayItaly() {
 
       const filteredFlights = allFlights.filter((f) => {
         const sd = extractSearchDateISO(f.link);
-        return sd === todayISO && f.transfers <= 2 && f.return_transfers <= 2;
+        return (
+          (sd === todayISO || sd === yesterdayISO) &&
+          f.transfers <= 2 &&
+          f.return_transfers <= 2
+        );
       });
 
       console.log(`  ➜ Filtered today-only: ${filteredFlights.length}`);
@@ -165,21 +169,19 @@ async function TopForTodayItaly() {
     // === filtering good flights
     const rated = flights.filter(rateFlight);
 
-    // === shuffle and sort
-    flights = shuffle(rated).sort((a, b) => a.price - b.price);
+    // === shuffle and sort // no
+    flights = shuffle(rated);
   } catch (err) {
     console.warn(`❌ Error while retrieving flights:`, err.message);
     return;
   }
 
   // ===============================================================
-  //         👉 3. Удаляем рейсы, которые мы уже постили
+  //   👉 3. Удаляем рейсы, которые были до этого постинга
   // ===============================================================
   const freshFlights = [];
   for (const flight of flights) {
     const uid = getFlightUID(flight);
-
-    console.log(`UID:`, uid);
 
     if (!(await wasPosted(uid))) {
       flight.uid = uid;
@@ -192,74 +194,82 @@ async function TopForTodayItaly() {
     return;
   }
 
-  // ===============================================================
-  //         👉 4. Выбираем случайный рейс
-  // ===============================================================
-  const randomFlight =
-    freshFlights[Math.floor(Math.random() * freshFlights.length)];
+  for (const flight of freshFlights) {
+    await addPosted(flight.uid, {
+      price: flight.price,
+      origin: flight.originName,
+      destination: flight.destinationName,
+      distance: flight.distance,
+    });
+    // console.log(`💾 Stored UID: ${flight.uid}`);
+  }
 
-  // ===============================================================
-  //         👉 5. Добавляем его в список postedFlights
-  // ===============================================================
-  await addPosted(randomFlight.uid);
-  console.log(`💾 Stored UID: ${randomFlight.uid}`);
+  let count = 0;
 
-  // ===============================================================
-  //         👉 6. Формируем сообщение только для 1 рейса
-  // ===============================================================
-
-  const dtDeparture = DateTime.fromISO(randomFlight.departure_at, {
-    setZone: true,
-  });
-  const dtReturn = DateTime.fromISO(randomFlight.return_at, { setZone: true });
-
-  const depDate = dtDeparture.setLocale("en").toFormat("dd LLL yyyy");
-  const depTime = dtDeparture.toFormat("HH:mm");
-  const retDate = dtReturn.setLocale("en").toFormat("dd LLL yyyy");
-  const retTime = dtReturn.toFormat("HH:mm");
-
-  const short = extractShortLink();
-  const searchPath = `${randomFlight.origin}${dtDeparture.toFormat("ddMM")}${
-    randomFlight.destination
-  }${dtReturn.toFormat("ddMM")}1`;
-  const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
-  const encodedUrl = encodeURIComponent(baseUrl);
-
-  const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
-
-  const originName = randomFlight.originName
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  const destinationName = randomFlight.destinationName
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-
+  const title = getFlightDigestTitle();
+  const randomNumber = Math.random() < 0.5 ? 3 : 4;
   const message =
-    preMessage.flightItem({
-      originName,
-      destinationName,
-      price: randomFlight.price,
-      depDate,
-      depTime,
-      depTransfers: randomFlight.transfers,
-      retDate,
-      retTime,
-      retTransfers: randomFlight.return_transfers,
-      link,
-      short,
-    }) + preMessage.footer();
+    `<b>${title}</b>\n` +
+    freshFlights
+      .map((flight) => {
+        count++;
+        if (count > randomNumber) return;
+        const dtDeparture = DateTime.fromISO(flight.departure_at, {
+          setZone: true,
+        });
+        const dtReturn = DateTime.fromISO(flight.return_at, {
+          setZone: true,
+        });
+
+        const depDate = dtDeparture.setLocale("en").toFormat("dd LLL yyyy");
+        const depTime = dtDeparture.toFormat("HH:mm");
+        const retDate = dtReturn.setLocale("en").toFormat("dd LLL yyyy");
+        const retTime = dtReturn.toFormat("HH:mm");
+
+        const short = extractShortLink();
+        const searchPath = `${flight.origin}${dtDeparture.toFormat("ddMM")}${
+          flight.destination
+        }${dtReturn.toFormat("ddMM")}1`;
+        const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
+        const encodedUrl = encodeURIComponent(baseUrl);
+
+        const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
+
+        const originName = flight.originName
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+        const destinationName = flight.destinationName
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+
+        return preMessage.flightItem({
+          originName,
+          destinationName,
+          price: flight.price,
+          depDate,
+          depTime,
+          depTransfers: flight.transfers,
+          retDate,
+          retTime,
+          retTransfers: flight.return_transfers,
+          link,
+          short,
+        });
+      })
+      .join("") +
+    preMessage.footer();
 
   // ===============================================================
   //         👉 7. Получаем фото
   // ===============================================================
-  console.log(
-    "📸 Choosing image for:",
-    destinationName,
-    randomFlight.destinationCountry
-  );
+  // console.log(
+  //   "📸 Choosing image for:",
+  //   freshFlights[0].destinationName,
+  //   freshFlights[0].destinationCountry
+  // );
   const imgBuffer = await getCityImage(
-    destinationName,
-    randomFlight.destinationCountry
+    freshFlights[0].destinationName,
+    freshFlights[0].destinationCountry
   );
 
   // ===============================================================
@@ -295,7 +305,7 @@ async function TopForTodayItaly() {
       headers: form.getHeaders(),
     }
   );
-  console.log(`\n✅ Posted: ${randomFlight.uid}`);
+  console.log(`\n✅ Posted`);
 }
 
-module.exports = { TopForTodayItaly };
+module.exports = { TopForToday, rateFlight };
