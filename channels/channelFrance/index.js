@@ -241,7 +241,7 @@ async function TopForTodayFrance() {
     const rated = flights.filter(rateFlight);
 
     // === shuffle and sort
-    flights = rated;
+    flights = shuffle(rated);
   } catch (err) {
     console.warn(`❌ Error while retrieving flights:`, err.message);
     return;
