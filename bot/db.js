@@ -249,20 +249,33 @@ function getPostedKey() {
   )}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+function getPostedKeyByDate(date) {
+  return `postedFlights:${date.getFullYear()}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 async function wasPosted(uid) {
-  const key = getPostedKey();
-  return await redis.sismember(key, uid); // 0 или 1
+  const today = new Date();
+  const yesterday = new Date(Date.now() - 86400000); // минус 24 часа
+
+  const keyToday = getPostedKeyByDate(today);
+  const keyYesterday = getPostedKeyByDate(yesterday);
+
+  const postedToday = await redis.sismember(keyToday, uid);
+  const postedYesterday = await redis.sismember(keyYesterday, uid);
+
+  return postedToday || postedYesterday; // true, если найден в любом дне
 }
 
 async function addPosted(uid) {
-  const key = getPostedKey();
+  const today = new Date();
+  const key = getPostedKeyByDate(today);
 
   await redis.sadd(key, uid);
 
-  const sec = Math.floor(
-    (new Date().setHours(24, 0, 0, 0) - Date.now()) / 1000
-  );
-  await redis.expire(key, sec);
+  // хранить 48 часов
+  await redis.expire(key, 48 * 3600);
 }
 
 module.exports = {
@@ -278,4 +291,5 @@ module.exports = {
   getUserOneWay,
   wasPosted,
   addPosted,
+  updateUser,
 };
