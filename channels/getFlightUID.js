@@ -7,7 +7,7 @@ function getFlightUID(f) {
     f.return_at.slice(0, 10).replace(/-/g, "").slice(6, 10) +
     f.return_at.slice(5, 7);
 
-  return `${f.originName}-${f.destinationName}-${dep}-${ret}-${f.price}`
+  return `${f.originName}-${f.destinationName}-${dep}-${ret}`
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // убираем диакритику
     .replace(/\s+/g, ""); // убираем пробелы
