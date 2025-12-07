@@ -48,7 +48,7 @@ function rateFlight(f) {
   //
   // === 1. Супер дешёвые (<100) — только прямые
   //
-  if (price < 80) {
+  if (price < 60) {
     return transfers === 0;
   }
 
@@ -57,14 +57,14 @@ function rateFlight(f) {
   //     (крупные страны: FR, DE, IT, PL, ES дают много шума)
   //
   if (dist < 2000) {
-    return transfers === 0 && price <= 120; // было 150 → стало 120
+    return transfers === 0 && price <= 100; // было 150 → стало 120
   }
 
   //
   // === 3. 2000–3500 км — принимаем ТОЛЬКО прямые, но ещё жестче цена
   //
   if (dist < 3500) {
-    return transfers === 0 && price <= 170; // было 200 → стало 170
+    return transfers === 0 && price <= 150; // было 200 → стало 170
   }
 
   //
@@ -73,8 +73,8 @@ function rateFlight(f) {
   //     - с пересадкой до 220€
   //
   if (dist < 5000) {
-    if (transfers === 0 && price <= 350) return true; // было 400 → 350
-    if (transfers === 1 && price <= 220) return true; // было 300 → 220
+    if (transfers === 0 && price <= 300) return true; // было 400 → 350
+    if (transfers === 1 && price <= 200) return true; // было 300 → 220
     return false;
   }
 
@@ -82,8 +82,8 @@ function rateFlight(f) {
   // === 5. 5000–8000 км — дальняк, но цена тоже должна быть адекватной
   //
   if (dist < 8000) {
-    if (transfers === 0 && price <= 500) return true;
-    if (transfers === 1 && price <= 350) return true; // было 500 → 350
+    if (transfers === 0 && price <= 400) return true;
+    if (transfers === 1 && price <= 250) return true; // было 500 → 350
     return false;
   }
 
@@ -92,7 +92,7 @@ function rateFlight(f) {
   //     — пропускаем только супер-цену
   //
   if (dist >= 8000) {
-    if (price <= 450 && transfers <= 1) return true; // супер-финды!
+    if (price <= 400 && transfers <= 1) return true; // супер-финды!
     return false;
   }
 
