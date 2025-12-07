@@ -69,16 +69,16 @@ function getFlightDigestTitle() {
   const hour = now.getHours();
 
   const weekdays = [
+    "Duminică", // Воскресенье
     "Luni", // Понедельник
     "Marți", // Вторник
     "Miercuri", // Среда
     "Joi", // Четверг
     "Vineri", // Пятница
     "Sâmbătă", // Суббота
-    "Duminică", // Воскресенье
   ];
 
-  const weekdayStr = weekdays[now.getDay() - 1];
+  const weekdayStr = weekdays[now.getDay()];
 
   const morning = [
     `Se pare că azi e ${weekdayStr.toLowerCase()}… Iată selecția noastră matinală cu cele mai bune bilete ✈️`,

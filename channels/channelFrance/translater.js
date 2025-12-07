@@ -68,16 +68,16 @@ function getFlightDigestTitle() {
   const now = new Date();
   const hour = now.getHours();
   const weekdays = [
+    "Dimanche", // Воскресенье
     "Lundi", // Понедельник
     "Mardi", // Вторник
     "Mercredi", // Среда
     "Jeudi", // Четверг
     "Vendredi", // Пятница
     "Samedi", // Суббота
-    "Dimanche", // Воскресенье
   ];
 
-  const weekdayStr = weekdays[now.getDay() - 1];
+  const weekdayStr = weekdays[now.getDay()];
 
   const morning = [
     `On dirait que nous sommes ${weekdayStr.toLowerCase()} aujourd’hui ? Voici notre sélection matinale des meilleurs vols ✈️`,

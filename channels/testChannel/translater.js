@@ -69,16 +69,16 @@ function getFlightDigestTitle() {
   const hour = now.getHours();
 
   const weekdays = [
+    "Воскресенье",
     "Понедельник",
     "Вторник",
     "Среда",
     "Четверг",
     "Пятница",
     "Суббота",
-    "Воскресенье",
   ];
 
-  const weekdayStr = weekdays[now.getDay() - 1];
+  const weekdayStr = weekdays[now.getDay()];
 
   const morning = [
     `Кажется сегодня ${weekdayStr.toLowerCase()}? Вот и наша утренняя подборка лучших билетов ✈️`,

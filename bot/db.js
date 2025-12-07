@@ -250,22 +250,26 @@ function getPostedKey() {
 }
 
 function getPostedKeyByDate(date) {
-  return `postedFlights:${date.getFullYear()}-${String(
-    date.getMonth() + 1
-  ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  const d = new Date(
+    date.toLocaleString("en-US", { timeZone: "Europe/Bucharest" })
+  );
+  return `postedFlights:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 async function wasPosted(uid) {
   const today = new Date();
-  const yesterday = new Date(Date.now() - 86400000); // минус 24 часа
+  const yesterday = new Date(Date.now() - 86400000);
 
   const keyToday = getPostedKeyByDate(today);
   const keyYesterday = getPostedKeyByDate(yesterday);
 
-  const postedToday = await redis.sismember(keyToday, uid);
-  const postedYesterday = await redis.sismember(keyYesterday, uid);
+  const postedToday = Number(await redis.sismember(keyToday, uid));
+  const postedYesterday = Number(await redis.sismember(keyYesterday, uid));
 
-  return postedToday || postedYesterday; // true, если найден в любом дне
+  return postedToday === 1 || postedYesterday === 1;
 }
 
 async function addPosted(uid) {
@@ -274,7 +278,7 @@ async function addPosted(uid) {
 
   await redis.sadd(key, uid);
 
-  // хранить 48 часов
+  // хранить 48 часа
   await redis.expire(key, 48 * 3600);
 }
 
