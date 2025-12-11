@@ -36,7 +36,7 @@ async function startMenu(chatId, city, country) {
           ],
           [
             {
-              text: "📅           SELECT DATE            🛫",
+              text: "📅           SELECT DATE            🎯",
               callback_data: "price_for_date",
             },
           ],
