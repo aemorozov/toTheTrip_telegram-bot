@@ -1,12 +1,10 @@
 const { safeSend, safeSendPhoto } = require("./telegram");
-const { getCityImage } = require("./getCityImage");
+const { getCityImage } = require("./getCityImage"); // если уже есть функция загрузки фото
 
 async function startMenu(chatId, city, country) {
   try {
     // 1️⃣ Получаем фотографию города
     const photo = await getCityImage(city, country);
-
-    console.log("getCityImage");
 
     const caption = `
 📍 Your city is <strong>${city.toUpperCase()}</strong>!
@@ -15,7 +13,7 @@ async function startMenu(chatId, city, country) {
 
 🔄 If you want to change your departure city, tap /start and write a new one.
 
-<b>Get special offers every day!</b>
+<b>Get exclusive flight deals!</b>
 🇫🇷 <b><a href="https://t.me/CheapFlightsFrance">Cheap Flights France</a></b>
 🇮🇹 <b><a href="https://t.me/CheapFlightsItaly">Cheap Flights Italy</a></b>
 🇪🇸 <b><a href="https://t.me/CheapFlightsSpain">Cheap Flights Spain</a></b>
@@ -30,25 +28,31 @@ async function startMenu(chatId, city, country) {
         inline_keyboard: [
           [
             {
-              text: "✈️      CHEAPEST FLIGHTS      🌎",
+              text: "✈️        TOP round trip flights         🔄",
               callback_data: "get_top_10_round_trip",
             },
           ],
           [
             {
-              text: "📅           SELECT DATE            🛫",
+              text: "✈️          TOP one way flights          ➡️",
+              callback_data: "get_top_10_one_way",
+            },
+          ],
+          [
+            {
+              text: "💰          Best price for a date         📆",
               callback_data: "price_for_date",
             },
           ],
           [
             {
-              text: "🔎    SELECT DESTINATION    🧭",
+              text: "💸     Best price for destination     🌍",
               callback_data: "cheapest_flights_to_destination",
             },
           ],
           [
             {
-              text: "🔥    GET SPECIAL OFFERS     💸",
+              text: "🔥          Special daily offers           🤑",
               callback_data: "special_offers",
             },
           ],
@@ -60,9 +64,9 @@ async function startMenu(chatId, city, country) {
 
     // 2️⃣ Если фото есть — отправляем фото с подписью
     if (photo) {
-      console.log("safeSendPhoto");
       return await safeSendPhoto(chatId, photo, caption, options);
     }
+
     // 3️⃣ Если фото нет — отправляем только текст
     return await safeSend(chatId, caption, options);
   } catch (e) {

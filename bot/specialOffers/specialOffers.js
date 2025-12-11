@@ -1,26 +1,12 @@
 const axios = require("axios");
+const { extractSearchDateISO } = require("../../channels/extractSearchDateISO");
 
-async function specialOffersOneWay(origin) {
-  try {
-    const params = {
-      currency: "eur",
-      origin,
-      limit: 5,
-      token: process.env.TRAVELPAYOUTS_API_TOKEN,
-    };
-
-    const res = await axios.get(
-      "https://api.travelpayouts.com/aviasales/v3/get_special_offers",
-      { params }
-    );
-
-    const data = res.data?.data || {};
-    return data;
-  } catch (err) {
-    console.error("[getCheapTickets ERROR]", err.response?.data || err.message);
-    return [];
-  }
-}
+// Сегодняшний день
+const todayISO = new Date().toISOString().slice(0, 10);
+// Вчера
+const yesterdayISO = new Date(Date.now() - 24 * 60 * 60 * 1000)
+  .toISOString()
+  .slice(0, 10);
 
 async function specialOffersRoundTrip(origin) {
   try {
@@ -28,10 +14,10 @@ async function specialOffersRoundTrip(origin) {
       currency: "eur",
       origin,
       unique: true,
-      sorting: "route",
-      direct: false,
+      sorting: "price",
+      direct: true,
       one_way: false,
-      limit: 5,
+      limit: 100,
       token: process.env.TRAVELPAYOUTS_API_TOKEN,
     };
 
@@ -41,11 +27,23 @@ async function specialOffersRoundTrip(origin) {
     );
 
     const data = res.data?.data || {};
-    return data;
+
+    const filteredFlights = data
+      .filter((f) => {
+        const sd = extractSearchDateISO(f.link);
+        return (
+          (sd === todayISO || sd === yesterdayISO) &&
+          f.transfers === 0 &&
+          f.return_transfers === 0
+        );
+      })
+      .slice(0, 7);
+
+    return filteredFlights;
   } catch (err) {
     console.error("[getCheapTickets ERROR]", err.response?.data || err.message);
     return [];
   }
 }
 
-module.exports = { specialOffersOneWay, specialOffersRoundTrip };
+module.exports = { specialOffersRoundTrip };

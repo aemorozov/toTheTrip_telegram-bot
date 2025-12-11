@@ -158,7 +158,7 @@ async function getCityImage(cityName, country = "") {
       params: {
         query,
         per_page: 15,
-        orientation: "landscape",
+        orientation: "all",
       },
     });
 

@@ -46,7 +46,6 @@ async function getTicketsForDateRoundTrip(originIATA, date) {
       one_way: false,
       direct: false,
       limit: 7,
-      page: 1,
       sorting: "price",
       unique: true,
       token: process.env.TRAVELPAYOUTS_API_TOKEN,

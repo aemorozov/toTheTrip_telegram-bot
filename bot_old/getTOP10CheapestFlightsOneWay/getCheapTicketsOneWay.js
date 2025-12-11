@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-async function getCheapTicketsRoundTrip(origin) {
+async function getCheapTicketsOneWay(origin) {
   try {
     const params = {
       currency: "eur",
@@ -8,8 +8,9 @@ async function getCheapTicketsRoundTrip(origin) {
       unique: true,
       sorting: "price",
       direct: true,
-      one_way: false,
-      limit: 7,
+      one_way: true,
+      limit: 10,
+
       token: process.env.TRAVELPAYOUTS_API_TOKEN,
     };
 
@@ -19,6 +20,7 @@ async function getCheapTicketsRoundTrip(origin) {
     );
 
     const data = res.data?.data || {};
+
     return data;
   } catch (err) {
     console.error("[getCheapTickets ERROR]", err.response?.data || err.message);
@@ -26,4 +28,4 @@ async function getCheapTicketsRoundTrip(origin) {
   }
 }
 
-module.exports = { getCheapTicketsRoundTrip };
+module.exports = { getCheapTicketsOneWay };

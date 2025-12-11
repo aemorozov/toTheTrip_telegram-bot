@@ -24,7 +24,7 @@ function rateFlight(f) {
   const transfers = Math.max(f.transfers, f.return_transfers);
 
   //
-  // === 1. Супер дешёвые (<100) — только прямые
+  // === 1. Супер дешёвые (<80) — только прямые
   //
   if (price < 80) {
     return transfers === 0;
