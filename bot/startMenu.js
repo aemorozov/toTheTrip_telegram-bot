@@ -48,7 +48,7 @@ async function startMenu(chatId, city, country) {
           ],
           [
             {
-              text: "🔥    GET SPECIAL OFFERS     💸",
+              text: "🔥       SPECIAL OFFERS        💸",
               callback_data: "special_offers",
             },
           ],
