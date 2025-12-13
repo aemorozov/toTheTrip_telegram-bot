@@ -12,6 +12,254 @@ const { addDate } = require("./priceForDate");
 const { aiAssistant } = require("./aiAssistant");
 const { getCityImage } = require("./getCityImage");
 
+async function get_top_10_round_trip(chatId) {
+  await saveUserStep(chatId, "no_step");
+
+  const userObj = await getUser(chatId);
+  if (!userObj?.iata_code) {
+    await safeSend(
+      chatId,
+      "❌ Departure city is not set. 🔄 Send /start again."
+    );
+    return;
+  }
+
+  const originIATA = userObj.iata_code;
+  const tickets = await getCheapTicketsRoundTrip(originIATA); // запрашиваем 7 билетов
+
+  if (tickets.length === 0) {
+    const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+    return await startMenuButton(chatId, message);
+  }
+
+  for (const t of tickets) {
+    try {
+      const info = await getCityName(t.destination);
+      t.destination_city = info?.[0] || null;
+      t.destination_country = info?.[1] || null;
+      t.destination_country_code = info?.[2] || null;
+      console.log("CITY INFO:", t.destination, info);
+    } catch (e) {
+      console.log("getCityName ERROR:", e);
+      t.destination_city = null;
+      t.destination_country = null;
+    }
+  }
+
+  const message =
+    tickets.length > 0
+      ? `<b>🔥 Cheapest flights from ${userObj.city.toUpperCase()}</b>:\n\n` +
+        tickets
+          .map((t) => {
+            const destination_iata = t.destination;
+            const destination = t.destination_city;
+            const destinationCountry = t.destination_country_code;
+            const departure_date = DateTime.fromISO(t.departure_at, {
+              setZone: true,
+            })
+              .setLocale("en")
+              .toFormat("dd LLL yyyy");
+            const departure_time = DateTime.fromISO(t.departure_at, {
+              setZone: true,
+            }).toFormat("HH:mm");
+
+            const depart_transfers = t.transfers;
+
+            const return_date = DateTime.fromISO(t.return_at, {
+              setZone: true,
+            })
+              .setLocale("en")
+              .toFormat("dd LLL yyyy");
+            const return_time = DateTime.fromISO(t.return_at, {
+              setZone: true,
+            }).toFormat("HH:mm");
+
+            const return_transfers = t.return_transfers;
+
+            const searchPath = `${originIATA}${DateTime.fromISO(
+              t.departure_at,
+              {
+                setZone: true,
+              }
+            ).toFormat("ddMM")}${destination_iata}${DateTime.fromISO(
+              t.return_at,
+              {
+                setZone: true,
+              }
+            ).toFormat("ddMM")}1`;
+            const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
+            const encodedUrl = encodeURIComponent(baseUrl);
+            const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
+
+            const depart_transfers_text =
+              depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
+            const return_transfers_text =
+              return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
+
+            return `✈️ to <b>${destination}, ${destinationCountry}</b> about <b>${
+              t.price
+            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+              link
+            )}</a></u>\n`;
+          })
+          .join("\n") +
+        `\n📢 Send this to your travel friend!`
+      : `<b>🔥 TOP cheapest round trip flights from ${userObj.city} for you</b>:\n\n😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+
+  const city = tickets[0].destination_city;
+  const photo = await getCityImage(city);
+  const options = {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: "✈️        START MENU        🏠",
+            callback_data: "start_menu",
+          },
+        ],
+      ],
+    },
+  };
+  if (photo) {
+    console.log("safeSendPhoto");
+    return await safeSendPhoto(chatId, photo, message, options);
+  } else {
+    return await startMenuButton(chatId, message);
+  }
+}
+
+async function cheapest_flights_to_destination(chatId) {
+  await saveUserStep(chatId, "waiting_for_destination");
+  return handleAddDestination(chatId);
+}
+
+async function price_for_date(chatId) {
+  await saveUserStep(chatId, "waiting_for_date");
+  return addDate(chatId);
+}
+
+async function special_offers(chatId) {
+  await saveUserStep(chatId, "no_step");
+
+  const userObj = await getUser(chatId);
+  if (!userObj?.iata_code) {
+    await safeSend(
+      chatId,
+      "❌ Departure city is not set. 🔄 Send /start again."
+    );
+    return;
+  }
+
+  const originIATA = userObj.iata_code;
+  const originCity = userObj.city;
+  const ticketsRoundTrip = await specialOffersRoundTrip(originIATA);
+  console.log("ticketsRoundTrip:", ticketsRoundTrip);
+
+  if (ticketsRoundTrip.length === 0) {
+    const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+    return await startMenuButton(chatId, message);
+  }
+
+  for (const t of ticketsRoundTrip) {
+    try {
+      const info = await getCityName(t.destination);
+      console.log("destination_city:", info?.[0]);
+
+      t.destination_city = info?.[0] || null;
+      t.destination_country = info?.[1] || null;
+      t.destination_country_code = info?.[2] || null;
+      console.log("CITY INFO:", t.destination, info);
+    } catch (e) {
+      console.log("getCityName ERROR:", e);
+      t.destination_city = null;
+      t.destination_country = null;
+    }
+  }
+
+  const currentDate = new Date();
+  const dateAndMonth = DateTime.fromJSDate(currentDate).toFormat("dd.MM.yyyy");
+
+  const message =
+    `<b>🔥 Special offers from ${originCity.toUpperCase()}!</b>\n\n` +
+    (ticketsRoundTrip.length > 0
+      ? ticketsRoundTrip
+          .map((t) => {
+            const destination_iata = t.destination;
+            const destinationCity = t.destination_city;
+            const destinationCountryCode = t.destination_country_code;
+            const departure_date = DateTime.fromISO(t.departure_at, {
+              setZone: true,
+            })
+              .setLocale("en")
+              .toFormat("dd LLL yyyy");
+            const departure_time = DateTime.fromISO(t.departure_at, {
+              setZone: true,
+            }).toFormat("HH:mm");
+
+            const depart_transfers = t.transfers;
+
+            const return_date = DateTime.fromISO(t.return_at, {
+              setZone: true,
+            })
+              .setLocale("en")
+              .toFormat("dd LLL yyyy");
+            const return_time = DateTime.fromISO(t.return_at, {
+              setZone: true,
+            }).toFormat("HH:mm");
+
+            const return_transfers = t.return_transfers;
+
+            const searchPath = `${originIATA}${DateTime.fromISO(
+              t.departure_at,
+              {
+                setZone: true,
+              }
+            ).toFormat("ddMM")}${destination_iata}${DateTime.fromISO(
+              t.return_at,
+              {
+                setZone: true,
+              }
+            ).toFormat("ddMM")}1`;
+            const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
+            const encodedUrl = encodeURIComponent(baseUrl);
+            const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
+
+            const depart_transfers_text =
+              depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
+            const return_transfers_text =
+              return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
+
+            return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
+              t.price
+            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+              link
+            )}</a></u>\n`;
+          })
+          .join("\n") + `\n📢 Send this to your travel friend!`
+      : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
+
+  const city = ticketsRoundTrip[0].destination_city;
+  const photo = await getCityImage(city);
+  const options = {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: "✈️        START MENU        🏠",
+            callback_data: "start_menu",
+          },
+        ],
+      ],
+    },
+  };
+  if (photo) {
+    console.log("safeSendPhoto");
+    return await safeSendPhoto(chatId, photo, message, options);
+  } else {
+    return await startMenuButton(chatId, message);
+  }
+}
+
 // Функция добавления кнопки со ссылкой на основное меню
 async function startMenuButton(chatId, message = "") {
   await saveUserPage(chatId, "1");
@@ -43,252 +291,19 @@ async function handleCallbackQuery(chatId, data) {
   }
 
   if (data === "get_top_10_round_trip") {
-    await saveUserStep(chatId, "no_step");
-
-    const userObj = await getUser(chatId);
-    if (!userObj?.iata_code) {
-      await safeSend(
-        chatId,
-        "❌ Departure city is not set. 🔄 Send /start again."
-      );
-      return;
-    }
-
-    const originIATA = userObj.iata_code;
-    const tickets = await getCheapTicketsRoundTrip(originIATA); // запрашиваем 7 билетов
-
-    if (tickets.length === 0) {
-      const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
-      return await startMenuButton(chatId, message);
-    }
-
-    for (const t of tickets) {
-      try {
-        const info = await getCityName(t.destination);
-        t.destination_city = info?.[0] || null;
-        t.destination_country = info?.[1] || null;
-        t.destination_country_code = info?.[2] || null;
-        console.log("CITY INFO:", t.destination, info);
-      } catch (e) {
-        console.log("getCityName ERROR:", e);
-        t.destination_city = null;
-        t.destination_country = null;
-      }
-    }
-
-    const message =
-      tickets.length > 0
-        ? `<b>🔥 Cheapest flights from ${userObj.city.toUpperCase()}</b>:\n\n` +
-          tickets
-            .map((t) => {
-              const destination_iata = t.destination;
-              const destination = t.destination_city;
-              const destinationCountry = t.destination_country_code;
-              const departure_date = DateTime.fromISO(t.departure_at, {
-                setZone: true,
-              })
-                .setLocale("en")
-                .toFormat("dd LLL yyyy");
-              const departure_time = DateTime.fromISO(t.departure_at, {
-                setZone: true,
-              }).toFormat("HH:mm");
-
-              const depart_transfers = t.transfers;
-
-              const return_date = DateTime.fromISO(t.return_at, {
-                setZone: true,
-              })
-                .setLocale("en")
-                .toFormat("dd LLL yyyy");
-              const return_time = DateTime.fromISO(t.return_at, {
-                setZone: true,
-              }).toFormat("HH:mm");
-
-              const return_transfers = t.return_transfers;
-
-              const searchPath = `${originIATA}${DateTime.fromISO(
-                t.departure_at,
-                {
-                  setZone: true,
-                }
-              ).toFormat("ddMM")}${destination_iata}${DateTime.fromISO(
-                t.return_at,
-                {
-                  setZone: true,
-                }
-              ).toFormat("ddMM")}1`;
-              const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
-              const encodedUrl = encodeURIComponent(baseUrl);
-              const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
-
-              const depart_transfers_text =
-                depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
-              const return_transfers_text =
-                return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
-
-              return `✈️ to <b>${destination}, ${destinationCountry}</b> about <b>${
-                t.price
-              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
-                link
-              )}</a></u>\n`;
-            })
-            .join("\n") +
-          `\n📢 Send this to your travel friend!`
-        : `<b>🔥 TOP cheapest round trip flights from ${userObj.city} for you</b>:\n\n😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
-
-    const city = tickets[0].destination_city;
-    const photo = await getCityImage(city);
-    const options = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "✈️        START MENU        🏠",
-              callback_data: "start_menu",
-            },
-          ],
-        ],
-      },
-    };
-    if (photo) {
-      console.log("safeSendPhoto");
-      return await safeSendPhoto(chatId, photo, message, options);
-    } else {
-      return await startMenuButton(chatId, message);
-    }
+    await get_top_10_round_trip(chatId);
   }
 
   if (data === "cheapest_flights_to_destination") {
-    await saveUserStep(chatId, "waiting_for_destination");
-    return handleAddDestination(chatId);
+    await cheapest_flights_to_destination(chatId);
   }
 
   if (data === "special_offers") {
-    await saveUserStep(chatId, "no_step");
-
-    const userObj = await getUser(chatId);
-    if (!userObj?.iata_code) {
-      await safeSend(
-        chatId,
-        "❌ Departure city is not set. 🔄 Send /start again."
-      );
-      return;
-    }
-
-    const originIATA = userObj.iata_code;
-    const originCity = userObj.city;
-    const ticketsRoundTrip = await specialOffersRoundTrip(originIATA);
-    console.log("ticketsRoundTrip:", ticketsRoundTrip);
-
-    if (ticketsRoundTrip.length === 0) {
-      const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
-      return await startMenuButton(chatId, message);
-    }
-
-    for (const t of ticketsRoundTrip) {
-      try {
-        const info = await getCityName(t.destination);
-        console.log("destination_city:", info?.[0]);
-
-        t.destination_city = info?.[0] || null;
-        t.destination_country = info?.[1] || null;
-        t.destination_country_code = info?.[2] || null;
-        console.log("CITY INFO:", t.destination, info);
-      } catch (e) {
-        console.log("getCityName ERROR:", e);
-        t.destination_city = null;
-        t.destination_country = null;
-      }
-    }
-
-    const currentDate = new Date();
-    const dateAndMonth =
-      DateTime.fromJSDate(currentDate).toFormat("dd.MM.yyyy");
-
-    const message =
-      `<b>🔥 Special offers from ${originCity.toUpperCase()}!</b>\n\n` +
-      (ticketsRoundTrip.length > 0
-        ? ticketsRoundTrip
-            .map((t) => {
-              const destination_iata = t.destination;
-              const destinationCity = t.destination_city;
-              const destinationCountryCode = t.destination_country_code;
-              const departure_date = DateTime.fromISO(t.departure_at, {
-                setZone: true,
-              })
-                .setLocale("en")
-                .toFormat("dd LLL yyyy");
-              const departure_time = DateTime.fromISO(t.departure_at, {
-                setZone: true,
-              }).toFormat("HH:mm");
-
-              const depart_transfers = t.transfers;
-
-              const return_date = DateTime.fromISO(t.return_at, {
-                setZone: true,
-              })
-                .setLocale("en")
-                .toFormat("dd LLL yyyy");
-              const return_time = DateTime.fromISO(t.return_at, {
-                setZone: true,
-              }).toFormat("HH:mm");
-
-              const return_transfers = t.return_transfers;
-
-              const searchPath = `${originIATA}${DateTime.fromISO(
-                t.departure_at,
-                {
-                  setZone: true,
-                }
-              ).toFormat("ddMM")}${destination_iata}${DateTime.fromISO(
-                t.return_at,
-                {
-                  setZone: true,
-                }
-              ).toFormat("ddMM")}1`;
-              const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
-              const encodedUrl = encodeURIComponent(baseUrl);
-              const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
-
-              const depart_transfers_text =
-                depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
-              const return_transfers_text =
-                return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
-
-              return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
-                t.price
-              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
-                link
-              )}</a></u>\n`;
-            })
-            .join("\n") + `\n📢 Send this to your travel friend!`
-        : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
-
-    const city = ticketsRoundTrip[0].destination_city;
-    const photo = await getCityImage(city);
-    const options = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "✈️        START MENU        🏠",
-              callback_data: "start_menu",
-            },
-          ],
-        ],
-      },
-    };
-    if (photo) {
-      console.log("safeSendPhoto");
-      return await safeSendPhoto(chatId, photo, message, options);
-    } else {
-      return await startMenuButton(chatId, message);
-    }
+    await special_offers(chatId);
   }
 
   if (data === "price_for_date") {
-    await saveUserStep(chatId, "waiting_for_date");
-    return addDate(chatId);
+    await price_for_date(chatId);
   }
 
   if (data === "ai_assistant") {
@@ -297,4 +312,11 @@ async function handleCallbackQuery(chatId, data) {
   }
 }
 
-module.exports = { handleCallbackQuery, startMenuButton };
+module.exports = {
+  handleCallbackQuery,
+  startMenuButton,
+  get_top_10_round_trip,
+  cheapest_flights_to_destination,
+  special_offers,
+  price_for_date,
+};
