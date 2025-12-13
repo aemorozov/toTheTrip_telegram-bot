@@ -13,7 +13,7 @@ async function startMenu(chatId, city, country) {
 
 🔄 <b>For change your departure city</b>, tap /start and write a new one.
 
-<b>Get special offers</b> every day with our Cheap Flights channels!\n<b><a href="https://t.me/CheapFlightsFrance">🇫🇷 France</a></b> <b><a href="https://t.me/CheapFlightsItaly">🇮🇹 Italy</a></b> <b><a href="https://t.me/CheapFlightsRomania">🇷🇴 Romania</a></b> <b><a href="https://t.me/CheapFlightsSpain">🇪🇸 Spain</a></b> <b><a href="https://t.me/CheapFlightsGermany">🇩🇪 Germany</a></b>`;
+<b>Get special offers</b> every day!\n<b><a href="https://t.me/CheapFlightsFrance">🇫🇷 France</a></b>   <b><a href="https://t.me/CheapFlightsItaly">🇮🇹 Italy</a></b>   <b><a href="https://t.me/CheapFlightsRomania">🇷🇴 Romania</a></b>   <b><a href="https://t.me/CheapFlightsSpain">🇪🇸 Spain</a></b>   <b><a href="https://t.me/CheapFlightsGermany">🇩🇪 Germany</a></b>`;
 
     const options = {
       reply_markup: {
