@@ -57,6 +57,11 @@ async function handleCallbackQuery(chatId, data) {
     const originIATA = userObj.iata_code;
     const tickets = await getCheapTicketsRoundTrip(originIATA); // запрашиваем 7 билетов
 
+    if (tickets.length === 0) {
+      const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+      return await startMenuButton(chatId, message);
+    }
+
     for (const t of tickets) {
       try {
         const info = await getCityName(t.destination);
@@ -153,7 +158,6 @@ async function handleCallbackQuery(chatId, data) {
     }
   }
 
-  // При нажатии на кнопку добавить пункт прибытия
   if (data === "cheapest_flights_to_destination") {
     await saveUserStep(chatId, "waiting_for_destination");
     return handleAddDestination(chatId);
@@ -175,6 +179,11 @@ async function handleCallbackQuery(chatId, data) {
     const originCity = userObj.city;
     const ticketsRoundTrip = await specialOffersRoundTrip(originIATA);
     console.log("ticketsRoundTrip:", ticketsRoundTrip);
+
+    if (ticketsRoundTrip.length === 0) {
+      const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+      return await startMenuButton(chatId, message);
+    }
 
     for (const t of ticketsRoundTrip) {
       try {

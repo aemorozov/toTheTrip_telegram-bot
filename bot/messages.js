@@ -18,7 +18,6 @@ const { DateTime } = require("luxon");
 const { extractShortLink } = require("./encodeLink");
 const { startMenuButton } = require("./callbacks");
 const {
-  getTicketsForDateOneWay,
   getTicketsForDateRoundTrip,
 } = require("./priceForDate/getTicketsForDate");
 const { aiAssistant } = require("./aiAssistant/aiAssistant");
@@ -156,6 +155,11 @@ async function handleTextMessage(chatId, userInput, userInfo) {
         destinationIATA
       );
 
+      if (ticketsRoundTrip.length === 0) {
+        const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+        return await startMenuButton(chatId, message);
+      }
+
       for (const t of ticketsRoundTrip) {
         try {
           const info = await getCityName(t.destination);
@@ -265,6 +269,11 @@ async function handleTextMessage(chatId, userInput, userInfo) {
         originIATA,
         date
       );
+
+      if (ticketsRoundTrip.length === 0) {
+        const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+        return await startMenuButton(chatId, message);
+      }
 
       for (const t of ticketsRoundTrip) {
         try {
