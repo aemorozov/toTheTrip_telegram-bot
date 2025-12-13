@@ -123,6 +123,13 @@ function normalizeDate(input) {
     "MMMM d",
     "d-MMM",
     "d-MMMM",
+
+    "dd MMM",
+    "dd MMMM",
+    "MMM dd",
+    "MMMM dd",
+    "dd-MMM",
+    "dd-MMMM",
   ];
 
   // 1️⃣ Сначала пробуем форматы С ГОДОМ
