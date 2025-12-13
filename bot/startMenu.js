@@ -20,19 +20,19 @@ async function startMenu(chatId, city, country) {
         inline_keyboard: [
           [
             {
-              text: "✈️      CHEAPEST FLIGHTS      🌎",
+              text: "✈️      CHEAPEST FLIGHTS       🌎",
               callback_data: "get_top_10_round_trip",
             },
           ],
           [
             {
-              text: "📅           SELECT DATE            🎯",
+              text: "📅            SELECT DATE             🎯",
               callback_data: "price_for_date",
             },
           ],
           [
             {
-              text: "🔎    SELECT DESTINATION    🧭",
+              text: "🔎     SELECT DESTINATION    🧭",
               callback_data: "cheapest_flights_to_destination",
             },
           ],
