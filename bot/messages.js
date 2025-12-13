@@ -16,7 +16,13 @@ const {
 } = require("./getFlightsWithDestination/getTicketsForDestination");
 const { DateTime } = require("luxon");
 const { extractShortLink } = require("./encodeLink");
-const { startMenuButton } = require("./callbacks");
+const {
+  startMenuButton,
+  get_top_10_round_trip,
+  cheapest_flights_to_destination,
+  special_offers,
+  price_for_date,
+} = require("./callbacks");
 const {
   getTicketsForDateRoundTrip,
 } = require("./priceForDate/getTicketsForDate");
