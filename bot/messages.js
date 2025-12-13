@@ -406,6 +406,14 @@ async function handleTextMessage(chatId, userInput, userInfo) {
     }
 
     await cheapest_flights_to_destination(chatId);
+  } else if (userInput === "/cheapflights") {
+    await get_top_10_round_trip(chatId);
+  } else if (userInput === "/specialoffers") {
+    await special_offers(chatId);
+  } else if (userInput === "/adddate") {
+    await price_for_date(chatId);
+  } else if (userInput === "/adddestination") {
+    await cheapest_flights_to_destination(chatId);
   } else if (userInput === "/exit") {
     await saveUserStep(chatId, "no_step");
     const userObj = await getUser(chatId);
