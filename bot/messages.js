@@ -63,51 +63,65 @@ const LOCALES = [
   "ja",
   "ko",
 ];
+
 function normalizeDate(input) {
   const text = input.trim();
+  const now = DateTime.now();
 
-  // Типичные форматы, которые встречаются чаще всего
-  const formats = [
+  // Форматы С ГОДОМ
+  const formatsWithYear = [
     // 12.03.2025 / 1.3.25
     "dd.MM.yyyy",
     "d.M.yyyy",
     "dd.MM.yy",
     "d.M.yy",
-
-    // 12/03/2025
     "dd/MM/yyyy",
     "d/M/yyyy",
     "dd/MM/yy",
     "d/M/yy",
-
-    // 12-03-2025
     "dd-MM-yyyy",
     "d-M-yyyy",
     "dd-MM-yy",
     "d-M-yy",
-
-    // 2025-03-12
     "yyyy-MM-dd",
     "yyyy-M-d",
-
-    // 12 03 2025
     "dd MM yyyy",
     "d M yyyy",
 
-    // С текстовыми месяцами (разные языки)
-    "d MMM yyyy", // 1 Mar 2025
-    "d MMMM yyyy", // 1 March 2025
+    // текстовые месяцы
+    "d MMM yyyy",
+    "d MMMM yyyy",
     "d MMM yy",
     "d MMMM yy",
-    "MMM d, yyyy", // Mar 1, 2025
+    "MMM d, yyyy",
     "MMMM d, yyyy",
     "d-MMM-yyyy",
     "d-MMMM-yyyy",
   ];
 
-  // 1) Пробуем все форматы на всех локалях
+  // Форматы БЕЗ ГОДА
+  const formatsWithoutYear = [
+    "dd.MM",
+    "d.M",
+    "dd/MM",
+    "d/M",
+    "dd-MM",
+    "d-M",
+    "dd MM",
+    "d M",
+
+    // текстовые месяцы
+    "d MMM",
+    "d MMMM",
+    "MMM d",
+    "MMMM d",
+    "d-MMM",
+    "d-MMMM",
+  ];
+
+  // 1️⃣ Сначала пробуем форматы С ГОДОМ
   for (const locale of LOCALES) {
-    for (const fmt of formats) {
+    for (const fmt of formatsWithYear) {
       const dt = DateTime.fromFormat(text, fmt, { locale });
       if (dt.isValid) {
         return dt.toFormat("yyyy-MM-dd");
@@ -115,15 +129,30 @@ function normalizeDate(input) {
     }
   }
 
-  // 2) Попытка авто-парсинга через Luxon ISO или JS Date
+  // 2️⃣ Потом форматы БЕЗ ГОДА
   for (const locale of LOCALES) {
-    const auto = DateTime.fromJSDate(new Date(text), { locale });
-    if (auto.isValid) {
-      return auto.toFormat("yyyy-MM-dd");
+    for (const fmt of formatsWithoutYear) {
+      let dt = DateTime.fromFormat(text, fmt, { locale });
+      if (dt.isValid) {
+        // подставляем текущий год
+        dt = dt.set({ year: now.year });
+
+        // если дата уже прошла — берём следующий год
+        if (dt < now.startOf("day")) {
+          dt = dt.plus({ years: 1 });
+        }
+
+        return dt.toFormat("yyyy-MM-dd");
+      }
     }
   }
 
-  // Если ничего не подошло → ошибка
+  // 3️⃣ Автопарсинг (на всякий случай)
+  const auto = DateTime.fromJSDate(new Date(text));
+  if (auto.isValid) {
+    return auto.toFormat("yyyy-MM-dd");
+  }
+
   return null;
 }
 
@@ -375,6 +404,8 @@ async function handleTextMessage(chatId, userInput, userInfo) {
         "⚠️ Error processing data. Try again Something went wrong and I couldn't recognize the date you specified. Please return to the start menu and try again. "
       );
     }
+
+    await cheapest_flights_to_destination(chatId);
   } else if (userInput === "/exit") {
     await saveUserStep(chatId, "no_step");
     const userObj = await getUser(chatId);
