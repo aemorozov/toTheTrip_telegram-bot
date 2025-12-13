@@ -9,7 +9,9 @@ async function startMenu(chatId, city, country) {
     console.log("getCityImage");
 
     const caption = `
-📍 <strong>Your city is ${city.toUpperCase().replace(/\.$/, "")}</strong>!
+📍 <strong>Your city is ${city
+      .toUpperCase()
+      .replace(/\.$/, "")}</strong>! Are you ready to get a cheapest flights? 
 
 🔄 <b>For change your departure city</b>, tap /start and write a new one.
 
