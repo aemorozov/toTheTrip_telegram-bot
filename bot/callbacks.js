@@ -23,7 +23,7 @@ async function startMenuButton(chatId, message = "") {
       inline_keyboard: [
         [
           {
-            text: "**  START MENU  **",
+            text: "✈️        START MENU        🏠",
             callback_data: "start_menu",
           },
         ],
@@ -138,7 +138,7 @@ async function handleCallbackQuery(chatId, data) {
         inline_keyboard: [
           [
             {
-              text: "**  START MENU  **",
+              text: "✈️        START MENU        🏠",
               callback_data: "start_menu",
             },
           ],
@@ -262,7 +262,7 @@ async function handleCallbackQuery(chatId, data) {
         inline_keyboard: [
           [
             {
-              text: "**  START MENU  **",
+              text: "✈️        START MENU        🏠",
               callback_data: "start_menu",
             },
           ],

@@ -9,21 +9,11 @@ async function startMenu(chatId, city, country) {
     console.log("getCityImage");
 
     const caption = `
-📍 Your city is <strong>${city.toUpperCase()}</strong>!
+📍 <strong>Your city is ${city.toUpperCase().replace(/\.$/, "")}</strong>!
 
-✈️ You can choose from several types of options and you’ll get a list of the cheapest tickets!
+🔄 <b>For change your departure city</b>, tap /start and write a new one.
 
-🔄 If you want to change your departure city, tap /start and write a new one.
-
-<b>Get special offers every day!</b>
-🇫🇷 <b><a href="https://t.me/CheapFlightsFrance">Cheap Flights France</a></b>
-🇮🇹 <b><a href="https://t.me/CheapFlightsItaly">Cheap Flights Italy</a></b>
-🇪🇸 <b><a href="https://t.me/CheapFlightsSpain">Cheap Flights Spain</a></b>
-🇩🇪 <b><a href="https://t.me/CheapFlightsGermany">Cheap Flights Germany</a></b>
-🇷🇴 <b><a href="https://t.me/CheapFlightsRomania">Cheap Flights Romania</a></b>
-
-👇 👇 👇 👇 👇 👇 👇 👇 👇
-    `;
+<b>Get special offers</b> every day with our Cheap Flights channels!\n<b><a href="https://t.me/CheapFlightsFrance">🇫🇷 France</a></b> <b><a href="https://t.me/CheapFlightsItaly">🇮🇹 Italy</a></b> <b><a href="https://t.me/CheapFlightsRomania">🇷🇴 Romania</a></b> <b><a href="https://t.me/CheapFlightsSpain">🇪🇸 Spain</a></b> <b><a href="https://t.me/CheapFlightsGermany">🇩🇪 Germany</a></b>`;
 
     const options = {
       reply_markup: {
