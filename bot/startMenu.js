@@ -11,7 +11,7 @@ async function startMenu(chatId, city, country) {
     const caption = `
 📍 <strong>Your city is ${city
       .toUpperCase()
-      .replace(/\.$/, "")}</strong>! Are you ready to get a cheapest flights? 
+      .replace(/\.$/, "")}</strong>! Are you ready to get the cheapes flights? 
 
 🔄 <b>For change your departure city</b>, tap /start and write a new one.
 
