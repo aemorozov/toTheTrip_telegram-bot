@@ -99,7 +99,7 @@ async function get_top_10_round_trip(chatId) {
 
             return `✈️ to <b>${destination}, ${destinationCountry}</b> about <b>${
               t.price
-            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+            }€</b>\n📅 Dep: <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 Ret:  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
               link
             )}</a></u>\n`;
           })
@@ -232,7 +232,7 @@ async function special_offers(chatId) {
 
             return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
               t.price
-            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+            }€</b>\n📅 Dep: <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 Ret:  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
               link
             )}</a></u>\n`;
           })
@@ -316,7 +316,7 @@ async function weekendFlights(chatId) {
               setZone: true,
             })
               .setLocale("en")
-              .toFormat("dd LLL yyyy (ccc)");
+              .toFormat("cccc dd LLL");
             const departure_time = DateTime.fromISO(t.departure_at, {
               setZone: true,
             }).toFormat("HH:mm");
@@ -327,7 +327,7 @@ async function weekendFlights(chatId) {
               setZone: true,
             })
               .setLocale("en")
-              .toFormat("dd LLL yyyy (ccc)");
+              .toFormat("cccc dd LLL");
             const return_time = DateTime.fromISO(t.return_at, {
               setZone: true,
             }).toFormat("HH:mm");
@@ -356,7 +356,7 @@ async function weekendFlights(chatId) {
 
             return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
               t.price
-            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+            }€</b>\n📅 Dep: <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 Ret:  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
               link
             )}</a></u>\n`;
           })

@@ -266,7 +266,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
                 return `💸 about <b>${
                   t.price
-                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                }€</b>\n📅 Dep: <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 Ret:  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
                   link
                 )}</a></u>\n`;
               })
@@ -383,7 +383,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
                 return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
                   t.price
-                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                }€</b>\n📅 Dep: <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 Ret:  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
                   link
                 )}</a></u>\n`;
               })
