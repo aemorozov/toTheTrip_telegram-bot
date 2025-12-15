@@ -417,6 +417,8 @@ async function handleTextMessage(chatId, userInput, userInfo) {
         "⚠️ Error processing data. Try again Something went wrong and I couldn't recognize the date you specified. Please return to the start menu and try again. "
       );
     }
+
+    await cheapest_flights_to_destination(chatId);
   } else if (userInput === "/cheapflights") {
     await get_top_10_round_trip(chatId);
   } else if (userInput === "/specialoffers") {

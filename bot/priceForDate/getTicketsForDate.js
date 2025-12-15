@@ -25,7 +25,7 @@ async function getTicketsForDateOneWay(originIATA, date) {
 
     return (
       res.data?.data ||
-      "Sorry, we can't find cheap flights on that days, try again please."
+      "Sorry, we can't find cheap flights on that day, try again please."
     );
   } catch (err) {
     console.error(
@@ -59,7 +59,7 @@ async function getTicketsForDateRoundTrip(originIATA, date) {
 
     return (
       res.data?.data ||
-      "Sorry, we can't find cheap flights on that days, try again please."
+      "Sorry, we can't find cheap flights on that day, try again please."
     );
   } catch (err) {
     console.error(

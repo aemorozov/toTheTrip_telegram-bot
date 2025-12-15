@@ -11,7 +11,7 @@ async function startMenu(chatId, city, country) {
     const caption = `
 📍 <strong>Your city is ${city
       .toUpperCase()
-      .replace(/\.$/, "")}!</strong> Are you ready to get the cheapest flights?
+      .replace(/\.$/, "")}</strong>! Are you ready to get the cheapes flights? 
 
 🔄 <b>For change your departure city</b>, tap /start and write a new one.
 
@@ -28,18 +28,6 @@ async function startMenu(chatId, city, country) {
           ],
           [
             {
-              text: "🔥         SPECIAL OFFERS          💸",
-              callback_data: "special_offers",
-            },
-          ],
-          [
-            {
-              text: "⭐        WEEKENDS ONLY         💡",
-              callback_data: "weekend_flights",
-            },
-          ],
-          [
-            {
               text: "📅            SELECT DATE             🎯",
               callback_data: "price_for_date",
             },
@@ -50,9 +38,14 @@ async function startMenu(chatId, city, country) {
               callback_data: "cheapest_flights_to_destination",
             },
           ],
+          [
+            {
+              text: "🔥         SPECIAL OFFERS          💸",
+              callback_data: "special_offers",
+            },
+          ],
         ],
       },
-
       parse_mode: "HTML",
       disable_web_page_preview: true,
     };

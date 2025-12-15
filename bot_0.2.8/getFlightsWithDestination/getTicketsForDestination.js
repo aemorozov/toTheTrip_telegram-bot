@@ -45,9 +45,7 @@ async function getTicketsForDestinationRoundTrip(originIATA, destinationIATA) {
       destination: destinationIATA,
       one_way: false,
       direct: false,
-
       limit: 7,
-      page: 1,
       sorting: "price",
       unique: false,
       token: process.env.TRAVELPAYOUTS_API_TOKEN,

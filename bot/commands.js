@@ -22,10 +22,10 @@ async function handleCommandStart(chatId, userInfo) {
 After you can enter your departure date and see all the cheapest flights on that day, or you can choose a destination and find the cheapest options for that destination.
 
 I can show you:
-🔹 Cheapest tickets from your city
-🔹 Lowest prices for a specific date
-🔹 Best prices for a specific destination
-🔹 Special daily unique offers
+✈️ Cheapest tickets from your city
+📅 Lowest prices for a specific date
+📍 Best prices for a specific destination
+🔥 Special daily unique offers
 
 <b>So, what is your departure city?</b>`
   );

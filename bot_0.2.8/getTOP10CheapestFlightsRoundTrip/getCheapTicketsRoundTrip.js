@@ -9,8 +9,7 @@ async function getCheapTicketsRoundTrip(origin) {
       sorting: "price",
       direct: true,
       one_way: false,
-      limit: 10,
-
+      limit: 7,
       token: process.env.TRAVELPAYOUTS_API_TOKEN,
     };
 
