@@ -282,11 +282,13 @@ async function weekendFlights(chatId) {
     return await startMenuButton(chatId, message);
   }
 
-  const tickets = filterWeekendTrips(ticketsRoundTrip).sort(
-    (a, b) =>
-      DateTime.fromISO(a.departure_at).toMillis() -
-      DateTime.fromISO(b.departure_at).toMillis()
-  );
+  const tickets = filterWeekendTrips(ticketsRoundTrip)
+    .sort(
+      (a, b) =>
+        DateTime.fromISO(a.departure_at).toMillis() -
+        DateTime.fromISO(b.departure_at).toMillis()
+    )
+    .slice(0, 6);
 
   for (const t of tickets) {
     try {
