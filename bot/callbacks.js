@@ -263,6 +263,7 @@ async function special_offers(chatId) {
 
 async function weekendFlights(chatId) {
   await saveUserStep(chatId, "no_step");
+  console.log("Start weekendFlights");
 
   const userObj = await getUser(chatId);
   if (!userObj?.iata_code) {
@@ -276,6 +277,8 @@ async function weekendFlights(chatId) {
   const originIATA = userObj.iata_code;
   const originCity = userObj.city;
   const ticketsRoundTrip = await getWeekendTickets(originIATA);
+
+  console.log("ticketsRoundTrip: ", ticketsRoundTrip);
 
   if (ticketsRoundTrip.length === 0) {
     const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
@@ -450,4 +453,5 @@ module.exports = {
   cheapest_flights_to_destination,
   special_offers,
   price_for_date,
+  weekendFlights,
 };

@@ -22,6 +22,7 @@ const {
   cheapest_flights_to_destination,
   special_offers,
   price_for_date,
+  weekendFlights,
 } = require("./callbacks");
 const {
   getTicketsForDateRoundTrip,
@@ -421,6 +422,8 @@ async function handleTextMessage(chatId, userInput, userInfo) {
     await get_top_10_round_trip(chatId);
   } else if (userInput === "/specialoffers") {
     await special_offers(chatId);
+  } else if (userInput === "/weekendsonly") {
+    await weekendFlights(chatId);
   } else if (userInput === "/adddate") {
     await price_for_date(chatId);
   } else if (userInput === "/adddestination") {

@@ -1,7 +1,8 @@
 const { DateTime } = require("luxon");
 const axios = require("axios");
 
-function filterWeekendTrips(tickets) {
+export function filterWeekendTrips(tickets) {
+  console.log("start filterWeekendTrips");
   const isDepartInWindow = (depart) => {
     if (depart.weekday === 4) return depart.hour >= 20;
     if (depart.weekday === 5) return true;
@@ -50,10 +51,12 @@ function filterWeekendTrips(tickets) {
 
     if (pass) res.push(t);
   }
+
   return res;
 }
 
-async function getWeekendTickets(origin) {
+export async function getWeekendTickets(origin) {
+  console.log("start getWeekendTickets");
   const params = {
     currency: "eur",
     origin,
@@ -62,7 +65,7 @@ async function getWeekendTickets(origin) {
     limit: 300,
     page: 1,
     sorting: "price",
-    unique: true,
+    unique: false,
     token: process.env.TRAVELPAYOUTS_API_TOKEN,
   };
 
