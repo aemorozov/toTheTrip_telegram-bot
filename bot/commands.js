@@ -23,9 +23,10 @@ After you can enter your departure date and see all the cheapest flights on that
 
 I can show you:
 ✈️ Cheapest tickets from your city
+🔥 Special daily unique offers
+🧭 Weekends best price offers
 📅 Lowest prices for a specific date
 📍 Best prices for a specific destination
-🔥 Special daily unique offers
 
 <b>So, what is your departure city?</b>`
   );

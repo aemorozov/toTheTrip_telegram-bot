@@ -49,7 +49,7 @@ async function get_top_10_round_trip(chatId) {
 
   const message =
     tickets.length > 0
-      ? `<b>🔥 Cheapest flights from ${userObj.city.toUpperCase()}</b>:\n\n` +
+      ? `<b>🔥 Cheapest round trip flights from ${userObj.city.toUpperCase()}</b>:\n\n` +
         tickets
           .map((t) => {
             const destination_iata = t.destination;
@@ -99,7 +99,7 @@ async function get_top_10_round_trip(chatId) {
 
             return `✈️ to <b>${destination}, ${destinationCountry}</b> about <b>${
               t.price
-            }€</b>\n📅 Dep: <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 Ret:  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
               link
             )}</a></u>\n`;
           })
@@ -178,7 +178,7 @@ async function special_offers(chatId) {
   }
 
   const message =
-    `<b>🔥 Special offers from ${originCity.toUpperCase()}!</b>\n\n` +
+    `<b>🔥 Special round trip offers from ${originCity.toUpperCase()}!</b>\n\n` +
     (ticketsRoundTrip.length > 0
       ? ticketsRoundTrip
           .map((t) => {
@@ -229,7 +229,7 @@ async function special_offers(chatId) {
 
             return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
               t.price
-            }€</b>\n📅 Dep: <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 Ret:  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
               link
             )}</a></u>\n`;
           })
@@ -307,7 +307,7 @@ async function weekendFlights(chatId) {
   }
 
   const message =
-    `<b>⭐ Weekend flights from ${originCity.toUpperCase()}!</b>\n\n` +
+    `<b>⭐ Weekend round trip flights from ${originCity.toUpperCase()}!</b>\n\n` +
     (tickets.length > 0
       ? tickets
           .map((t) => {
@@ -358,7 +358,7 @@ async function weekendFlights(chatId) {
 
             return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
               t.price
-            }€</b>\n📅 Dep: <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 Ret:  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
               link
             )}</a></u>\n`;
           })

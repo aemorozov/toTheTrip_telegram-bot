@@ -9,13 +9,13 @@ async function startMenu(chatId, city, country) {
     console.log("getCityImage");
 
     const caption = `
-📍 <strong>Your city is ${city
+📍 <strong>Your departure city is ${city
       .toUpperCase()
-      .replace(/\.$/, "")}!</strong> Are you ready to get the cheapest flights?
+      .replace(/\.$/, "")}!</strong> Ready to get the cheapest flights?
 
-🔄 <b>For change your departure city</b>, tap /start and write a new one.
+🔄 You can change your departure city via /start.
 
-<b>Get special offers</b> every day!\n<b><a href="https://t.me/CheapFlightsFrance">🇫🇷 France</a></b>   <b><a href="https://t.me/CheapFlightsItaly">🇮🇹 Italy</a></b>   <b><a href="https://t.me/CheapFlightsRomania">🇷🇴 Romania</a></b>   <b><a href="https://t.me/CheapFlightsSpain">🇪🇸 Spain</a></b>   <b><a href="https://t.me/CheapFlightsGermany">🇩🇪 Germany</a></b>`;
+<b>Get special offers</b> every day for:\n<b><a href="https://t.me/CheapFlightsFrance">🇫🇷 France</a></b>   <b><a href="https://t.me/CheapFlightsItaly">🇮🇹 Italy</a></b>   <b><a href="https://t.me/CheapFlightsRomania">🇷🇴 Romania</a></b>   <b><a href="https://t.me/CheapFlightsSpain">🇪🇸 Spain</a></b>   <b><a href="https://t.me/CheapFlightsGermany">🇩🇪 Germany</a></b>`;
 
     const options = {
       reply_markup: {
