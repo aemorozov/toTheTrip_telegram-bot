@@ -104,7 +104,7 @@ async function get_top_10_round_trip(chatId) {
             )}</a></u>\n`;
           })
           .join("\n") +
-        `\n📢 Send this to your travel friend!`
+        `\n📢 Share it to your travel friend!`
       : `<b>🔥 TOP cheapest round trip flights from ${userObj.city} for you</b>:\n\n😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
 
   const city = tickets[0].destination_city;
@@ -233,7 +233,7 @@ async function special_offers(chatId) {
               link
             )}</a></u>\n`;
           })
-          .join("\n") + `\n📢 Send this to your travel friend!`
+          .join("\n") + `\n📢 Share it to your travel friend!`
       : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
 
   const city = ticketsRoundTrip[0].destination_city;
@@ -362,7 +362,7 @@ async function weekendFlights(chatId) {
               link
             )}</a></u>\n`;
           })
-          .join("\n") + `\n📢 Send this to your travel friend!`
+          .join("\n") + `\n📢 Share it to your travel friend!`
       : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
 
   const city = tickets[0].destination_city;

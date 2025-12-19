@@ -271,7 +271,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                   link
                 )}</a></u>\n`;
               })
-              .join("\n") + `\n📢 Send this to your travel friend!`
+              .join("\n") + `\n📢 Share it to your travel friend!`
           : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
       const city = ticketsRoundTrip[0].destination_city;
       const photo = await getCityImage(city);
@@ -388,7 +388,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                   link
                 )}</a></u>\n`;
               })
-              .join("\n") + `\n📢 Send this to your travel friend!`
+              .join("\n") + `\n📢 Share it to your travel friend!`
           : `😢💔 Sorry, I can't find the best results, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
 
       const city = ticketsRoundTrip[0].destination_city;

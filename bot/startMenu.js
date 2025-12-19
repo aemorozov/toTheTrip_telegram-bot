@@ -9,11 +9,9 @@ async function startMenu(chatId, city, country) {
     console.log("getCityImage");
 
     const caption = `
-📍 <strong>Your departure city is ${city
-      .toUpperCase()
-      .replace(/\.$/, "")}!</strong> Ready to get the cheapest flights?
+📍 <strong>Your city: ${city.toUpperCase().replace(/\.$/, "")}!</strong>
 
-🔄 You can change your departure city via /start.
+🔄 You can change your city via /start.
 
 <b>Get special offers</b> every day for:\n<b><a href="https://t.me/CheapFlightsFrance">🇫🇷 France</a></b>   <b><a href="https://t.me/CheapFlightsItaly">🇮🇹 Italy</a></b>   <b><a href="https://t.me/CheapFlightsRomania">🇷🇴 Romania</a></b>   <b><a href="https://t.me/CheapFlightsSpain">🇪🇸 Spain</a></b>   <b><a href="https://t.me/CheapFlightsGermany">🇩🇪 Germany</a></b>`;
 
@@ -40,13 +38,13 @@ async function startMenu(chatId, city, country) {
           ],
           [
             {
-              text: "📅            SELECT DATE             🎯",
+              text: "📅                ON DATE                 🎯",
               callback_data: "price_for_date",
             },
           ],
           [
             {
-              text: "🔎     SELECT DESTINATION    🧭",
+              text: "🔎         TO DESTINATION        🧭",
               callback_data: "cheapest_flights_to_destination",
             },
           ],
