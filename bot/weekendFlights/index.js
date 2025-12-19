@@ -65,7 +65,7 @@ export async function getWeekendTickets(origin) {
     limit: 300,
     page: 1,
     sorting: "price",
-    unique: false,
+    unique: true,
     token: process.env.TRAVELPAYOUTS_API_TOKEN,
   };
 
