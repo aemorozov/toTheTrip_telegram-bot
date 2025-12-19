@@ -99,7 +99,7 @@ async function get_top_10_round_trip(chatId) {
 
             return `✈️ to <b>${destination}, ${destinationCountry}</b> about <b>${
               t.price
-            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
               link
             )}</a></u>\n`;
           })
@@ -229,7 +229,7 @@ async function special_offers(chatId) {
 
             return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
               t.price
-            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
               link
             )}</a></u>\n`;
           })
@@ -358,7 +358,7 @@ async function weekendFlights(chatId) {
 
             return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
               t.price
-            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅  <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+            }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
               link
             )}</a></u>\n`;
           })
