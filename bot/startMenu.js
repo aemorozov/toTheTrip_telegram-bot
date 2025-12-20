@@ -9,7 +9,7 @@ async function startMenu(chatId, city, country) {
     console.log("getCityImage");
 
     const caption = `
-📍 <strong>Your city: ${city.toUpperCase().replace(/\.$/, "")}!</strong>
+📍 <strong>Your city is ${city.toUpperCase().replace(/\.$/, "")}!</strong>
 
 🔄 You can change your city via /start.
 
