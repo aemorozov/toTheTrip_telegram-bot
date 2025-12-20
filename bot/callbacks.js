@@ -273,22 +273,18 @@ async function weekendFlights(chatId) {
 
   const originIATA = userObj.iata_code;
   const originCity = userObj.city;
-  const ticketsRoundTrip = await getWeekendTickets(originIATA);
-
-  console.log("ticketsRoundTrip: ", ticketsRoundTrip);
-
-  if (ticketsRoundTrip.length === 0) {
-    const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
-    return await startMenuButton(chatId, message);
-  }
-
-  const tickets = filterWeekendTrips(ticketsRoundTrip)
+  const tickets = (await getWeekendTickets(originIATA))
     .sort(
       (a, b) =>
         DateTime.fromISO(a.departure_at).toMillis() -
         DateTime.fromISO(b.departure_at).toMillis()
     )
     .slice(0, 6);
+
+  if (tickets.length === 0) {
+    const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+    return await startMenuButton(chatId, message);
+  }
 
   for (const t of tickets) {
     try {

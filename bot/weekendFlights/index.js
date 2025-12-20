@@ -1,65 +1,125 @@
 const { DateTime } = require("luxon");
 const axios = require("axios");
 
-export function filterWeekendTrips(tickets) {
-  console.log("start filterWeekendTrips");
-  const isDepartInWindow = (depart) => {
-    if (depart.weekday === 4) return depart.hour >= 20;
-    if (depart.weekday === 5) return true;
-    if (depart.weekday === 6) return depart.hour < 12;
-    return false;
-  };
+export async function filterWeekendTrips(tickets, originIATA) {
+  console.log("🚀 filterWeekendTrips with holidays + bridge days");
 
-  const isReturnInWindow = (ret) => {
-    if (ret.weekday === 7) return ret.hour > 6;
-    if (ret.weekday === 1) return true;
-    if (ret.weekday === 2) return ret.hour < 2;
-    return false;
-  };
+  /* ───────────── 1. COUNTRY BY ORIGIN (places2) ───────────── */
+  const placesRes = await axios.get(
+    "https://autocomplete.travelpayouts.com/places2",
+    {
+      params: {
+        term: originIATA,
+        locale: "en",
+        types: "city",
+      },
+    }
+  );
 
-  const isWeekRelationOk = (depart, ret) => {
-    const sameWeek =
-      depart.weekYear === ret.weekYear && depart.weekNumber === ret.weekNumber;
+  const countryCode =
+    placesRes.data?.[0]?.country_code || placesRes.data?.[0]?.country;
+
+  if (!countryCode) {
+    console.warn("❌ Cannot determine country for origin:", originIATA);
+    return [];
+  }
+
+  console.log("🌍 Origin country:", countryCode);
+
+  /* ───────────── 2. HOLIDAYS (Nager.Date) ───────────── */
+  const yearSet = new Set();
+  tickets.forEach((t) => {
+    yearSet.add(DateTime.fromISO(t.departure_at).year);
+    yearSet.add(DateTime.fromISO(t.return_at).year);
+  });
+
+  const holidays = [];
+
+  for (const year of yearSet) {
+    const res = await axios.get(
+      `https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode}`
+    );
+    holidays.push(...res.data);
+  }
+
+  /* ───────────── 3. HOLIDAY + BRIDGE DAYS SET ───────────── */
+  const holidaySet = new Set();
+
+  for (const h of holidays) {
+    const dt = DateTime.fromISO(h.date);
+    holidaySet.add(dt.toISODate());
+
+    // bridge days: ±1 day
+    holidaySet.add(dt.minus({ days: 1 }).toISODate());
+    holidaySet.add(dt.plus({ days: 1 }).toISODate());
+  }
+
+  console.log("🎉 Holiday + bridge days loaded:", holidaySet.size);
+
+  /* ───────────── 4. HELPERS ───────────── */
+  const isDepartInWeekendWindow = (d) =>
+    (d.weekday === 4 && d.hour >= 20) ||
+    d.weekday === 5 ||
+    (d.weekday === 6 && d.hour < 12);
+
+  const isReturnInWeekendWindow = (r) =>
+    (r.weekday === 7 && r.hour > 6) ||
+    r.weekday === 1 ||
+    (r.weekday === 2 && r.hour < 2);
+
+  const isHolidayTrip = (d, r) =>
+    holidaySet.has(d.toISODate()) || holidaySet.has(r.toISODate());
+
+  const isWeekRelationOk = (d, r) => {
+    const sameWeek = d.weekYear === r.weekYear && d.weekNumber === r.weekNumber;
+
     const nextWeek = (() => {
-      const plus1 = depart.plus({ weeks: 1 });
-      return (
-        plus1.weekYear === ret.weekYear && plus1.weekNumber === ret.weekNumber
-      );
+      const plus1 = d.plus({ weeks: 1 });
+      return plus1.weekYear === r.weekYear && plus1.weekNumber === r.weekNumber;
     })();
 
-    if (ret.weekday === 7) return sameWeek;
-    if (ret.weekday === 1 || ret.weekday === 2) return nextWeek;
+    if (r.weekday === 7) return sameWeek;
+    if (r.weekday === 1 || r.weekday === 2) return nextWeek;
     return false;
   };
 
-  const res = [];
+  /* ───────────── 5. FILTER ───────────── */
+  const result = [];
 
   for (const t of tickets) {
     const depart = DateTime.fromISO(t.departure_at, { setZone: true });
     const ret = DateTime.fromISO(t.return_at, { setZone: true });
 
-    const validDates = depart.isValid && ret.isValid;
+    if (!depart.isValid || !ret.isValid) continue;
 
-    const durationHours = validDates ? ret.diff(depart, "hours").hours : NaN;
-    const durationOk = validDates && durationHours >= 26;
+    const durationHours = ret.diff(depart, "hours").hours;
+    const durationOk = durationHours >= 26;
 
-    const departOk = validDates && isDepartInWindow(depart);
-    const returnOk = validDates && isReturnInWindow(ret);
-    const weekOk = validDates && isWeekRelationOk(depart, ret);
+    const weekendTrip =
+      isDepartInWeekendWindow(depart) &&
+      isReturnInWeekendWindow(ret) &&
+      isWeekRelationOk(depart, ret);
 
-    const pass = validDates && departOk && returnOk && weekOk && durationOk;
+    const holidayTrip = isHolidayTrip(depart, ret);
 
-    if (pass) res.push(t);
+    const pass = durationOk && (weekendTrip || holidayTrip);
+
+    if (pass) {
+      result.push(t);
+    }
   }
 
-  return res;
+  console.log(`🎯 RESULT: ${result.length} / ${tickets.length} tickets passed`);
+
+  return result;
 }
 
-export async function getWeekendTickets(origin) {
+export async function getWeekendTickets(originIATA) {
   console.log("start getWeekendTickets");
+
   const params = {
     currency: "eur",
-    origin,
+    origin: originIATA,
     one_way: false,
     direct: true,
     limit: 300,
@@ -76,9 +136,8 @@ export async function getWeekendTickets(origin) {
 
   const tickets = res.data?.data || [];
 
-  const weekendTickets = filterWeekendTrips(tickets);
-
-  return weekendTickets;
+  // 🔥 ФИЛЬТРАЦИЯ ТУТ
+  return await filterWeekendTrips(tickets, originIATA);
 }
 
 module.exports = {
