@@ -87,11 +87,11 @@ module.exports = async (req, res) => {
       console.error(e);
     }
 
-    try {
-      await pushMessage(chatId, data, 10);
-    } catch (e) {
-      throw new Error("Redis error 3", e);
-    }
+    // try {
+    //   await pushMessage(chatId, data, 10);
+    // } catch (e) {
+    //   throw new Error("Redis error 3", e);
+    // }
     return res.status(200).send("ok");
   }
 
