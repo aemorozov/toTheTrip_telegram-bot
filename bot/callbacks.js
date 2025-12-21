@@ -39,7 +39,6 @@ async function get_top_10_round_trip(chatId) {
       t.destination_city = info?.[0] || null;
       t.destination_country = info?.[1] || null;
       t.destination_country_code = info?.[2] || null;
-      console.log("CITY INFO:", t.destination, info);
     } catch (e) {
       console.log("getCityName ERROR:", e);
       t.destination_city = null;
@@ -122,7 +121,6 @@ async function get_top_10_round_trip(chatId) {
     },
   };
   if (photo) {
-    console.log("safeSendPhoto");
     return await safeSendPhoto(chatId, photo, message, options);
   } else {
     return await startMenuButton(chatId, message);
@@ -164,12 +162,10 @@ async function special_offers(chatId) {
   for (const t of ticketsRoundTrip) {
     try {
       const info = await getCityName(t.destination);
-      console.log("destination_city:", info?.[0]);
 
       t.destination_city = info?.[0] || null;
       t.destination_country = info?.[1] || null;
       t.destination_country_code = info?.[2] || null;
-      console.log("CITY INFO:", t.destination, info);
     } catch (e) {
       console.log("getCityName ERROR:", e);
       t.destination_city = null;
@@ -251,7 +247,6 @@ async function special_offers(chatId) {
     },
   };
   if (photo) {
-    console.log("safeSendPhoto");
     return await safeSendPhoto(chatId, photo, message, options);
   } else {
     return await startMenuButton(chatId, message);
@@ -260,7 +255,6 @@ async function special_offers(chatId) {
 
 async function weekendFlights(chatId) {
   await saveUserStep(chatId, "no_step");
-  console.log("Start weekendFlights");
 
   const userObj = await getUser(chatId);
   if (!userObj?.iata_code) {
@@ -289,12 +283,10 @@ async function weekendFlights(chatId) {
   for (const t of tickets) {
     try {
       const info = await getCityName(t.destination);
-      console.log("destination_city:", info?.[0]);
 
       t.destination_city = info?.[0] || null;
       t.destination_country = info?.[1] || null;
       t.destination_country_code = info?.[2] || null;
-      console.log("CITY INFO:", t.destination, info);
     } catch (e) {
       console.log("getCityName ERROR:", e);
       t.destination_city = null;
@@ -376,7 +368,6 @@ async function weekendFlights(chatId) {
     },
   };
   if (photo) {
-    console.log("safeSendPhoto");
     return await safeSendPhoto(chatId, photo, message, options);
   } else {
     return await startMenuButton(chatId, message);

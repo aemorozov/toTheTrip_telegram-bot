@@ -16,11 +16,13 @@ module.exports = async (req, res) => {
 
   const body = req.body || {};
 
-  // Реагируем на сообщения
+  // Реагируем на базовые команды
   if (body.message) {
     const chatId = body.message.chat?.id;
     const userInput = body.message.text?.trim();
     const userInfo = body.message.from;
+
+    console.log("ID:", chatId, ", Message:", userInput);
 
     if (!chatId) return res.status(200).send("ok");
 
@@ -47,11 +49,12 @@ module.exports = async (req, res) => {
     }
 
     if (userInput === "/start") {
+      console.log("ID:", chatId, ", First enter, save user info");
       console.log("chatId:", chatId);
       await handleCommandStart(chatId, userInfo);
       return res.status(200).send("ok");
     }
-
+    // Реагируем на любые другие сообщения уже через messages
     try {
       await handleTextMessage(chatId, userInput, userInfo);
     } catch (e) {
@@ -66,6 +69,8 @@ module.exports = async (req, res) => {
   if (body.callback_query) {
     const chatId = body.callback_query.message?.chat?.id;
     const data = body.callback_query.data;
+
+    console.log("ID:", chatId, ", Callback:", data);
 
     try {
       await bot.answerCallbackQuery(body.callback_query.id);

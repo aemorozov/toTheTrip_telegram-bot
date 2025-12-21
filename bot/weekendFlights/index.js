@@ -115,8 +115,6 @@ export async function filterWeekendTrips(tickets, originIATA) {
 }
 
 export async function getWeekendTickets(originIATA) {
-  console.log("start getWeekendTickets");
-
   const params = {
     currency: "eur",
     origin: originIATA,

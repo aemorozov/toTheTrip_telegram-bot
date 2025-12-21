@@ -9,6 +9,7 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
+// Обрабатываем команду старт
 async function handleCommandStart(chatId, userInfo) {
   let userObj = await getUser(chatId);
 

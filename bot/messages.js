@@ -209,7 +209,6 @@ async function handleTextMessage(chatId, userInput, userInfo) {
           t.destination_city = info?.[0] || null;
           t.destination_country = info?.[1] || null;
           t.destination_country_code = info?.[2] || null;
-          console.log("CITY INFO:", t.destination, info);
         } catch (e) {
           console.log("getCityName ERROR:", e);
           t.destination_city = null;
@@ -288,7 +287,6 @@ async function handleTextMessage(chatId, userInput, userInfo) {
         },
       };
       if (photo) {
-        console.log("safeSendPhoto");
         return await safeSendPhoto(chatId, photo, message, options);
       } else {
         return await startMenuButton(chatId, message);
@@ -324,7 +322,6 @@ async function handleTextMessage(chatId, userInput, userInfo) {
           t.destination_city = info?.[0] || null;
           t.destination_country = info?.[1] || null;
           t.destination_country_code = info?.[2] || null;
-          console.log("CITY INFO:", t.destination, info);
         } catch (e) {
           console.log("getCityName ERROR:", e);
           t.destination_city = null;
@@ -406,7 +403,6 @@ async function handleTextMessage(chatId, userInput, userInfo) {
         },
       };
       if (photo) {
-        console.log("safeSendPhoto");
         return await safeSendPhoto(chatId, photo, message, options);
       } else {
         return await startMenuButton(chatId, message);

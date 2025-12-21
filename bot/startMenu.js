@@ -59,7 +59,6 @@ async function startMenu(chatId, city, country) {
 
     // 2️⃣ Если фото есть — отправляем фото с подписью
     if (photo) {
-      console.log("safeSendPhoto");
       return await safeSendPhoto(chatId, photo, caption, options);
     }
     // 3️⃣ Если фото нет — отправляем только текст
