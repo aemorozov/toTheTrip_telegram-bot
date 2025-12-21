@@ -47,7 +47,8 @@ module.exports = async (req, res) => {
     }
 
     if (userInput === "/start") {
-      await handleCommandStart(chatId);
+      console.log("chatId:", chatId);
+      await handleCommandStart(chatId, userInfo);
       return res.status(200).send("ok");
     }
 

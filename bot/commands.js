@@ -10,10 +10,26 @@ const redis = new Redis({
 });
 
 async function handleCommandStart(chatId, userInfo) {
-  // const languageCode = userInfo.language_code || "en";
-  // await safeSend(chatId, `🌍 ${languages[languageCode].helloMessage}:`);
-  const userObj = await getUser(chatId);
-  console.log("userObj: ", userObj);
+  let userObj = await getUser(chatId);
+
+  // 🆕 если пользователя нет — создаём
+  if (!userObj) {
+    userObj = {
+      chat_id: chatId,
+      first_name: userInfo?.first_name || "",
+      username: userInfo?.username || null,
+      language_code: userInfo?.language_code || "en",
+      step: "no_step",
+      page: 0,
+      created_at: new Date().toISOString(),
+    };
+
+    await saveUser(userObj); // ⬅️ ОБЯЗАТЕЛЬНО
+    console.log("🆕 New user created:", userObj);
+  } else {
+    // если пользователь есть — сбрасываем step
+    await saveUserStep(chatId, "waiting_for_city");
+  }
   await safeSend(
     chatId,
     `<b>Hi ${userObj.first_name}! I can show you the cheapest tickets from your city!</b>
