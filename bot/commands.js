@@ -8,10 +8,6 @@ const { getUser, saveUser, saveUserStep } = require("./db");
 async function handleCommandStart(chatId, userInfo) {
   let userObj = await getUser(chatId);
 
-  // 🆕 если пользователя нет — создаём
-  if (!userObj) {
-    await saveUser(userInfo); // ⬅️ ОБЯЗАТЕЛЬНО
-  }
   await safeSend(
     chatId,
     `<b>Hi ${
