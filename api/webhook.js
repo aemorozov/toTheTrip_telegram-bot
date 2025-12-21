@@ -5,7 +5,7 @@ const { handleTextMessage } = require("../bot/messages");
 const { handleCallbackQuery } = require("../bot/callbacks");
 const { Redis } = require("@upstash/redis");
 const { startMenuButton } = require("../bot/callbacks");
-const { pushMessage } = require("../bot/db");
+const { pushMessage, saveUser } = require("../bot/db");
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
