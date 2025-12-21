@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
       try {
         await saveUser(userInfo); // ⬅️ ОБЯЗАТЕЛЬНО
       } catch (e) {
-        throw console.log("Redis error", e);
+        console.log("Redis error", e);
       }
       console.log("ID:", chatId, ", First enter, save user info");
       await handleCommandStart(chatId, userInfo);
