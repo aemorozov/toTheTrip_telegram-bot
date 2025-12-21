@@ -48,7 +48,6 @@ module.exports = async (req, res) => {
 
     if (userInput === "/start") {
       console.log("ID:", chatId, ", First enter, save user info");
-      console.log("chatId:", chatId);
       await handleCommandStart(chatId, userInfo);
       return res.status(200).send("ok");
     }
