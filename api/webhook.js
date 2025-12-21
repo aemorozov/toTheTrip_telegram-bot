@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
     }
 
     try {
-      await pushMessage(userInfo.id, userInput, 10);
+      await pushMessage(chatId, userInput, 10);
     } catch (e) {
       throw new Error("Redis error");
     }
