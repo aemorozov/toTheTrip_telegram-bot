@@ -19,7 +19,6 @@ async function getTicketsForDateOneWay(originIATA, date) {
 
     const url = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates";
     const fullUrl = `${url}?${new URLSearchParams(paramsOneWay).toString()}`;
-    console.log("👉 getTicketsForDateOneWay: ", fullUrl);
 
     const res = await axios.get(url, { params: paramsOneWay });
 
@@ -53,7 +52,6 @@ async function getTicketsForDateRoundTrip(originIATA, date) {
 
     const url = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates";
     const fullUrl = `${url}?${new URLSearchParams(paramsRoundTrip).toString()}`;
-    console.log("👉 getTicketsForDateRoundTrip: ", fullUrl);
 
     const res = await axios.get(url, { params: paramsRoundTrip });
 

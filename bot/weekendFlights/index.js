@@ -2,8 +2,6 @@ const { DateTime } = require("luxon");
 const axios = require("axios");
 
 export async function filterWeekendTrips(tickets, originIATA) {
-  console.log("🚀 filterWeekendTrips with holidays + bridge days");
-
   /* ───────────── 1. COUNTRY BY ORIGIN (places2) ───────────── */
   const placesRes = await axios.get(
     "https://autocomplete.travelpayouts.com/places2",
@@ -23,8 +21,6 @@ export async function filterWeekendTrips(tickets, originIATA) {
     console.warn("❌ Cannot determine country for origin:", originIATA);
     return [];
   }
-
-  console.log("🌍 Origin country:", countryCode);
 
   /* ───────────── 2. HOLIDAYS (Nager.Date) ───────────── */
   const yearSet = new Set();
@@ -53,8 +49,6 @@ export async function filterWeekendTrips(tickets, originIATA) {
     holidaySet.add(dt.minus({ days: 1 }).toISODate());
     holidaySet.add(dt.plus({ days: 1 }).toISODate());
   }
-
-  console.log("🎉 Holiday + bridge days loaded:", holidaySet.size);
 
   /* ───────────── 4. HELPERS ───────────── */
   const isDepartInWeekendWindow = (d) =>
@@ -108,8 +102,6 @@ export async function filterWeekendTrips(tickets, originIATA) {
       result.push(t);
     }
   }
-
-  console.log(`🎯 RESULT: ${result.length} / ${tickets.length} tickets passed`);
 
   return result;
 }

@@ -182,70 +182,6 @@ async function redisRequest(method, key, value = null) {
   return res.json();
 }
 
-// async function getCityName(iataCode) {
-//   if (!iataCode) return null;
-
-//   const code = iataCode.trim().toUpperCase();
-//   console.log(`\n🟢 Looking for city name by IATA: "${code}"`);
-
-//   // 1️⃣ Проверяем Redis (таблица airports)
-//   try {
-//     const json = await redisRequest("get", "airports");
-//     const airportsData = json?.result ? JSON.parse(json.result) : {};
-
-//     const foundCity = Object.keys(airportsData).find(
-//       (city) => airportsData[city].toUpperCase() === code
-//     );
-
-//     if (foundCity) {
-//       console.log(`✅ Found in Redis: ${code} → ${foundCity}`);
-//       return foundCity;
-//     } else {
-//       console.log("⚠️ Not found in Redis, requesting Travelpayouts...");
-//     }
-//   } catch (err) {
-//     console.warn("❌ Redis error:", err.message);
-//   }
-
-//   // 2️⃣ Поиск в Travelpayouts
-//   try {
-//     const { data } = await axios.get(
-//       "https://autocomplete.travelpayouts.com/places2",
-//       {
-//         params: { term: code, locale: "en" },
-//       }
-//     );
-
-//     // Ищем город, связанный с этим кодом
-//     const match = data.find((p) => p.code === code && p.type === "city");
-//     const found = match || data.find((p) => p.code === code);
-
-//     if (found) {
-//       console.log(`✅ Found via Travelpayouts: ${found.code} → ${found.name}`);
-
-//       // 💾 Сохраняем в Redis
-//       try {
-//         const json = await redisRequest("get", "airports");
-//         const airportsData = json?.result ? JSON.parse(json.result) : {};
-//         airportsData[found.name] = found.code;
-//         await redisRequest("set", "airports", JSON.stringify(airportsData));
-//         console.log(`💾 Saved to Redis: ${found.name} → ${found.code}`);
-//       } catch (err) {
-//         console.warn("⚠️ Could not save to Redis:", err.message);
-//       }
-
-//       return found.name;
-//     } else {
-//       console.log("⚠️ Travelpayouts did not return a matching city.");
-//     }
-//   } catch (err) {
-//     console.warn("❌ Travelpayouts error:", err.message);
-//   }
-
-//   console.log("❌ Could not find city for IATA:", code);
-//   return null;
-// }
-
 async function getCityName(iataCode) {
   if (!iataCode) return null;
 
@@ -279,14 +215,6 @@ async function getCityName(iataCode) {
 
   console.log("❌ Could not find city for IATA:", code);
   return null;
-}
-
-function getPostedKey() {
-  const d = new Date();
-  return `postedFlights:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function getPostedKeyByDate(date) {

@@ -152,7 +152,6 @@ async function special_offers(chatId) {
   const originIATA = userObj.iata_code;
   const originCity = userObj.city;
   const ticketsRoundTrip = await specialOffersRoundTrip(originIATA);
-  console.log("ticketsRoundTrip:", ticketsRoundTrip);
 
   if (ticketsRoundTrip.length === 0) {
     const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;

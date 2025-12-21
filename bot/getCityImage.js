@@ -148,8 +148,6 @@ async function getCityImage(cityName, country = "") {
     const query = regionQuery ? `${regionQuery}` : `${cityName} landmarks`;
     // : `${cityName} ${country} landmark street sky`;
 
-    console.log("PEXELS QUERY →", query);
-
     // -------------------------------
     // 4️⃣ Запрос в Pexels
     // -------------------------------

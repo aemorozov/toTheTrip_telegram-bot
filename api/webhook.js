@@ -36,7 +36,6 @@ module.exports = async (req, res) => {
 
         await startMenuButton(chatId, `👥 Active users: <b>${totalUsers}</b>`);
 
-        console.log(`📊 Всего активных пользователей: ${totalUsers}`);
         return res.status(200).send("ok");
       } catch (err) {
         console.error("❌ Ошибка при подсчёте пользователей:", err);
@@ -47,7 +46,6 @@ module.exports = async (req, res) => {
 
     if (userInput === "/start") {
       console.log("ID:", chatId, ", First enter, save user info");
-      console.log("chatId:", chatId);
       await handleCommandStart(chatId, userInfo);
       return res.status(200).send("ok");
     }

@@ -174,7 +174,6 @@ async function handleTextMessage(chatId, userInput, userInfo) {
   // push to Redis
   try {
     await pushMessage(userInfo.id, userInput, 10);
-    console.log("userInput: ", userInput);
   } catch (e) {
     throw new Error("Redis error");
   }
@@ -457,17 +456,13 @@ async function handleTextMessage(chatId, userInput, userInfo) {
     const iata = iataAndCity[0];
     const city = iataAndCity[1];
     const country = iataAndCity[2];
-    console.log("iata: ", iata, "city: ", city, "country: ", country);
     if (!iata) throw new Error("Unable to determine IATA code");
 
     // save user
     await saveUser(userInfo, iata, city, country);
 
-    console.log("saveUser");
-
     // send options
     await startMenu(chatId, city);
-    console.log("startMenu");
   }
 }
 

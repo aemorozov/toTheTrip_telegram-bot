@@ -23,7 +23,6 @@ async function redisRequest(method, key, value = null) {
 async function getIataCode(cityName, sendMessage) {
   if (!cityName) return [null, null];
 
-  console.log(`\n🟢 Looking for IATA code for: "${cityName}"`);
   const normalized = cityName.trim();
 
   // // 1️⃣ Поиск в Redis (таблица airports)
@@ -58,17 +57,12 @@ async function getIataCode(cityName, sendMessage) {
 
     const match = data.find((p) => p.type === "city");
     if (match) {
-      console.log(
-        `✅ Found city via Travelpayouts: ${match.name} → ${match.code}`
-      );
-
       // Сохраняем в Redis (обновляем JSON)
       try {
         const json = await redisRequest("get", "airports");
         const airportsData = json?.result ? JSON.parse(json.result) : {};
         airportsData[match.name] = match.code;
         await redisRequest("set", "airports", JSON.stringify(airportsData));
-        console.log(`💾 Saved to Redis: ${match.name} → ${match.code}`);
       } catch (err) {
         console.warn(
           "⚠️ Could not save Travelpayouts result to Redis:",

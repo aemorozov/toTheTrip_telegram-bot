@@ -4,11 +4,6 @@ const { languages } = require("./languages");
 const { Redis } = require("@upstash/redis");
 const { getUser, saveUser, saveUserStep } = require("./db");
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
-
 // Обрабатываем команду старт
 async function handleCommandStart(chatId, userInfo) {
   let userObj = await getUser(chatId);
@@ -26,7 +21,6 @@ async function handleCommandStart(chatId, userInfo) {
     };
 
     await saveUser(userInfo); // ⬅️ ОБЯЗАТЕЛЬНО
-    console.log("🆕 New user created:", userObj);
   } else {
     // если пользователь есть — сбрасываем step
     await saveUserStep(chatId, "no_step");
@@ -45,22 +39,4 @@ After you can enter your departure date and see all the cheapest flights on that
   );
 }
 
-async function chats(chatId) {
-  try {
-    await safeSend(chatId, "⏳ Count users...");
-
-    const keys = await redis.keys("user:*");
-
-    const totalUsers = keys?.length || 0;
-
-    await startMenuButton(chatId, `👥 Count users: <b>${totalUsers}</b>`);
-
-    console.log(`📊 Count users: ${totalUsers}`);
-  } catch (err) {
-    console.error("❌ Error counting users:", err);
-    await safeSend(chatId, "⚠️ Failed to get user list.");
-    return res.status(500).send(err.message);
-  }
-}
-
-module.exports = { handleCommandStart, chats };
+module.exports = { handleCommandStart };
