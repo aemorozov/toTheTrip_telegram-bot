@@ -3,13 +3,7 @@ const { bot, safeSend } = require("../bot/telegram");
 const { handleCommandStart } = require("../bot/commands");
 const { handleTextMessage } = require("../bot/messages");
 const { handleCallbackQuery } = require("../bot/callbacks");
-const { Redis } = require("@upstash/redis");
 const { pushMessage, saveUser } = require("../bot/db");
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(200).send("ok");
