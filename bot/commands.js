@@ -32,7 +32,9 @@ async function handleCommandStart(chatId, userInfo) {
   }
   await safeSend(
     chatId,
-    `<b>Hi ${userObj.first_name}! I can show you the cheapest tickets from your city!</b>
+    `<b>Hi ${
+      userObj.first_name || ""
+    }! I can show you the cheapest tickets from your city!</b>
     
 📍 First, <b>enter your departure city</b>.
 
