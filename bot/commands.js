@@ -2,7 +2,7 @@ const { startMenuButton } = require("./callbacks");
 const { safeSend } = require("./telegram");
 const { languages } = require("./languages");
 const { Redis } = require("@upstash/redis");
-const { getUser } = require("./db");
+const { getUser, saveUser } = require("./db");
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
