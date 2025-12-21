@@ -2,7 +2,6 @@ const { safeSend, safeSendPhoto } = require("./telegram");
 const { getIataCode } = require("./getIataCode");
 const {
   saveUser,
-  pushMessage,
   getUserStep,
   getUser,
   saveUserDestination,
@@ -171,13 +170,6 @@ function normalizeDate(input) {
 }
 
 async function handleTextMessage(chatId, userInput, userInfo) {
-  // push to Redis
-  try {
-    await pushMessage(userInfo.id, userInput, 10);
-  } catch (e) {
-    throw new Error("Redis error");
-  }
-
   // Проверяем, находится ли пользователь на каком-то шаге сценария
   const step = await getUserStep(chatId);
   if (step === "waiting_for_destination") {

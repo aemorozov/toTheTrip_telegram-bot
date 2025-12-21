@@ -5,6 +5,7 @@ const { handleTextMessage } = require("../bot/messages");
 const { handleCallbackQuery } = require("../bot/callbacks");
 const { Redis } = require("@upstash/redis");
 const { startMenuButton } = require("../bot/callbacks");
+const { pushMessage } = require("../bot/db");
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
@@ -24,6 +25,12 @@ module.exports = async (req, res) => {
 
     console.log("ID:", chatId, ", Message:", userInput);
 
+    try {
+      await pushMessage(userInfo.id, userInput, 10);
+    } catch (e) {
+      throw new Error("Redis error");
+    }
+
     if (!chatId) return res.status(200).send("ok");
 
     if (userInput === "/chats") {
@@ -36,6 +43,7 @@ module.exports = async (req, res) => {
 
         await startMenuButton(chatId, `👥 Active users: <b>${totalUsers}</b>`);
 
+        console.log(`📊 Всего активных пользователей: ${totalUsers}`);
         return res.status(200).send("ok");
       } catch (err) {
         console.error("❌ Ошибка при подсчёте пользователей:", err);
@@ -46,6 +54,7 @@ module.exports = async (req, res) => {
 
     if (userInput === "/start") {
       console.log("ID:", chatId, ", First enter, save user info");
+      console.log("chatId:", chatId);
       await handleCommandStart(chatId, userInfo);
       return res.status(200).send("ok");
     }
@@ -64,6 +73,12 @@ module.exports = async (req, res) => {
   if (body.callback_query) {
     const chatId = body.callback_query.message?.chat?.id;
     const data = body.callback_query.data;
+
+    try {
+      await pushMessage(chatId, data, 10);
+    } catch (e) {
+      throw new Error("Redis error", e);
+    }
 
     console.log("ID:", chatId, ", Callback:", data);
 
