@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
       try {
         await saveUser(userInfo, null, null, null); // явно
       } catch (e) {
-        console.error("Redis error", e);
+        console.error("Redis error 1", e);
       }
 
       await handleCommandStart(chatId, userInfo);
@@ -64,11 +64,11 @@ module.exports = async (req, res) => {
       return res.status(500).send(e.message);
     }
 
-    try {
-      await pushMessage(chatId, userInput, 10);
-    } catch (e) {
-      throw new Error("Redis error");
-    }
+    // try {
+    //   await pushMessage(chatId, userInput, 10);
+    // } catch (e) {
+    //   throw new Error("Redis error 2");
+    // }
 
     return res.status(200).send("ok");
   }
@@ -90,7 +90,7 @@ module.exports = async (req, res) => {
     try {
       await pushMessage(chatId, data, 10);
     } catch (e) {
-      throw new Error("Redis error", e);
+      throw new Error("Redis error 3", e);
     }
     return res.status(200).send("ok");
   }
