@@ -10,16 +10,6 @@ async function handleCommandStart(chatId, userInfo) {
 
   // 🆕 если пользователя нет — создаём
   if (!userObj) {
-    userObj = {
-      chat_id: chatId,
-      first_name: userInfo?.first_name || "",
-      username: userInfo?.username || null,
-      language_code: userInfo?.language_code || "en",
-      step: "no_step",
-      page: 0,
-      created_at: new Date().toISOString(),
-    };
-
     await saveUser(userInfo); // ⬅️ ОБЯЗАТЕЛЬНО
   } else {
     // если пользователь есть — сбрасываем step

@@ -25,12 +25,6 @@ module.exports = async (req, res) => {
 
     console.log("ID:", chatId, ", Message:", userInput);
 
-    try {
-      await pushMessage(userInfo.id, userInput, 10);
-    } catch (e) {
-      throw new Error("Redis error");
-    }
-
     if (!chatId) return res.status(200).send("ok");
 
     if (userInput === "/chats") {
@@ -66,6 +60,11 @@ module.exports = async (req, res) => {
       return res.status(500).send(e.message);
     }
 
+    try {
+      await pushMessage(userInfo.id, userInput, 10);
+    } catch (e) {
+      throw new Error("Redis error");
+    }
     return res.status(200).send("ok");
   }
 
@@ -73,12 +72,6 @@ module.exports = async (req, res) => {
   if (body.callback_query) {
     const chatId = body.callback_query.message?.chat?.id;
     const data = body.callback_query.data;
-
-    try {
-      await pushMessage(chatId, data, 10);
-    } catch (e) {
-      throw new Error("Redis error", e);
-    }
 
     console.log("ID:", chatId, ", Callback:", data);
 
@@ -89,6 +82,11 @@ module.exports = async (req, res) => {
       console.error(e);
     }
 
+    try {
+      await pushMessage(chatId, data, 10);
+    } catch (e) {
+      throw new Error("Redis error", e);
+    }
     return res.status(200).send("ok");
   }
 
