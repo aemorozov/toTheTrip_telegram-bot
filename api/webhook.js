@@ -4,7 +4,6 @@ const { handleCommandStart } = require("../bot/commands");
 const { handleTextMessage } = require("../bot/messages");
 const { handleCallbackQuery } = require("../bot/callbacks");
 const { Redis } = require("@upstash/redis");
-const { startMenuButton } = require("../bot/callbacks");
 const { pushMessage, saveUser } = require("../bot/db");
 
 const redis = new Redis({
@@ -17,7 +16,7 @@ module.exports = async (req, res) => {
 
   const body = req.body || {};
 
-  // Реагируем на базовые команды
+  // Реагируем на базовые команды, они идут как сообщения со слешем /
   if (body.message) {
     const chatId = body.message.chat?.id;
     const userInput = body.message.text?.trim();
@@ -26,25 +25,6 @@ module.exports = async (req, res) => {
     console.log("ID:", chatId, ", Message:", userInput);
 
     if (!chatId) return res.status(200).send("ok");
-
-    if (userInput === "/chats") {
-      try {
-        await safeSend(chatId, "⏳ Counting users...");
-
-        const keys = await redis.keys("user:*");
-
-        const totalUsers = keys?.length || 0;
-
-        await startMenuButton(chatId, `👥 Active users: <b>${totalUsers}</b>`);
-
-        console.log(`📊 Всего активных пользователей: ${totalUsers}`);
-        return res.status(200).send("ok");
-      } catch (err) {
-        console.error("❌ Ошибка при подсчёте пользователей:", err);
-        await safeSend(chatId, "⚠️ Не удалось получить список пользователей.");
-        return res.status(500).send(err.message);
-      }
-    }
 
     if (userInput === "/start") {
       try {
@@ -56,6 +36,7 @@ module.exports = async (req, res) => {
       await handleCommandStart(chatId, userInfo);
       return res.status(200).send("ok");
     }
+
     // Реагируем на любые другие сообщения уже через messages
     try {
       await handleTextMessage(chatId, userInput, userInfo);
@@ -67,7 +48,7 @@ module.exports = async (req, res) => {
     try {
       await pushMessage(chatId, userInput, 10);
     } catch (e) {
-      throw new Error("Redis error 2");
+      console.log("Redis error 2", e);
     }
 
     return res.status(200).send("ok");
@@ -90,7 +71,7 @@ module.exports = async (req, res) => {
     try {
       await pushMessage(chatId, data, 10);
     } catch (e) {
-      throw new Error("Redis error 3", e);
+      console.log("Redis error 3", e);
     }
 
     return res.status(200).send("ok");

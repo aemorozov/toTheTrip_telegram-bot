@@ -1,11 +1,10 @@
 const { startMenuButton } = require("./callbacks");
 const { safeSend } = require("./telegram");
 const { languages } = require("./languages");
-const { Redis } = require("@upstash/redis");
-const { getUser, saveUser, saveUserStep } = require("./db");
+const { getUser } = require("./db");
 
 // Обрабатываем команду старт
-async function handleCommandStart(chatId, userInfo) {
+async function handleCommandStart(chatId) {
   let userObj = await getUser(chatId);
 
   await safeSend(
