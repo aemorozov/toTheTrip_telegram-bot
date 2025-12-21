@@ -28,16 +28,13 @@ module.exports = async (req, res) => {
 
     if (userInput === "/chats") {
       try {
-        await safeSend(chatId, "⏳ Подсчитываю активных пользователей...");
+        await safeSend(chatId, "⏳ Counting users...");
 
         const keys = await redis.keys("user:*");
 
         const totalUsers = keys?.length || 0;
 
-        await startMenuButton(
-          chatId,
-          `👥 Активных пользователей: <b>${totalUsers}</b>`
-        );
+        await startMenuButton(chatId, `👥 Active users: <b>${totalUsers}</b>`);
 
         console.log(`📊 Всего активных пользователей: ${totalUsers}`);
         return res.status(200).send("ok");
