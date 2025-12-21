@@ -26,33 +26,33 @@ async function getIataCode(cityName, sendMessage) {
   console.log(`\n🟢 Looking for IATA code for: "${cityName}"`);
   const normalized = cityName.trim();
 
-  // 1️⃣ Поиск в Redis (таблица airports)
-  try {
-    const json = await redisRequest("get", "airports");
-    const airportsData = json?.result ? JSON.parse(json.result) : {};
+  // // 1️⃣ Поиск в Redis (таблица airports)
+  // try {
+  //   const json = await redisRequest("get", "airports");
+  //   const airportsData = json?.result ? JSON.parse(json.result) : {};
 
-    if (airportsData[normalized]) {
-      console.log(
-        `✅ Found in Redis: ${normalized} → ${airportsData[normalized]}`
-      );
-      return [airportsData[normalized], normalized];
-    } else {
-      console.log("⚠️ Not found in Redis, will try Travelpayouts...");
-    }
-  } catch (err) {
-    console.warn("❌ Error querying Redis:", err.message);
-  }
+  //   if (airportsData[normalized]) {
+  //     console.log(
+  //       `✅ Found in Redis: ${normalized} → ${airportsData[normalized]}`
+  //     );
+  //     return [airportsData[normalized], normalized];
+  //   } else {
+  //     console.log("⚠️ Not found in Redis, will try Travelpayouts...");
+  //   }
+  // } catch (err) {
+  //   console.warn("❌ Error querying Redis:", err.message);
+  // }
 
-  if (sendMessage) {
-    await sendMessage("Looking for all airports in your city...");
-  }
+  // if (sendMessage) {
+  //   await sendMessage("Looking for all airports in your city...");
+  // }
 
   // 2️⃣ Запрос к Travelpayouts (только города)
   try {
     const { data } = await axios.get(
       "https://autocomplete.travelpayouts.com/places2",
       {
-        params: { term: cityName, locale: "en", type: "city" },
+        params: { term: normalized, locale: "en", type: "city" },
       }
     );
 
