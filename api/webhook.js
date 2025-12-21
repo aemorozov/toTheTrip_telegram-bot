@@ -48,11 +48,11 @@ module.exports = async (req, res) => {
 
     if (userInput === "/start") {
       try {
-        await saveUser(userInfo); // ⬅️ ОБЯЗАТЕЛЬНО
+        await saveUser(userInfo, null, null, null); // явно
       } catch (e) {
-        console.log("Redis error", e);
+        console.error("Redis error", e);
       }
-      console.log("ID:", chatId, ", First enter, save user info");
+
       await handleCommandStart(chatId, userInfo);
       return res.status(200).send("ok");
     }
