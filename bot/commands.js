@@ -11,9 +11,6 @@ async function handleCommandStart(chatId, userInfo) {
   // 🆕 если пользователя нет — создаём
   if (!userObj) {
     await saveUser(userInfo); // ⬅️ ОБЯЗАТЕЛЬНО
-  } else {
-    // если пользователь есть — сбрасываем step
-    await saveUserStep(chatId, "no_step");
   }
   await safeSend(
     chatId,
