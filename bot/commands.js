@@ -24,7 +24,7 @@ async function handleCommandStart(chatId, userInfo) {
       created_at: new Date().toISOString(),
     };
 
-    await saveUser(userObj); // ⬅️ ОБЯЗАТЕЛЬНО
+    await saveUser(userInfo); // ⬅️ ОБЯЗАТЕЛЬНО
     console.log("🆕 New user created:", userObj);
   } else {
     // если пользователь есть — сбрасываем step
