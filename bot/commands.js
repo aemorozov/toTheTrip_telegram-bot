@@ -13,6 +13,7 @@ async function handleCommandStart(chatId, userInfo) {
   // const languageCode = userInfo.language_code || "en";
   // await safeSend(chatId, `🌍 ${languages[languageCode].helloMessage}:`);
   const userObj = await getUser(chatId);
+  console.log("userObj: ", userObj);
   await safeSend(
     chatId,
     `<b>Hi ${userObj.first_name}! I can show you the cheapest tickets from your city!</b>
