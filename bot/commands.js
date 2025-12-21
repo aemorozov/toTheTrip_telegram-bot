@@ -2,7 +2,7 @@ const { startMenuButton } = require("./callbacks");
 const { safeSend } = require("./telegram");
 const { languages } = require("./languages");
 const { Redis } = require("@upstash/redis");
-const { getUser, saveUser } = require("./db");
+const { getUser, saveUser, saveUserStep } = require("./db");
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
@@ -28,7 +28,7 @@ async function handleCommandStart(chatId, userInfo) {
     console.log("🆕 New user created:", userObj);
   } else {
     // если пользователь есть — сбрасываем step
-    await saveUserStep(chatId, "waiting_for_city");
+    await saveUserStep(chatId, "no_step");
   }
   await safeSend(
     chatId,
