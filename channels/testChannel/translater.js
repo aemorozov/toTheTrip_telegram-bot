@@ -72,7 +72,7 @@ function getRandomHashtags(count = 7) {
   return shuffled.slice(0, count).join(" ");
 }
 
-async function getGPTTitle({ tickets, language }) {
+async function getGPTTitle(tickets, language) {
   const response = await openai.chat.completions.create({
     model: "gpt-5.2",
     messages: [
@@ -84,11 +84,14 @@ Your task:
 - Generate SHORT, catchy, emotional headlines
 - Avoid clichés and шаблонные фразы
 - Sound natural, bold, and human
+- Make clickbate titles
 - DO NOT repeat previous patterns
 - DO NOT mention airlines unless explicitly requested
-- DO NOT use clickbait lies
+- DO NOT use lies
+- DO NOT use that format: Бухарест → Кишинёв: €48
 - Headlines must feel written by a real person
 - Max 60 chars
+- Today is ${today}
 
 Avoid clichés and repetition. Avoid similarity with previous headlines
 `,
@@ -112,7 +115,7 @@ Avoid clichés and repetition. Avoid similarity with previous headlines
         },
       },
     ],
-    temperature: 0.9,
+    temperature: 1,
   });
 
   return response.choices[0].message.content;
