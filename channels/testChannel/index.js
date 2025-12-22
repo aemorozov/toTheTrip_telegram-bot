@@ -23,11 +23,21 @@ function rateFlight(f) {
   const dist = f.distance;
   const transfers = Math.max(f.transfers, f.return_transfers);
 
+  // Проверяем билет
+  console.log(
+    `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+  );
+
   //
-  // === 1. Супер дешёвые (<80) — только прямые
+  // === 1. Супер дешёвые (<50) — только прямые
   //
-  if (price < 80) {
-    return transfers === 0;
+  if (price < 50) {
+    if (transfers === 0) {
+      console.log(`TRUE, price < 50`);
+      return true;
+    }
+    console.log(`FALSE`);
+    return false;
   }
 
   //
@@ -35,14 +45,24 @@ function rateFlight(f) {
   //     (крупные страны: FR, DE, IT, PL, ES дают много шума)
   //
   if (dist < 2000) {
-    return transfers === 0 && price <= 120; // было 150 → стало 120
+    if (transfers === 0 && price <= 70) {
+      console.log(`TRUE, price < 70, dist < 2000`);
+      return true;
+    }
+    console.log(`FALSE`);
+    return false;
   }
 
   //
   // === 3. 2000–3500 км — принимаем ТОЛЬКО прямые, но ещё жестче цена
   //
   if (dist < 3500) {
-    return transfers === 0 && price <= 170; // было 200 → стало 170
+    if (transfers === 0 && price <= 150) {
+      console.log(`TRUE, price < 150, dist < 3500`);
+      return true;
+    }
+    console.log(`FALSE`);
+    return false;
   }
 
   //
@@ -51,8 +71,15 @@ function rateFlight(f) {
   //     - с пересадкой до 220€
   //
   if (dist < 5000) {
-    if (transfers === 0 && price <= 350) return true; // было 400 → 350
-    if (transfers === 1 && price <= 220) return true; // было 300 → 220
+    if (transfers === 0 && price <= 350) {
+      console.log(`TRUE, price < 350, dist < 5000`);
+      return true;
+    } // было 400 → 350
+    if (transfers === 1 && price <= 200) {
+      console.log(`TRUE, price < 200, dist < 5000`);
+      return true;
+    } // было 300 → 220
+    console.log(`FALSE`);
     return false;
   }
 
@@ -60,8 +87,15 @@ function rateFlight(f) {
   // === 5. 5000–8000 км — дальняк, но цена тоже должна быть адекватной
   //
   if (dist < 8000) {
-    if (transfers === 0 && price <= 500) return true;
-    if (transfers === 1 && price <= 350) return true; // было 500 → 350
+    if (transfers === 0 && price <= 400) {
+      console.log(`TRUE, price < 400, dist < 8000`);
+      return true;
+    }
+    if (transfers === 1 && price <= 250) {
+      console.log(`TRUE, price < 250, dist < 8000`);
+      return true;
+    } // было 500 → 350
+    console.log(`FALSE`);
     return false;
   }
 
@@ -69,10 +103,25 @@ function rateFlight(f) {
   // === 6. 8000+ км (США, Канада, Азия)
   //     — пропускаем только супер-цену
   //
-  if (dist >= 8000) {
-    if (price <= 450 && transfers <= 1) return true; // супер-финды!
+  if (dist < 10000) {
+    if (price <= 450 && transfers <= 1) {
+      console.log(`TRUE, price < 450, dist < 10000`);
+      return true;
+    } // супер-финды!
+    console.log(`FALSE`);
     return false;
   }
+
+  if (dist >= 10000) {
+    if (price <= 800 && transfers <= 2) {
+      console.log(`TRUE, price < 800, dist >= 10000`);
+      return true;
+    } // супер-финды!
+    console.log(`FALSE`);
+    return false;
+  }
+
+  console.log(`FALSE`);
 
   return false;
 }
@@ -115,7 +164,7 @@ async function TopForToday() {
       );
 
       const allFlights = data?.data || [];
-      // console.log(`  ➜ Received: ${allFlights.length}`);
+      console.log(`  ➜ Received from ${origin}: ${allFlights.length}`);
 
       const filteredFlights = allFlights.filter((f) => {
         const sd = extractSearchDateISO(f.link);
@@ -181,16 +230,20 @@ async function TopForToday() {
   // ===============================================================
   //   👉 3. Удаляем рейсы, которые были до этого постинга
   // ===============================================================
-  const freshFlights = [];
+  const preFreshFlights = [];
   for (const flight of flights) {
     flight.uid = getFlightUID(flight);
 
     if (!(await wasPosted(flight.uid))) {
-      freshFlights.push(flight);
+      preFreshFlights.push(flight);
     }
   }
 
-  console.log("freshFlights:", freshFlights);
+  const freshFlights = shuffle(preFreshFlights)
+    .slice(0, 5)
+    .sort((a, b) => a.price - b.price);
+
+  console.log("freshFlights:", freshFlights.length);
 
   if (!freshFlights.length) {
     console.warn("✨ All interesting flights already posted today");
@@ -198,15 +251,11 @@ async function TopForToday() {
   }
 
   // Формируем сообщение
-  let count = 0;
   const title = getFlightDigestTitle();
-  const randomNumber = Math.random() < 0.5 ? 4 : 5;
   const message =
     `<b>${title}</b>\n` +
     freshFlights
       .map((flight) => {
-        count++;
-        if (count > randomNumber) return;
         const dtDeparture = DateTime.fromISO(flight.departure_at, {
           setZone: true,
         });
@@ -296,13 +345,8 @@ async function TopForToday() {
 
   // Добавляем все flights из freshFlights в базу данных
   for (const flight of freshFlights) {
-    await addPosted(flight.uid, {
-      price: flight.price,
-      origin: flight.originName,
-      destination: flight.destinationName,
-      distance: flight.distance,
-    });
-    // console.log(`💾 Stored UID: ${flight.uid}`);
+    await addPosted(flight.uid);
+    console.log(`💾 Saved with UID: ${flight.uid}`);
   }
   console.log(`\n✅ Posted`);
 }
