@@ -89,13 +89,8 @@ Your task:
 - DO NOT use clickbait lies
 - Headlines must feel written by a real person
 - Max 60 chars
-- Make it on ${language}
-- Today is ${today}
 
 Avoid clichés and repetition. Avoid similarity with previous headlines
-
-This is the tickets for post: 
-${tickets}
 `,
       },
       {
@@ -103,8 +98,6 @@ ${tickets}
         content: JSON.stringify({
           task: "generate_headline",
           language,
-          country,
-          weekday,
           tickets,
         }),
         instructions: [
