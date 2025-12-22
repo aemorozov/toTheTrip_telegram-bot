@@ -215,4 +215,4 @@ const preMessage = {
   },
 };
 
-module.exports = { preMessage, getFlightDigestTitle };
+module.exports = { preMessage, getFlightDigestTitle, getGPTTitle };

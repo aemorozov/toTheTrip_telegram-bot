@@ -4,7 +4,11 @@ const { DateTime } = require("luxon");
 const { extractShortLink } = require("../../bot/encodeLink");
 const { getCityName } = require("./getCityName");
 const { getCityImage } = require("../getCityImage");
-const { preMessage, getFlightDigestTitle } = require("./translater");
+const {
+  preMessage,
+  getFlightDigestTitle,
+  getGPTTitle,
+} = require("./translater");
 const { wasPosted, addPosted } = require("../../bot/db");
 const { haversineDistance } = require("../haversineDistance");
 const { extractSearchDateISO } = require("../extractSearchDateISO");
@@ -251,7 +255,7 @@ async function TopForToday() {
   }
 
   // Формируем сообщение
-  const title = getGPTTitle(freshFlights, "ru");
+  const title = await getGPTTitle(freshFlights, "ru");
   const message =
     `<b>${title}</b>\n` +
     freshFlights
