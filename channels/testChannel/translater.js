@@ -1,3 +1,11 @@
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const today = new Date();
+
 const titles = [
   "💸 TOP zboruri dus-intors la cele mai mici prețuri din",
   "🏆 Cele mai bune oferte dus-intors din",
@@ -62,6 +70,59 @@ const hashtags = [
 function getRandomHashtags(count = 7) {
   const shuffled = [...hashtags].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count).join(" ");
+}
+
+async function getGPTTitle({ tickets, language }) {
+  const response = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    messages: [
+      {
+        role: "system",
+        content: `
+You are a professional travel copywriter for Telegram channels.
+Your task:
+- Generate SHORT, catchy, emotional headlines
+- Avoid clichés and шаблонные фразы
+- Sound natural, bold, and human
+- DO NOT repeat previous patterns
+- DO NOT mention airlines unless explicitly requested
+- DO NOT use clickbait lies
+- Headlines must feel written by a real person
+- Max 60 chars
+- Make it on ${language}
+- Today is ${today}
+
+Avoid clichés and repetition. Avoid similarity with previous headlines
+
+This is the tickets for post: 
+${tickets}
+`,
+      },
+      {
+        role: "user",
+        content: JSON.stringify({
+          task: "generate_headline",
+          language,
+          country,
+          weekday,
+          tickets,
+        }),
+        instructions: [
+          "Do not start with the weekday",
+          "Avoid words: 'скидка', 'успей', 'горячие'",
+          "Use casual spoken language",
+        ],
+        style: {
+          tone: "bold",
+          emoji_level: 1,
+          urgency_level: 2,
+        },
+      },
+    ],
+    temperature: 0.9,
+  });
+
+  return response.choices[0].message.content;
 }
 
 function getFlightDigestTitle() {

@@ -100,7 +100,7 @@ function rateFlight(f) {
   }
 
   //
-  // === 6. 8000+ км (США, Канада, Азия)
+  // === 6. 10000 км (США, Канада, Азия)
   //     — пропускаем только супер-цену
   //
   if (dist < 10000) {
@@ -251,7 +251,7 @@ async function TopForToday() {
   }
 
   // Формируем сообщение
-  const title = getFlightDigestTitle();
+  const title = getGPTTitle(freshFlights, "ru");
   const message =
     `<b>${title}</b>\n` +
     freshFlights
