@@ -79,7 +79,6 @@ async function getGPTTitle(tickets) {
 - All flights are round trip, use it
 - Use that language: ${language}
 - Samples for styling: ${samples}
-- Start title like: "What we found", "Look", "Check that flights" or similar
 - Do not repeat last titles: ${lastTitles} and emodjis`,
       },
     ],
