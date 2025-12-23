@@ -23,6 +23,8 @@ const openai = new OpenAI({
 });
 
 const REDIS_KEY = "Romania:last_titles";
+const language = "ru";
+const footerText = `\n📢 Distribuie prietenilor!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Botul tău de zboruri ieftine</a></b>`;
 
 async function getLastTitles(redis) {
   return await redis.lrange(REDIS_KEY, 0, 9); // последние 10
@@ -32,9 +34,6 @@ async function saveTitle(redis, title) {
   await redis.lpush(REDIS_KEY, title);
   await redis.ltrim(REDIS_KEY, 0, 9);
 }
-
-const footerText = `\n📢 Distribuie prietenilor!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Botul tău de zboruri ieftine</a></b>`;
-const language = "ru";
 
 async function getGPTTitle(tickets) {
   const samples = [
