@@ -80,7 +80,7 @@ async function getGPTTitle(tickets) {
 - Use that language: ${language}
 - Samples for styling: ${samples}
 - Start title like: "What we found", "Look", "Check that flights" or similar
-- Do not repeat last titles: ${lastTitles}`,
+- Do not repeat last titles: ${lastTitles} and emodjis`,
       },
     ],
     temperature: 1,
