@@ -4,11 +4,7 @@ const { DateTime } = require("luxon");
 const { extractShortLink } = require("../../bot/encodeLink");
 const { getCityName } = require("./getCityName");
 const { getCityImage } = require("../getCityImage");
-const {
-  preMessage,
-  getFlightDigestTitle,
-  getGPTTitle,
-} = require("./translater");
+const { preMessage, getGPTTitle } = require("./translater");
 const { wasPosted, addPosted } = require("../../bot/db");
 const { haversineDistance } = require("../haversineDistance");
 const { extractSearchDateISO } = require("../extractSearchDateISO");
@@ -32,9 +28,6 @@ function rateFlight(f) {
     `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
   );
 
-  //
-  // === 1. Супер дешёвые (<50) — только прямые
-  //
   if (price < 50) {
     if (transfers === 0) {
       console.log(`TRUE, price < 50`);
@@ -44,10 +37,6 @@ function rateFlight(f) {
     return false;
   }
 
-  //
-  // === 2. До 2000 км — сильно режем прямые рейсы
-  //     (крупные страны: FR, DE, IT, PL, ES дают много шума)
-  //
   if (dist < 2000) {
     if (transfers === 0 && price <= 70) {
       console.log(`TRUE, price < 70, dist < 2000`);
@@ -57,9 +46,6 @@ function rateFlight(f) {
     return false;
   }
 
-  //
-  // === 3. 2000–3500 км — принимаем ТОЛЬКО прямые, но ещё жестче цена
-  //
   if (dist < 3500) {
     if (transfers === 0 && price <= 150) {
       console.log(`TRUE, price < 150, dist < 3500`);
@@ -69,11 +55,6 @@ function rateFlight(f) {
     return false;
   }
 
-  //
-  // === 4. 3500–5000 км — допускаем 1 пересадку, но только если:
-  //     - прямой до 350€
-  //     - с пересадкой до 220€
-  //
   if (dist < 5000) {
     if (transfers === 0 && price <= 350) {
       console.log(`TRUE, price < 350, dist < 5000`);
@@ -87,9 +68,6 @@ function rateFlight(f) {
     return false;
   }
 
-  //
-  // === 5. 5000–8000 км — дальняк, но цена тоже должна быть адекватной
-  //
   if (dist < 8000) {
     if (transfers === 0 && price <= 400) {
       console.log(`TRUE, price < 400, dist < 8000`);
@@ -103,10 +81,6 @@ function rateFlight(f) {
     return false;
   }
 
-  //
-  // === 6. 10000 км (США, Канада, Азия)
-  //     — пропускаем только супер-цену
-  //
   if (dist < 10000) {
     if (price <= 450 && transfers <= 1) {
       console.log(`TRUE, price < 450, dist < 10000`);
@@ -117,8 +91,8 @@ function rateFlight(f) {
   }
 
   if (dist >= 10000) {
-    if (price <= 800 && transfers <= 2) {
-      console.log(`TRUE, price < 800, dist >= 10000`);
+    if (price <= 700 && transfers <= 2) {
+      console.log(`TRUE, price < 700, dist >= 10000`);
       return true;
     } // супер-финды!
     console.log(`FALSE`);
@@ -254,8 +228,18 @@ async function TopForToday() {
     return;
   }
 
+  const ticketsForGPT = freshFlights.map((f) => ({
+    from: f.originName,
+    to: f.destinationName,
+    price: f.price,
+    currency: "EUR",
+    transfers: f.transfers,
+    return_transfers: f.return_transfers,
+    distance: Math.round(f.distance),
+  }));
+
   // Формируем сообщение
-  const title = await getGPTTitle(freshFlights, "ru");
+  const title = await getGPTTitle(JSON.stringify(ticketsForGPT));
   const message =
     `<b>${title}</b>\n` +
     freshFlights
