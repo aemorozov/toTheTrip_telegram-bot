@@ -70,7 +70,7 @@ async function getGPTTitle(tickets) {
       {
         role: "user",
         content: `Rules:
-- Generate SHORT, emotional, unusual ONE headline about that flights ${tickets}
+- Generate SHORT, emotional, unusual ONE headline about all flights ${tickets}
 - Strong about 100 characters in that headline, not more.
 - Sound natural and human
 - Use emoji (1-2) in start of title
