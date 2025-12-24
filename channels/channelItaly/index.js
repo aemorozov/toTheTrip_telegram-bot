@@ -238,16 +238,20 @@ async function TopForToday() {
   // ===============================================================
   //   👉 3. Удаляем рейсы, которые были до этого постинга
   // ===============================================================
-  const freshFlights = [];
+  const preFreshFlights = [];
   for (const flight of flights) {
     flight.uid = getFlightUID(flight);
 
     if (!(await wasPosted(flight.uid))) {
-      freshFlights.push(flight);
+      preFreshFlights.push(flight);
     }
   }
 
-  console.log("freshFlights:", freshFlights);
+  const freshFlights = shuffle(preFreshFlights)
+    .slice(0, 5)
+    .sort((a, b) => a.price - b.price);
+
+  console.log("freshFlights:", freshFlights.length);
 
   if (!freshFlights.length) {
     console.warn("✨ All interesting flights already posted today");
