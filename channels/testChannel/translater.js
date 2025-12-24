@@ -22,7 +22,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const REDIS_KEY = "Romania:last_titles";
+const REDIS_KEY = "Spain:last_titles";
 const language = "ru";
 const footerText = `\n📢 Distribuie prietenilor!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Botul tău de zboruri ieftine</a></b>`;
 
@@ -79,7 +79,8 @@ async function getGPTTitle(tickets) {
 - All flights are round trip, use it
 - Use that language: ${language}
 - Samples for styling: ${samples}
-- Do not repeat last titles: ${lastTitles} and emodjis`,
+- Do not repeat last titles: ${lastTitles} and emodjis
+- Do not use abbreviations`,
       },
     ],
     temperature: 1,

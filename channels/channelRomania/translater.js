@@ -79,7 +79,8 @@ async function getGPTTitle(tickets) {
 - All flights are round trip, use it
 - Use that language: ${language}
 - Samples for styling: ${samples}
-- Do not repeat last titles: ${lastTitles} and emodjis`,
+- Do not repeat last titles: ${lastTitles} and emodjis
+- Do not use abbreviations`,
       },
     ],
     temperature: 1,

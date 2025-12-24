@@ -1,121 +1,99 @@
-const titles = [
-  "💸 TOP Hin- und Rückflüge zu den niedrigsten Preisen ab",
-  "🏆 Die besten Hin- und Rückflugangebote ab",
-  "🔥 Die besten Angebote für Hin- und Rückflüge ab",
-  "✈️ Günstige Hin- und Rückflüge ab",
-  "📉 Die aktuell niedrigsten Hin- und Rückflugtarife ab",
-  "🛫 Clever fliegen — die besten Preise ab",
-  "💰 Unschlagbare Angebote für Hin- und Rückflüge ab",
-  "🌍 TOP Reiseangebote für Hin- und Rückflüge ab",
-  "🎯 Die günstigsten Reiseziele ab",
-  "⭐ Die besten Hin- und Rückflugangebote ab",
-];
+import OpenAI from "openai";
+const { Redis } = require("@upstash/redis");
+let redis = null;
 
-const hashtags = [
-  // 🌍 English SEO
-  "#CheapFlights",
-  "#CheapTickets",
-  "#LowCost",
-  "#CheapTravel",
-  "#Travel",
-  "#Cheap",
-  "#Flights",
-  "#Tickets",
-  "#Discount",
-  "#TravelEurope",
-  "#Trip",
+try {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-  // 🇷🇴 Romanian (no diacritics)
-  "#Billetes",
-  "#Vuelos",
-  "#Viajes",
-  "#Ofertas",
-  "#España",
-  "#Avión",
-  "#Europa",
-  "#FinDeSemana",
-
-  // 🛫 Airlines (часто ищут)
-  "#WizzAir",
-  "#Ryanair",
-  "#BlueAir",
-  "#Tarom",
-  "#Lufthansa",
-  "#TurkishAirlines",
-  "#AustrianAirlines",
-  "#KLM",
-  "#AirFrance",
-  "#LOT",
-  "#QatarAirways",
-  "#Emirates",
-  "#BritishAirways",
-  "#AirSerbia",
-  "#AegeanAirlines",
-  "#PegasusAirlines",
-  "#FlyDubai",
-  "#EasyJet",
-  "#SwissAir",
-  "#AirBaltic",
-];
-
-// ✈️ Функция для выбора случайных 7 хэштегов
-function getRandomHashtags(count = 7) {
-  const shuffled = [...hashtags].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count).join(" ");
+  if (!url || !token) {
+    console.warn(
+      "⚠️ Upstash env vars missing. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN"
+    );
+  } else {
+    redis = new Redis({ url, token });
+  }
+} catch (err) {
+  console.error("❌ Error initializing Upstash Redis client:", err);
+  redis = null;
 }
 
-function getFlightDigestTitle() {
-  const now = new Date();
-  const hour = now.getHours();
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-  const weekdays = [
-    "Domingo",
-    "Lunes",
-    "Martes",
-    "Miércoles",
-    "Jueves",
-    "Viernes",
-    "Sábado",
-  ];
+const REDIS_KEY = "Spain:last_titles";
+const language = "es";
+const footerText = `\n📢 ¡Compártelo con tus amigos!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Tu bot de vuelos baratos</a></b>`;
 
-  const weekdayStr = weekdays[now.getDay()];
-
-  const morning = [
-    `¿Parece que hoy es ${weekdayStr.toLowerCase()}? Pues aquí tienes nuestra selección matinal de los mejores vuelos ✈️`,
-    `🌅 ¡Buenos días! Aquí va una selección fresquita con las mejores ofertas de hoy.`,
-    `Empezamos este ${weekdayStr.toLowerCase()} con vuelos baratos desde primera hora.`,
-    `☕️ Despegue matutino: hoy es ${weekdayStr.toLowerCase()}, así que aprovechemos los mejores precios ✈️`,
-    `💡 ¿Y si miramos esta mañana a dónde podríamos volar?`,
-    `🔥 ¡Vaya manera de empezar el día! Aquí tienes rutas de las que uno puede presumir 😉`,
-  ];
-
-  const evening = [
-    `${weekdayStr}, ¿por la noche? Momento perfecto para ver a dónde escaparse ✈️🔥`,
-    `🌇 ¡Buenas noches! Hora de relajarse y revisar las mejores ofertas del día 😉`,
-    `Este ${weekdayStr.toLowerCase()} está llegando a su fin… quizá es el momento ideal para una pequeña aventura.`,
-    `✨ Vuelos nocturnos: buenas ofertas, ambiente acogedor y ese deseo suave de viajar…`,
-    `😎 Mientras otros se van a dormir, nosotros elegimos destinos. Aquí tienes la selección de esta noche.`,
-    `🌘 Es ${weekdayStr.toLowerCase()} y mis ganas de viajar están al 100%. ¿Y las tuyas?`,
-    `🔥 La noche es para decisiones valientes. Aquí tienes a dónde podrías volar si te animas 😉`,
-  ];
-
-  const isMorning = hour >= 6 && hour < 12;
-  const list = isMorning ? morning : evening;
-
-  return list[Math.floor(Math.random() * list.length)];
+async function getLastTitles(redis) {
+  return await redis.lrange(REDIS_KEY, 0, 9); // последние 10
 }
 
-const title = titles[Math.floor(Math.random() * titles.length)];
-const randomHashtags = getRandomHashtags(7);
-const exchange = 5;
+async function saveTitle(redis, title) {
+  await redis.lpush(REDIS_KEY, title);
+  await redis.ltrim(REDIS_KEY, 0, 9);
+}
+
+async function getGPTTitle(tickets) {
+  const samples = [
+    "Думаем, чем займемся в январе:",
+    "Жители Бухареста окажутся у моря уже завтра",
+    "Мини-сборки для наших любимых путешественников:",
+    "Еще горячая подборка:",
+    "Горячий пирожок для Петербурга",
+    "Туда, где тепло: 6 ночей в ОАЭ из Екатеринбурга за 24400 рублей с человека!",
+    "А для самых быстрых есть дешёвые тикеты в Египет:",
+    "Праздник к нам приходит:",
+    "Давно мы уже такого не видели: прямые рейсы из Краснодара в Грузию",
+    "Держим путь в Питер: прямые рейсы из Екб",
+    "Кто там просил недорогие билеты в Америку?",
+    "Дед Мороз заезжал в наш офис в Новосибирске и просил передать подарок для хороших мальчиков и девочек:",
+    "Все дороги ведут в Египет:",
+    "Летим смотреть предновогоднюю Турцию:",
+    "Сибиряки, тут раздают дешёвые билеты:",
+    "Пермяки, встречаем Новый год на берегу Красного моря:",
+    "Едем на Кавказ: прямые декабрьские рейсы из Бухареста,",
+    "Вот она, настоящая халява:",
+    "Давненько мы уже не писали про билеты из Москвы на Филиппины!",
+  ];
+
+  const lastTitles = await getLastTitles(redis);
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    messages: [
+      {
+        role: "system",
+        content: `You are a professional travel copywriter for Telegram channels.`,
+      },
+      {
+        role: "user",
+        content: `Rules:
+- Generate SHORT, emotional, unusual ONE headline about all flights ${tickets}
+- Strong about 100 characters in that headline, not more.
+- Sound natural and human
+- Use emoji (1-2) in start of title
+- DO NOT use lies
+- Headlines must feel written by a real person
+- All flights are round trip, use it
+- Use that language: ${language}
+- Samples for styling: ${samples}
+- Do not repeat last titles: ${lastTitles} and emodjis
+- Do not use abbreviations`,
+      },
+    ],
+    temperature: 1,
+  });
+
+  const title = response.choices[0].message.content.trim();
+
+  await saveTitle(redis, title);
+
+  return title;
+}
 
 const preMessage = {
-  header({ origin, price, destinationName = null }) {
-    return `<b>${title} ${origin}${
-      destinationName ? ` hacia ${destinationName.toUpperCase()}` : ""
-    } desde ${price}€</b>\n`;
-  },
-
   directFlights() {
     return `\n<b>Vuelos directos:</b>\n`;
   },
@@ -150,8 +128,8 @@ const preMessage = {
   },
 
   footer() {
-    return `\n📢 ¡Compártelo con tus amigos!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Cheap Flights Bot</a></b>\n\n${randomHashtags}`;
+    return footerText;
   },
 };
 
-module.exports = { preMessage, getFlightDigestTitle };
+module.exports = { preMessage, getGPTTitle };

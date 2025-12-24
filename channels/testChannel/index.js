@@ -5,7 +5,7 @@ const { extractShortLink } = require("../../bot/encodeLink");
 const { getCityName } = require("./getCityName");
 const { getCityImage } = require("../getCityImage");
 const { preMessage, getGPTTitle } = require("./translater");
-const { wasPosted, addPosted } = require("../../bot/db");
+const { wasPosted, addPosted } = require("./testdb");
 const { haversineDistance } = require("../haversineDistance");
 const { extractSearchDateISO } = require("../extractSearchDateISO");
 const { shuffle } = require("../shuffle");
@@ -15,7 +15,30 @@ const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHANNEL_ID = "@cheapflightsforyou";
 const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 
-const airports = ["BUH", "CLJ", "CRA", "IAS", "OMR", "SBZ", "TSR"];
+// const airports = ["BUH", "CLJ", "CRA", "IAS", "OMR", "SBZ", "TSR"];
+
+const airports = [
+  "MAD", // Madrid (Barajas)
+  "BCN", // Barcelona (El Prat)
+  "AGP", // Málaga
+  "PMI", // Palma de Mallorca
+  "ALC", // Alicante
+  "VLC", // Valencia
+  "SVQ", // Sevilla
+  "BIL", // Bilbao
+  "TFS", // Tenerife Sud
+  "TFN", // Tenerife Nord
+  "LPA", // Gran Canaria / Las Palmas
+  "IBZ", // Ibiza
+  "FUE", // Fuerteventura
+  "ACE", // Lanzarote
+  "ZAZ", // Zaragoza
+  "GRO", // Girona (low-cost hub)
+  "OVD", // Oviedo / Asturias
+  "SDR", // Santander
+  "MLN", // Melilla
+  "MAH", // Menorca
+];
 
 // Рейтинг система
 function rateFlight(f) {
@@ -24,13 +47,13 @@ function rateFlight(f) {
   const transfers = Math.max(f.transfers, f.return_transfers);
 
   // Проверяем билет
-  console.log(
-    `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
-  );
 
   if (price < 50) {
     if (transfers === 0) {
-      console.log(`TRUE, price < 50`);
+      console.log(
+        `TRUE, price < 50` +
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+      );
       return true;
     }
     console.log(`FALSE`);
@@ -38,8 +61,11 @@ function rateFlight(f) {
   }
 
   if (dist < 2000) {
-    if (transfers === 0 && price <= 70) {
-      console.log(`TRUE, price < 70, dist < 2000`);
+    if (transfers === 0 && price <= 60) {
+      console.log(
+        `TRUE, price < 60, dist < 2000` +
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+      );
       return true;
     }
     console.log(`FALSE`);
@@ -47,8 +73,11 @@ function rateFlight(f) {
   }
 
   if (dist < 3500) {
-    if (transfers === 0 && price <= 150) {
-      console.log(`TRUE, price < 150, dist < 3500`);
+    if (transfers === 0 && price <= 70) {
+      console.log(
+        `TRUE, price <= 70, dist < 3500` +
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+      );
       return true;
     }
     console.log(`FALSE`);
@@ -56,43 +85,54 @@ function rateFlight(f) {
   }
 
   if (dist < 5000) {
-    if (transfers === 0 && price <= 350) {
-      console.log(`TRUE, price < 350, dist < 5000`);
+    if (transfers === 0 && price <= 100) {
+      console.log(
+        `TRUE, price < 100, dist < 5000` +
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+      );
       return true;
-    } // было 400 → 350
-    if (transfers === 1 && price <= 200) {
-      console.log(`TRUE, price < 200, dist < 5000`);
-      return true;
-    } // было 300 → 220
+    }
     console.log(`FALSE`);
     return false;
   }
 
   if (dist < 8000) {
     if (transfers === 0 && price <= 400) {
-      console.log(`TRUE, price < 400, dist < 8000`);
+      console.log(
+        `TRUE, price < 400, dist < 8000` +
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+      );
       return true;
     }
-    if (transfers === 1 && price <= 250) {
-      console.log(`TRUE, price < 250, dist < 8000`);
-      return true;
-    } // было 500 → 350
     console.log(`FALSE`);
     return false;
   }
 
   if (dist < 10000) {
-    if (price <= 450 && transfers <= 1) {
-      console.log(`TRUE, price < 450, dist < 10000`);
+    if (transfers === 0 && price <= 500) {
+      console.log(
+        `TRUE, price < 500, dist < 10000` +
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+      );
       return true;
-    } // супер-финды!
+    }
+    if (transfers === 1 && price <= 300) {
+      console.log(
+        `TRUE, price < 300, dist < 10000` +
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+      );
+      return true;
+    }
     console.log(`FALSE`);
     return false;
   }
 
   if (dist >= 10000) {
-    if (price <= 700 && transfers <= 2) {
-      console.log(`TRUE, price < 700, dist >= 10000`);
+    if (price <= 500 && transfers <= 1) {
+      console.log(
+        `TRUE, price < 500, dist >= 10000` +
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+      );
       return true;
     } // супер-финды!
     console.log(`FALSE`);
@@ -142,7 +182,7 @@ async function TopForToday() {
       );
 
       const allFlights = data?.data || [];
-      console.log(`  ➜ Received from ${origin}: ${allFlights.length}`);
+      // console.log(`  ➜ Received from ${origin}: ${allFlights.length}`);
 
       const filteredFlights = allFlights.filter((f) => {
         const sd = extractSearchDateISO(f.link);
@@ -153,9 +193,9 @@ async function TopForToday() {
         );
       });
 
-      console.log(
-        `  ➜ Filtered today-only from ${origin}: ${filteredFlights.length}`
-      );
+      // console.log(
+      //   `  ➜ Filtered today-only from ${origin}: ${filteredFlights.length}`
+      // );
 
       flights.push(...filteredFlights);
     }
@@ -228,6 +268,7 @@ async function TopForToday() {
     return;
   }
 
+  // Передаем чату для создания заголовка
   const ticketsForGPT = freshFlights.map((f) => ({
     from: f.originName,
     to: f.destinationName,
