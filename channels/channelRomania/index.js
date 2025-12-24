@@ -199,7 +199,7 @@ async function TopForToday() {
     console.log("filter flights:", flights.length);
 
     // === shuffle перемешиваем, сортируем
-    flights = flights.sort((a, b) => a.price - b.price);
+    // flights = flights.sort((a, b) => a.price - b.price);
   } catch (err) {
     console.warn(`❌ Error while retrieving flights:`, err.message);
     return;

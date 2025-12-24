@@ -18,26 +18,26 @@ const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 // const airports = ["BUH", "CLJ", "CRA", "IAS", "OMR", "SBZ", "TSR"];
 
 const airports = [
-  "MAD", // Madrid (Barajas)
-  "BCN", // Barcelona (El Prat)
-  "AGP", // Málaga
-  "PMI", // Palma de Mallorca
-  "ALC", // Alicante
-  "VLC", // Valencia
-  "SVQ", // Sevilla
-  "BIL", // Bilbao
-  "TFS", // Tenerife Sud
-  "TFN", // Tenerife Nord
-  "LPA", // Gran Canaria / Las Palmas
-  "IBZ", // Ibiza
-  "FUE", // Fuerteventura
-  "ACE", // Lanzarote
-  "ZAZ", // Zaragoza
-  "GRO", // Girona (low-cost hub)
-  "OVD", // Oviedo / Asturias
-  "SDR", // Santander
-  "MLN", // Melilla
-  "MAH", // Menorca
+  "ROM", // Roma (Fiumicino + Ciampino)
+  "MIL", // Milano (Malpensa + Linate + Bergamo)
+  "VCE", // Venezia
+  "NAP", // Napoli
+  "BLQ", // Bologna
+  "FLR", // Firenze
+  "TRN", // Torino
+  "VRN", // Verona
+  "PSA", // Pisa
+  "CAG", // Cagliari
+  "PMO", // Palermo
+  "CTA", // Catania
+  "BRI", // Bari
+  "OLB", // Olbia
+  "AOI", // Ancona
+  "TSF", // Treviso
+  "LMP", // Lampedusa
+  "REG", // Reggio Calabria
+  "PEG", // Perugia
+  "RMI", // Rimini
 ];
 
 // Рейтинг система
@@ -56,7 +56,6 @@ function rateFlight(f) {
       );
       return true;
     }
-    console.log(`FALSE`);
     return false;
   }
 
@@ -68,7 +67,6 @@ function rateFlight(f) {
       );
       return true;
     }
-    console.log(`FALSE`);
     return false;
   }
 
@@ -80,7 +78,6 @@ function rateFlight(f) {
       );
       return true;
     }
-    console.log(`FALSE`);
     return false;
   }
 
@@ -92,7 +89,6 @@ function rateFlight(f) {
       );
       return true;
     }
-    console.log(`FALSE`);
     return false;
   }
 
@@ -104,7 +100,6 @@ function rateFlight(f) {
       );
       return true;
     }
-    console.log(`FALSE`);
     return false;
   }
 
@@ -123,7 +118,6 @@ function rateFlight(f) {
       );
       return true;
     }
-    console.log(`FALSE`);
     return false;
   }
 
@@ -135,11 +129,8 @@ function rateFlight(f) {
       );
       return true;
     } // супер-финды!
-    console.log(`FALSE`);
     return false;
   }
-
-  console.log(`FALSE`);
 
   return false;
 }
@@ -239,7 +230,7 @@ async function TopForToday() {
     console.log("filter flights:", flights.length);
 
     // === shuffle перемешиваем, сортируем
-    flights = flights.sort((a, b) => a.price - b.price);
+    // flights = flights.sort((a, b) => a.price - b.price);
   } catch (err) {
     console.warn(`❌ Error while retrieving flights:`, err.message);
     return;
