@@ -10,7 +10,7 @@ async function getCityName(iataCode) {
     const { data } = await axios.get(
       "https://autocomplete.travelpayouts.com/places2",
       {
-        params: { term: code, locale: "en" },
+        params: { term: code, locale: "de" },
       }
     );
 
