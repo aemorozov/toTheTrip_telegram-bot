@@ -80,7 +80,8 @@ async function getGPTTitle(tickets) {
 - Use that language: ${language}
 - Samples for styling: ${samples}
 - Do not repeat last titles: ${lastTitles} and emodjis
-- Do not use abbreviations`,
+- Do not use abbreviations
+- Don't call the country of departure`,
       },
     ],
     temperature: 1,
