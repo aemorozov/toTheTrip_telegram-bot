@@ -274,8 +274,6 @@ async function TopForToday() {
     `<b>${title}</b>\n` +
     freshFlights
       .map((flight) => {
-        count++;
-        if (count > randomNumber) return;
         const dtDeparture = DateTime.fromISO(flight.departure_at, {
           setZone: true,
         });
