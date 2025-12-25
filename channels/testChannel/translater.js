@@ -22,7 +22,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const REDIS_KEY = "Spain:last_titles";
+const REDIS_KEY = "Germany:last_titles";
 const language = "ru";
 const footerText = `\n📢 Distribuie prietenilor!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Botul tău de zboruri ieftine</a></b>`;
 

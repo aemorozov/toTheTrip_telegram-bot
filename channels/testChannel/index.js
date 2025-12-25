@@ -18,26 +18,25 @@ const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
 // const airports = ["BUH", "CLJ", "CRA", "IAS", "OMR", "SBZ", "TSR"];
 
 const airports = [
-  "ROM", // Roma (Fiumicino + Ciampino)
-  "MIL", // Milano (Malpensa + Linate + Bergamo)
-  "VCE", // Venezia
-  "NAP", // Napoli
-  "BLQ", // Bologna
-  "FLR", // Firenze
-  "TRN", // Torino
-  "VRN", // Verona
-  "PSA", // Pisa
-  "CAG", // Cagliari
-  "PMO", // Palermo
-  "CTA", // Catania
-  "BRI", // Bari
-  "OLB", // Olbia
-  "AOI", // Ancona
-  "TSF", // Treviso
-  "LMP", // Lampedusa
-  "REG", // Reggio Calabria
-  "PEG", // Perugia
-  "RMI", // Rimini
+  "BER", // Berlin (BER)
+  "MUC", // München / Munich
+  "FRA", // Frankfurt am Main
+  "HAM", // Hamburg
+  "DUS", // Düsseldorf
+  "STR", // Stuttgart
+  "CGN", // Köln / Bonn
+  "NUE", // Nürnberg
+  "HAJ", // Hannover
+  "DRS", // Dresden
+  "LEJ", // Leipzig / Halle
+  "BRE", // Bremen
+  "FDH", // Friedrichshafen
+  "PAD", // Paderborn
+  "FMO", // Münster / Osnabrück
+  "ERF", // Erfurt
+  "KSF", // Kassel
+  "SCN", // Saarbrücken
+  "LBC", // Lübeck (low cost)
 ];
 
 // Рейтинг система
@@ -51,7 +50,7 @@ function rateFlight(f) {
   if (price < 50) {
     if (transfers === 0) {
       console.log(
-        `TRUE, price < 50` +
+        `TRUE, price < 50 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;
@@ -62,7 +61,7 @@ function rateFlight(f) {
   if (dist < 2000) {
     if (transfers === 0 && price <= 60) {
       console.log(
-        `TRUE, price < 60, dist < 2000` +
+        `TRUE, price < 60, dist < 2000 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;
@@ -73,7 +72,7 @@ function rateFlight(f) {
   if (dist < 3500) {
     if (transfers === 0 && price <= 70) {
       console.log(
-        `TRUE, price <= 70, dist < 3500` +
+        `TRUE, price <= 70, dist < 3500 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;
@@ -84,7 +83,7 @@ function rateFlight(f) {
   if (dist < 5000) {
     if (transfers === 0 && price <= 100) {
       console.log(
-        `TRUE, price < 100, dist < 5000` +
+        `TRUE, price < 100, dist < 5000 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;
@@ -95,7 +94,7 @@ function rateFlight(f) {
   if (dist < 8000) {
     if (transfers === 0 && price <= 400) {
       console.log(
-        `TRUE, price < 400, dist < 8000` +
+        `TRUE, price < 400, dist < 8000 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;
@@ -106,14 +105,14 @@ function rateFlight(f) {
   if (dist < 10000) {
     if (transfers === 0 && price <= 500) {
       console.log(
-        `TRUE, price < 500, dist < 10000` +
+        `TRUE, price < 500, dist < 10000 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;
     }
     if (transfers === 1 && price <= 300) {
       console.log(
-        `TRUE, price < 300, dist < 10000` +
+        `TRUE, price < 300, dist < 10000 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;
@@ -124,7 +123,7 @@ function rateFlight(f) {
   if (dist >= 10000) {
     if (price <= 500 && transfers <= 1) {
       console.log(
-        `TRUE, price < 500, dist >= 10000` +
+        `TRUE, price < 500, dist >= 10000 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;

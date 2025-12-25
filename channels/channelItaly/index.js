@@ -364,13 +364,8 @@ async function TopForToday() {
 
   // Добавляем все flights из freshFlights в базу данных
   for (const flight of freshFlights) {
-    await addPosted(flight.uid, {
-      price: flight.price,
-      origin: flight.originName,
-      destination: flight.destinationName,
-      distance: flight.distance,
-    });
-    // console.log(`💾 Stored UID: ${flight.uid}`);
+    await addPosted(flight.uid);
+    console.log(`💾 Saved with UID: ${flight.uid}`);
   }
   console.log(`\n✅ Posted`);
 }
