@@ -43,9 +43,9 @@ const rateFlight = (f) => {
   }
 
   if (dist < 3500) {
-    if (transfers === 0 && price <= 60) {
+    if (transfers === 0 && price <= 50) {
       console.log(
-        `TRUE, price <= 60, dist < 3500 ` +
+        `TRUE, price <= 50, dist < 3500 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;
