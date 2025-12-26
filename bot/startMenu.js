@@ -11,7 +11,7 @@ async function startMenu(chatId, city, country) {
 
 🔄 You can change your city via /start.
 
-🔥 <b>Get special offers</b> every day for:\n<b><a href="https://t.me/CheapFlightsFrance">🇫🇷 France</a></b>   <b><a href="https://t.me/CheapFlightsItaly">🇮🇹 Italy</a></b>   <b><a href="https://t.me/CheapFlightsRomania">🇷🇴 Romania</a></b>   <b><a href="https://t.me/CheapFlightsSpain">🇪🇸 Spain</a></b>   <b><a href="https://t.me/CheapFlightsGermany">🇩🇪 Germany</a></b>
+🔥 <b>Get special offers</b> every day for:\n<b><a href="https://t.me/CheapFlightsFrance">🇫🇷 France</a></b>   <b><a href="https://t.me/CheapFlightsItaly">🇮🇹 Italy</a></b>   <b><a href="https://t.me/CheapFlightsRomania">🇷🇴 Romania</a></b>   <b><a href="https://t.me/CheapFlightsSpain">🇪🇸 Spain</a></b>   <b><a href="https://t.me/CheapFlightsGermany">🇩🇪 Germany</a>   <b><a href="https://t.me/cheapflightsserbia">🇷🇸 Serbia</a></b>
 
 👉 <b>Select an option:</b>`;
 
