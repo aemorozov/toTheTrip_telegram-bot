@@ -133,7 +133,7 @@ const preMessage = {
 📅 <b>${retDate}  🕓 ${retTime}</b>${
       retTransfers == 0 ? "" : `  🔃 ${retTransfers}`
     }
-🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
+🔗 Collegamento: <a href="${link}"><b>https://${short}</b></a>\n`;
   },
 
   footer() {
