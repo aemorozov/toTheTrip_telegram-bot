@@ -138,7 +138,6 @@ const preMessage = {
     return `\n📢 ${shareText}!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">${linkText}</a></b>`;
   },
 };
-
 async function TopForToday() {
   await main(
     CHANNEL_ID,
@@ -150,5 +149,4 @@ async function TopForToday() {
     preMessage
   );
 }
-
 module.exports = { TopForToday };

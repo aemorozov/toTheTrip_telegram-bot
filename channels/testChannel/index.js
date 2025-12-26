@@ -119,7 +119,8 @@ const rateFlight = (f) => {
 };
 const REDIS_KEY = "Italy:last_titles";
 const language = "it";
-const footerText = `\n📢 Поделись с другом!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Чип флайт бот</a></b>`;
+const shareText = "Distribuie prietenilor";
+const linkText = "Botul tău de zboruri ieftine";
 const preMessage = {
   flightItem({
     originName,
@@ -147,10 +148,9 @@ const preMessage = {
   },
 
   footer() {
-    return footerText;
+    return `\n📢 ${shareText}!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">${linkText}</a></b>`;
   },
 };
-
 async function TopForToday() {
   await main(
     CHANNEL_ID,
