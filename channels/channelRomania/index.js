@@ -105,7 +105,8 @@ function rateFlight(f) {
 }
 const REDIS_KEY = "Romania:last_titles";
 const language = "ro";
-const footerText = `\n📢 Distribuie prietenilor!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Botul tău de zboruri ieftine</a></b>`;
+const shareText = "Distribuie prietenilor";
+const linkText = "Botul tău de zboruri ieftine";
 const exchange = 5;
 const preMessage = {
   flightItem({
@@ -134,7 +135,7 @@ const preMessage = {
   },
 
   footer() {
-    return footerText;
+    return `\n📢 ${shareText}!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">${linkText}</a></b>`;
   },
 };
 
