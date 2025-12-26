@@ -4,6 +4,12 @@ const { handleCommandStart } = require("../bot/commands");
 const { handleTextMessage } = require("../bot/messages");
 const { handleCallbackQuery } = require("../bot/callbacks");
 const { pushMessage, saveUser } = require("../bot/db");
+const { Redis } = require("@upstash/redis");
+const { startMenuButton } = require("../bot/callbacks");
+
+const url = process.env.UPSTASH_REDIS_REST_URL;
+const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+const redis = new Redis({ url, token });
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(200).send("ok");
@@ -29,6 +35,25 @@ module.exports = async (req, res) => {
 
       await handleCommandStart(chatId, userInfo);
       return res.status(200).send("ok");
+    }
+
+    if (userInput === "/chats") {
+      try {
+        await safeSend(chatId, "⏳ Counting users...");
+
+        const keys = await redis.keys("user:*");
+
+        const totalUsers = keys?.length || 0;
+
+        await startMenuButton(chatId, `👥 Active users: <b>${totalUsers}</b>`);
+
+        console.log(`📊 Всего активных пользователей: ${totalUsers}`);
+        return res.status(200).send("ok");
+      } catch (err) {
+        console.error("❌ Ошибка при подсчёте пользователей:", err);
+        await safeSend(chatId, "⚠️ Не удалось получить список пользователей.");
+        return res.status(500).send(err.message);
+      }
     }
 
     // Реагируем на любые другие сообщения уже через messages
