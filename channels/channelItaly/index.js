@@ -31,21 +31,10 @@ const rateFlight = (f) => {
 
   // Проверяем билет
 
-  if (price < 50) {
+  if (price < 40) {
     if (transfers === 0) {
       console.log(
-        `TRUE, price < 50 ` +
-          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
-      );
-      return true;
-    }
-    return false;
-  }
-
-  if (dist < 2000) {
-    if (transfers === 0 && price <= 60) {
-      console.log(
-        `TRUE, price < 60, dist < 2000 ` +
+        `TRUE, price < 40 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;
@@ -54,9 +43,9 @@ const rateFlight = (f) => {
   }
 
   if (dist < 3500) {
-    if (transfers === 0 && price <= 70) {
+    if (transfers === 0 && price <= 60) {
       console.log(
-        `TRUE, price <= 70, dist < 3500 ` +
+        `TRUE, price <= 60, dist < 3500 ` +
           `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
       );
       return true;
