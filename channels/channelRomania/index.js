@@ -106,6 +106,7 @@ function rateFlight(f) {
 const REDIS_KEY = "Romania:last_titles";
 const language = "ro";
 const footerText = `\n📢 Distribuie prietenilor!\n\n🤖 <b><a href="https://t.me/CheapFlightsToTheTripBot">Botul tău de zboruri ieftine</a></b>`;
+const exchange = 5;
 const preMessage = {
   flightItem({
     originName,
