@@ -1,6 +1,6 @@
 import { main } from "../mainFunction";
 
-const CHANNEL_ID = "@cheapflightsforyou";
+const CHANNEL_ID = "@CheapFlightsTurkey";
 const airports = [
   "IST",
   "ESB",
