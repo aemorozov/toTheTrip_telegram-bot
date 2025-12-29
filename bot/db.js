@@ -145,6 +145,7 @@ async function getUserStep(chatId) {
  * Сохранить сообщение в массив messages
  */
 async function pushMessage(userId, text, max = 50) {
+  /* ───────── user history ───────── */
   if (!redis) return;
   const user = (await getUser(userId)) || {};
   if (!Array.isArray(user.messages)) user.messages = [];
@@ -153,6 +154,24 @@ async function pushMessage(userId, text, max = 50) {
     user.messages = user.messages.slice(0, max);
   }
   await redis.set(`user:${userId}`, JSON.stringify(user));
+  /* ───────── global history ───────── */
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+
+  const timestamp =
+    `${pad(now.getDate())}.` +
+    `${pad(now.getMonth() + 1)}.` +
+    `${now.getFullYear()}-` +
+    `${pad(now.getHours())}:` +
+    `${pad(now.getMinutes())}`;
+
+  const historyRow = `id${userId}-${text}-${timestamp}`;
+
+  // добавляем в начало
+  await redis.lpush("history", historyRow);
+  // ограничиваем 1000 строк
+  await redis.ltrim("history", 0, 999);
+
   return user;
 }
 
