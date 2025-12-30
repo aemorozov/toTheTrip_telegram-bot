@@ -1,22 +1,8 @@
 import { main } from "../mainFunction";
 
-const CHANNEL_ID = "@CheapFlightsTurkey";
-const airports = [
-  "IST",
-  "ESB",
-  "ADB",
-  "AYT",
-  "DLM",
-  "BJV",
-  "GZT",
-  "TZX",
-  "SZF",
-  "ASR",
-  "KYA",
-  "DIY",
-  "VAN",
-];
-const locale = "tr"; // for getCityName and depDate = dtDeparture.setLocale("ro")
+const CHANNEL_ID = "@CheapFlightsUzbekistan";
+const airports = ["TAS", "SKD", "BHK", "NMA", "FEG", "UGC", "KSQ", "TMJ"];
+const locale = "uz"; // for getCityName and depDate = dtDeparture.setLocale("ro")
 const rateFlight = (f) => {
   const price = f.price;
   const dist = f.distance;
@@ -110,10 +96,10 @@ const rateFlight = (f) => {
 
   return false;
 };
-const REDIS_KEY = "Turkey:last_titles";
-const language = "tr";
-const shareText = "Arkadaşlarınla paylaş";
-const linkText = "Ucuz uçuş botu";
+const REDIS_KEY = "Uzbekistan:last_titles";
+const language = "uz";
+const shareText = "Дўстларинг билан улаш!";
+const linkText = "Арзон рейслар боти";
 const preMessage = {
   flightItem({
     originName,
@@ -130,14 +116,14 @@ const preMessage = {
   }) {
     return `
 ✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b>
-💶 yaklaşık <b>${price}€</b>
+💶 тахминан <b>${price}€</b>
 📅 <b>${depDate}  🕓 ${depTime}</b>${
       depTransfers == 0 ? "" : `  🔃 ${depTransfers}`
     }
 📅 <b>${retDate}  🕓 ${retTime}</b>${
       retTransfers == 0 ? "" : `  🔃 ${retTransfers}`
     }
-🔗 Link: <a href="${link}"><b>https://${short}</b></a>\n`;
+🔗 Ҳавола: <a href="${link}"><b>https://${short}</b></a>\n`;
   },
 
   footer() {

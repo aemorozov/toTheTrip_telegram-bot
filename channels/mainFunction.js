@@ -88,7 +88,8 @@ async function getGPTTitle(tickets, REDIS_KEY, language) {
 - Samples for styling: ${samples}
 - Do not repeat last titles: ${lastTitles} and emodjis
 - Do not use abbreviations
-- Don't call the country of departure`,
+- Don't call the country of departure
+- If you need to translate into Uzbek, use Cyrillic.`,
       },
     ],
     temperature: 1,
