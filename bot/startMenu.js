@@ -7,9 +7,9 @@ async function startMenu(chatId, city, country) {
     const photo = await getCityImage(city, country);
 
     const caption = `
-📍 <strong>Your city is ${city.toUpperCase().replace(/\.$/, "")}!</strong>
+📍 <strong>Departure city is ${city.toUpperCase().replace(/\.$/, "")}!</strong>
 
-🔄 You can change your city via /start.
+🔄 Change departure city via /start.
 
 🔥 <b>Get special offers</b> every day for:\n<b><a href="https://t.me/CheapFlightsArmenia">🇦🇲 Armenia</a></b>  <b><a href="https://t.me/CheapFlightsFrance">🇫🇷 France</a></b>  <b><a href="https://t.me/CheapFlightsGeorgia">🇬🇪 Georgia</a></b>  <b><a href="https://t.me/CheapFlightsGermany">🇩🇪 Germany</a></b> <b><a href="https://t.me/CheapFlightsItaly">🇮🇹 Italy</a></b> <b><a href="https://t.me/CheapFlightsKazakhstan">🇰🇿 Kazakhstan</a></b>  <b><a href="https://t.me/CheapFlightsRomania">🇷🇴 Romania</a></b>  <b><a href="https://t.me/cheapflightsserbia">🇷🇸 Serbia</a></b>  <b><a href="https://t.me/CheapFlightsSpain">🇪🇸 Spain</a></b>  <b><a href="https://t.me/CheapFlightsTurkey">🇹🇷 Turkey</a></b>  <b><a href="https://t.me/CheapFlightsUzbekistan">🇺🇿 Uzbekistan</a></b>
 
