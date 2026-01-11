@@ -11,7 +11,7 @@ async function startMenu(chatId, city, country) {
 
 🔄 Change departure city via /start.
 
-🔥 <b>Get special offers</b> every day for:\n<b><a href="https://t.me/CheapFlightsArmenia">🇦🇲 Armenia</a></b>  <b><a href="https://t.me/CheapFlightsFrance">🇫🇷 France</a></b>  <b><a href="https://t.me/CheapFlightsGeorgia">🇬🇪 Georgia</a></b>  <b><a href="https://t.me/CheapFlightsGermany">🇩🇪 Germany</a></b> <b><a href="https://t.me/CheapFlightsItaly">🇮🇹 Italy</a></b> <b><a href="https://t.me/CheapFlightsKazakhstan">🇰🇿 Kazakhstan</a></b>  <b><a href="https://t.me/CheapFlightsRomania">🇷🇴 Romania</a></b>  <b><a href="https://t.me/cheapflightsserbia">🇷🇸 Serbia</a></b>  <b><a href="https://t.me/CheapFlightsSpain">🇪🇸 Spain</a></b>  <b><a href="https://t.me/CheapFlightsTurkey">🇹🇷 Turkey</a></b>  <b><a href="https://t.me/CheapFlightsUzbekistan">🇺🇿 Uzbekistan</a></b>
+🔥 <b>Get special offers</b> every day for:\n<b><a href="https://t.me/CheapFlightsArmenia">🇦🇲\u00A0Armenia</a></b> <b><a href="https://t.me/CheapFlightsFrance">🇫🇷\u00A0France</a></b> <b><a href="https://t.me/CheapFlightsGeorgia">🇬🇪\u00A0Georgia</a></b> <b><a href="https://t.me/CheapFlightsGermany">🇩🇪\u00A0Germany</a></b> <b><a href="https://t.me/CheapFlightsItaly">🇮🇹\u00A0Italy</a></b> <b><a href="https://t.me/CheapFlightsKazakhstan">🇰🇿\u00A0Kazakhstan</a></b> <b><a href="https://t.me/CheapFlightsRomania">🇷🇴\u00A0Romania</a></b> <b><a href="https://t.me/cheapflightsserbia">🇷🇸\u00A0Serbia</a></b> <b><a href="https://t.me/CheapFlightsSpain">🇪🇸\u00A0Spain</a></b> <b><a href="https://t.me/CheapFlightsTurkey">🇹🇷\u00A0Turkey</a></b> <b><a href="https://t.me/CheapFlightsUzbekistan">🇺🇿\u00A0Uzbekistan</a></b>
 
 👉 <b>Select an option:</b>`;
 
