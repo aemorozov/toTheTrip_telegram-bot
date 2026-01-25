@@ -270,7 +270,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
           inline_keyboard: [
             [
               {
-                text: "👉        START MENU        👈",
+                text: "✈️        START MENU        🏠",
                 callback_data: "start_menu",
               },
             ],
@@ -386,7 +386,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
           inline_keyboard: [
             [
               {
-                text: "👉        START MENU        👈",
+                text: "✈️        START MENU        🏠",
                 callback_data: "start_menu",
               },
             ],

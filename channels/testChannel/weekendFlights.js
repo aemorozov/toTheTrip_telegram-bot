@@ -6,11 +6,11 @@ const { getCityName } = require("./getCityName");
 const { getCityImage } = require("./getCityImage");
 const { wasPosted, addPosted } = require("../bot/db");
 const { haversineDistance } = require("./haversineDistance");
-const { extractSearchDateISO } = require("./extractSearchDateISO");
 const { shuffle } = require("./shuffle");
 const { getFlightUID } = require("./getFlightUID");
 import { Redis } from "@upstash/redis";
 import OpenAI from "openai";
+import { filterWeekendTrips } from "../../bot_0.2.9/weekendFlights";
 let redis = null;
 
 try {
@@ -102,7 +102,7 @@ async function getGPTTitle(tickets, REDIS_KEY, language = "en") {
   return title;
 }
 
-async function main(
+async function weekendFlights(
   CHANNEL_ID,
   airports,
   rateFlight,
@@ -114,19 +114,6 @@ async function main(
   const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
   const TRAVELPAYOUTS_TOKEN = process.env.TRAVELPAYOUTS_API_TOKEN;
   let flights = [];
-
-  // Сегодняшний день
-  const todayISO = new Date().toISOString().slice(0, 10);
-  // Вчера
-  const yesterdayISO = new Date(Date.now() - 24 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
-  // Позавчера
-  const dayBeforeYesterdayISO = new Date(Date.now() - 24 * 60 * 60 * 1000 * 2)
-    .toISOString()
-    .slice(0, 10);
-
-  //   async function TopForToday() {
 
   console.log(`\n=== 🔎 TOP FOR TODAY FROM ALL ORIGINS ===`);
 
@@ -156,12 +143,7 @@ async function main(
       // console.log(`  ➜ Received: ${allFlights.length}`);
 
       const filteredFlights = allFlights.filter((f) => {
-        const sd = extractSearchDateISO(f.link);
-        return (
-          (sd === todayISO || sd === yesterdayISO) &&
-          f.transfers <= 2 &&
-          f.return_transfers <= 2
-        );
+        return f.transfers <= 2 && f.return_transfers <= 2;
       });
 
       // console.log(
@@ -180,8 +162,12 @@ async function main(
       return;
     }
 
+    const weekendFlights = filterWeekendTrips(flights, origin);
+
+    console.log("weekendFlights:", weekendFlights.length);
+
     // === добавляем city names + geo + distance
-    for (const flight of flights) {
+    for (const flight of weekendFlights) {
       const [originName, originLon, originLat, originCountry] =
         await getCityName(flight.origin, locale);
       const [destinationName, destLon, destLat, destinationCountry] =
@@ -205,12 +191,8 @@ async function main(
       );
     }
 
-    // === filtering good flights
-    flights = flights.filter(rateFlight);
-    console.log("filter flights:", flights.length);
-
     // === shuffle перемешиваем, сортируем
-    flights = flights.sort((a, b) => a.price - b.price);
+    flights = weekendFlights.sort((a, b) => a.price - b.price);
   } catch (err) {
     console.warn(`❌ Error while retrieving flights:`, err.message);
     return;
@@ -358,4 +340,4 @@ async function main(
   console.log(`\n✅ Posted`);
 }
 
-module.exports = { main };
+module.exports = { weekendFlights };

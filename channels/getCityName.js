@@ -12,22 +12,25 @@ async function getCityName(iataCode, locale) {
       "https://autocomplete.travelpayouts.com/places2",
       {
         params: { term: code, locale: locale },
-      }
+      },
     );
 
     // Ищем город, связанный с этим кодом
     const match = data.find((p) => p.code === code && p.type === "city");
     const found = match || data.find((p) => p.code === code);
 
+    // console.log(found);
+
     const name = found.name;
     const lon = found.coordinates.lon;
     const lat = found.coordinates.lat;
     const contry = found.country_name;
+    const countryCode = found.country_code;
 
     if (found) {
       // console.log(`✅ Found via Travelpayouts: ${found.code} → ${name}`);
 
-      return [name, lon, lat, contry];
+      return [name, lon, lat, contry, countryCode];
     } else {
       console.log("⚠️ Travelpayouts did not return a matching city.");
     }
