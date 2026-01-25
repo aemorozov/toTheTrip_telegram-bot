@@ -217,7 +217,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                   setZone: true,
                 })
                   .setLocale("en")
-                  .toFormat("cccc dd LLL");
+                  .toFormat("ccc dd LLL");
                 const departure_time = DateTime.fromISO(t.departure_at, {
                   setZone: true,
                 }).toFormat("HH:mm");
@@ -228,7 +228,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                   setZone: true,
                 })
                   .setLocale("en")
-                  .toFormat("cccc dd LLL");
+                  .toFormat("ccc dd LLL");
                 const return_time = DateTime.fromISO(t.return_at, {
                   setZone: true,
                 }).toFormat("HH:mm");
@@ -332,7 +332,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                   setZone: true,
                 })
                   .setLocale("en")
-                  .toFormat("cccc dd LLL");
+                  .toFormat("ccc dd LLL");
                 const departure_time = DateTime.fromISO(t.departure_at, {
                   setZone: true,
                 }).toFormat("HH:mm");
@@ -343,7 +343,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
                   setZone: true,
                 })
                   .setLocale("en")
-                  .toFormat("cccc dd LLL");
+                  .toFormat("ccc dd LLL");
                 const return_time = DateTime.fromISO(t.return_at, {
                   setZone: true,
                 }).toFormat("HH:mm");

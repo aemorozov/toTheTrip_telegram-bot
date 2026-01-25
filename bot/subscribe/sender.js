@@ -135,7 +135,7 @@ export async function subscribeSender() {
       setZone: true,
     })
       .setLocale("en")
-      .toFormat("cccc dd LLL");
+      .toFormat("ccc dd LLL");
     const departure_time = DateTime.fromISO(ticket.departure_at, {
       setZone: true,
     }).toFormat("HH:mm");
@@ -146,7 +146,7 @@ export async function subscribeSender() {
       setZone: true,
     })
       .setLocale("en")
-      .toFormat("cccc dd LLL");
+      .toFormat("ccc dd LLL");
     const return_time = DateTime.fromISO(ticket.return_at, {
       setZone: true,
     }).toFormat("HH:mm");
