@@ -1,4 +1,4 @@
-import { subscribeSender } from "../bot_0.2.9/subscribe/sender";
+import { subscribeSender } from "../bot/subscribe/sender";
 
 export default async function handler(req, res) {
   try {
