@@ -5,6 +5,7 @@ const { getUser } = require("./db");
 async function startMenu(chatId, city, country) {
   const user = await getUser(chatId);
   const subscribeIata = user.subscribed_iata || "";
+  const subscribe = user.subscribe || undefined;
   try {
     // 1️⃣ Получаем фотографию города
     const photo = await getCityImage(city, country);
@@ -13,7 +14,7 @@ async function startMenu(chatId, city, country) {
 📍 <strong>Departure city is ${city.toUpperCase().replace(/\.$/, "")}!</strong>
 
 ${
-  subscribeIata === ""
+  subscribe
     ? `✅ <b>More options for subscribers!</b>
 
 Subscribe to <b>${city.replace(/\.$/, "")}</b> and get:
@@ -39,18 +40,8 @@ Subscribe to <b>${city.replace(/\.$/, "")}</b> and get:
       },
     ]);
 
-    // subscribe
-    if (subscribeIata !== user.iata_code) {
-      inline_keyboard.push([
-        {
-          text: "✅          FREE SUBSCRIBE         🔔",
-          callback_data: "subscribe",
-        },
-      ]);
-    }
-
     // unsubscribe
-    if (subscribeIata === user.iata_code) {
+    if (subscribe) {
       inline_keyboard.push(
         [
           {
@@ -76,13 +67,23 @@ Subscribe to <b>${city.replace(/\.$/, "")}</b> and get:
             callback_data: "price_for_date",
           },
         ],
-        [
-          {
-            text: "🔕           UNSUBSCRIBE           📭",
-            callback_data: "unsubscribe",
-          },
-        ],
       );
+    }
+
+    if (subscribeIata === user.iata_code) {
+      inline_keyboard.push([
+        {
+          text: "🔕           UNSUBSCRIBE           📭",
+          callback_data: "unsubscribe",
+        },
+      ]);
+    } else {
+      inline_keyboard.push([
+        {
+          text: "✅          FREE SUBSCRIBE         🔔",
+          callback_data: "subscribe",
+        },
+      ]);
     }
 
     const options = {
