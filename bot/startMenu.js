@@ -32,20 +32,12 @@ Subscribe to <b>${city.replace(/\.$/, "")}</b> and get:
     const inline_keyboard = [];
 
     // other buttons
-    inline_keyboard.push(
-      [
-        {
-          text: "✈️      CHEAPEST FLIGHTS       🌎",
-          callback_data: "get_top_10_round_trip",
-        },
-      ],
-      [
-        {
-          text: "🔥         SPECIAL OFFERS          💸",
-          callback_data: "special_offers",
-        },
-      ],
-    );
+    inline_keyboard.push([
+      {
+        text: "✈️      CHEAPEST FLIGHTS       🌎",
+        callback_data: "get_top_10_round_trip",
+      },
+    ]);
 
     // subscribe
     if (subscribeIata !== user.iata_code) {
@@ -64,6 +56,12 @@ Subscribe to <b>${city.replace(/\.$/, "")}</b> and get:
           {
             text: "⭐         WEEKEND TRIPS          💡",
             callback_data: "weekend_flights",
+          },
+        ],
+        [
+          {
+            text: "🔥         SPECIAL OFFERS          💸",
+            callback_data: "special_offers",
           },
         ],
         [
