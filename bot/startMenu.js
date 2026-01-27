@@ -5,7 +5,7 @@ const { getUser } = require("./db");
 async function startMenu(chatId, city, country) {
   const user = await getUser(chatId);
   const subscribeIata = user.subscribed_iata || "";
-  const subscribe = user.subscribe || undefined;
+  const subscribe = user.subscribe || false;
   try {
     // 1️⃣ Получаем фотографию города
     const photo = await getCityImage(city, country);
