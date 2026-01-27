@@ -172,11 +172,12 @@ function normalizeDate(input) {
 async function handleTextMessage(chatId, userInput, userInfo) {
   const user = await getUser(chatId);
   const subscribe = user.subscribe || false;
+  const city = user.city;
   const unsubscribeUserMessage = `<b>Ooops! You don't subscribe.</b>
 
-<b>Subscribe to your city and get:</b>
+<b>Subscribe to <b>${city}</b> and get:</b>
 - cheapest offers every day
-- weekend trips
+- weekend trips from ${city}
 - best flights to destination
 - best flights on date
 
