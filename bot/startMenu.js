@@ -14,7 +14,7 @@ async function startMenu(chatId, city, country) {
 📍 <strong>Departure city is ${city.toUpperCase().replace(/\.$/, "")}!</strong>
 
 ${
-  subscribe
+  !subscribe
     ? `✅ <b>More options for subscribers!</b>
 
 Subscribe to <b>${city.replace(/\.$/, "")}</b> and get:
