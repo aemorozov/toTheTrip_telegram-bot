@@ -1,0 +1,185 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 390px;
+}
+
+.heroBlock {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 20px;
+  min-height: 60vh;
+  align-items: center;
+}
+
+.leftBlock,
+.rightBlock {
+  width: 100%;
+}
+
+.leftBlock h1 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+}
+
+.rightBlock h2 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
+
+.rightBlock ul li {
+  margin-bottom: 8px;
+}
+
+/* Features Block */
+.featuresBlock {
+  padding: 20px;
+  background: #f9f9f9;
+}
+
+.featuresBlock h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.featureCard {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Popular Destinations */
+.popularDestinations {
+  padding: 20px;
+}
+
+.popularDestinations h2 {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.destinationsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.destinationCard {
+  background: #e2e8f0;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Call to action */
+.ctaBlock {
+  padding: 20px;
+  text-align: center;
+  background: #f2f2f2;
+}
+
+.ctaBlock h2 {
+  margin-bottom: 12px;
+  font-size: 1.6rem;
+}
+
+.ctaBlock button {
+  background: #171717;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.squareCardsBlock {
+  padding: 20px;
+  background: #f9f9f9;
+}
+
+.squareCardsBlock h2 {
+  text-align: center;
+  font-size: 1.6rem;
+  margin-bottom: 16px;
+}
+
+.squareCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.squareCard {
+  background: white;
+  aspect-ratio: 1 / 1; /* делаем квадрат */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.squareCard:hover {
+  transform: translateY(-5px);
+}
+
+.imgPlaceholder {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+/* Media Queries */
+@media screen and (min-width: 768px) {
+  .heroBlock {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .destinationsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .squareCardsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .featuresGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .destinationsGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .leftBlock h1 {
+    font-size: 3rem;
+  }
+
+  .squareCardsGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
