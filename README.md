@@ -7,7 +7,7 @@
 </p>
 
 > 🚧 **Project Status: Finaly Development (≈90% complete)**  
-> Main part tothetrip.app: https://github.com/aemorozov/toTheTrip<br>
+> Main part tothetrip.app: https://github.com/aemorozov/toTheTrip_web<br>
 
 ---
 
