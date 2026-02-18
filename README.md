@@ -6,7 +6,7 @@
   Automated deal discovery • AI-generated headlines • Multi-channel publishing
 </p>
 
-> 🚧 **Project Status: Early Development (≈90% complete)**  
+> 🚧 **Project Status: Finaly Development (≈90% complete)**  
 > Main part tothetrip.app: https://github.com/aemorozov/toTheTrip<br>
 
 ---
