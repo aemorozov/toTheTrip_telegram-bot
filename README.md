@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>Intelligent Telegram Bot for Finding the Cheapest Flights</b><br>
-        This is a small part of main project ToTheTrip.<br><br>
+        This is a small part of main project ToTheTrip.<br>
   Automated deal discovery • AI-generated headlines • Multi-channel publishing
 </p>
 
