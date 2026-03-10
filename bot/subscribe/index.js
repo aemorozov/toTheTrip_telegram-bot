@@ -18,7 +18,6 @@ export async function subscribe(chatId) {
 
   const raw = await redis.get(SUBSCRIBERS_KEY);
 
-  // raw у тебя объект, но на всякий случай подстрахуемся
   let map = {};
   if (raw && typeof raw === "object") map = raw;
   else if (typeof raw === "string") {

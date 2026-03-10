@@ -11,7 +11,8 @@ const { specialOffersRoundTrip } = require("./specialOffers/specialOffers");
 const { addDate } = require("./priceForDate");
 const { aiAssistant } = require("./aiAssistant");
 const { getCityImage } = require("./getCityImage");
-const { getWeekendTickets, filterWeekendTrips } = require("./weekendFlights/");
+const { getWeekendTickets } = require("./weekendFlights/");
+const { subscribe, unsubscribe } = require("./subscribe");
 
 async function get_top_10_round_trip(chatId) {
   await saveUserStep(chatId, "no_step");
@@ -113,7 +114,7 @@ async function get_top_10_round_trip(chatId) {
       inline_keyboard: [
         [
           {
-            text: "✈️        START MENU        🏠",
+            text: "👉        START MENU        👈",
             callback_data: "start_menu",
           },
         ],
@@ -238,7 +239,7 @@ async function special_offers(chatId) {
       inline_keyboard: [
         [
           {
-            text: "✈️        START MENU        🏠",
+            text: "👉        START MENU        👈",
             callback_data: "start_menu",
           },
         ],
@@ -359,7 +360,7 @@ async function weekendFlights(chatId) {
       inline_keyboard: [
         [
           {
-            text: "✈️        START MENU        🏠",
+            text: "👉        START MENU        👈",
             callback_data: "start_menu",
           },
         ],
@@ -384,7 +385,7 @@ async function startMenuButton(chatId, message = "") {
       inline_keyboard: [
         [
           {
-            text: "✈️        START MENU        🏠",
+            text: "👉        START MENU        👈",
             callback_data: "start_menu",
           },
         ],
@@ -426,6 +427,34 @@ async function handleCallbackQuery(chatId, data) {
 
   if (data === "weekend_flights") {
     await weekendFlights(chatId);
+  }
+
+  if (data === "subscribe") {
+    await subscribe(chatId);
+    const userObj = await getUser(chatId);
+    const message = `
+✈️ <b>You’re subscribed to cheap flights from ${userObj.city}</b>!
+
+I’ll send you the best deals every day.
+
+You can use full options in start menu.
+
+To change the city — just select a new one and subscribe again.  
+To unsubscribe — open the start menu and tap “Unsubscribe”.
+`;
+    await startMenuButton(chatId, message);
+  }
+
+  if (data === "unsubscribe") {
+    await unsubscribe(chatId);
+    const userObj = await getUser(chatId);
+    const message = `
+❌ <b>You’ve unsubscribed from flight deals from ${userObj.city}</b>.
+
+You won’t receive weekly offers anymore.  
+You can subscribe again anytime from the start menu ✈️
+`;
+    await startMenuButton(chatId, message);
   }
 }
 

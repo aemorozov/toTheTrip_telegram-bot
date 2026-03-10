@@ -170,300 +170,261 @@ function normalizeDate(input) {
 }
 
 async function handleTextMessage(chatId, userInput, userInfo) {
-  const user = await getUser(chatId);
-  const subscribe = user.subscribe || false;
-  const city = user.city;
-  const unsubscribeUserMessage = `<b>Ooops! You don't subscribe.</b>
+  const user = await getUser(chatId); // просто можем использовать
 
-<b>Subscribe to <b>${city}</b> and get:</b>
-- cheapest offers every day
-- weekend trips from ${city}
-- best flights to destination
-- best flights on date
-
-<b>Ckick to START MENU and Subscribe!</b>
-`;
   // Проверяем, находится ли пользователь на каком-то шаге сценария
   const step = await getUserStep(chatId);
   if (step === "waiting_for_destination") {
-    if (!subscribe) {
-      await startMenuButton(chatId, unsubscribeUserMessage);
-    } else {
-      try {
-        await saveUserStep(chatId, "no_step");
-        const userObj = await getUser(chatId);
-        const originIATA = userObj.iata_code;
-        const originCity = userObj.city;
-        const destinationFull = await getIataCode(userInput);
-        const destinationIATA = destinationFull[0];
-        const destinationCity = destinationFull[1];
-        const destinationCountry = destinationFull[2];
-        saveUserDestination(chatId, destinationIATA, destinationCity);
+    try {
+      await saveUserStep(chatId, "no_step");
+      const userObj = await getUser(chatId);
+      const originIATA = userObj.iata_code;
+      const originCity = userObj.city;
+      const destinationFull = await getIataCode(userInput);
+      const destinationIATA = destinationFull[0];
+      const destinationCity = destinationFull[1];
+      const destinationCountry = destinationFull[2];
+      saveUserDestination(chatId, destinationIATA, destinationCity);
 
-        const ticketsRoundTrip = await getTicketsForDestinationRoundTrip(
-          originIATA,
-          destinationIATA,
-        );
+      const ticketsRoundTrip = await getTicketsForDestinationRoundTrip(
+        originIATA,
+        destinationIATA,
+      );
 
-        if (ticketsRoundTrip.length === 0) {
-          const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
-          return await startMenuButton(chatId, message);
-        }
-
-        for (const t of ticketsRoundTrip) {
-          try {
-            const info = await getCityName(t.destination);
-            t.destination_city = info?.[0] || null;
-            t.destination_country = info?.[1] || null;
-            t.destination_country_code = info?.[2] || null;
-          } catch (e) {
-            console.log("getCityName ERROR:", e);
-            t.destination_city = null;
-            t.destination_country = null;
-          }
-        }
-
-        const message =
-          `<b>🔥 Cheapest round trip flights from ${originCity.toUpperCase()} to ${destinationCity.toUpperCase()}, ${destinationCountry}</b>\n\n` +
-          (ticketsRoundTrip.length > 0
-            ? ticketsRoundTrip
-                .map((t) => {
-                  const destination_iata = t.destination;
-                  const departure_date = DateTime.fromISO(t.departure_at, {
-                    setZone: true,
-                  })
-                    .setLocale("en")
-                    .toFormat("ccc dd LLL");
-                  const departure_time = DateTime.fromISO(t.departure_at, {
-                    setZone: true,
-                  }).toFormat("HH:mm");
-
-                  const depart_transfers = t.transfers;
-
-                  const return_date = DateTime.fromISO(t.return_at, {
-                    setZone: true,
-                  })
-                    .setLocale("en")
-                    .toFormat("ccc dd LLL");
-                  const return_time = DateTime.fromISO(t.return_at, {
-                    setZone: true,
-                  }).toFormat("HH:mm");
-
-                  const return_transfers = t.return_transfers;
-
-                  const searchPath = `${originIATA}${DateTime.fromISO(
-                    t.departure_at,
-                    {
-                      setZone: true,
-                    },
-                  ).toFormat("ddMM")}${destination_iata}${DateTime.fromISO(
-                    t.return_at,
-                    {
-                      setZone: true,
-                    },
-                  ).toFormat("ddMM")}1`;
-                  const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
-                  const encodedUrl = encodeURIComponent(baseUrl);
-                  const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
-
-                  const depart_transfers_text =
-                    depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
-                  const return_transfers_text =
-                    return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
-
-                  return `💸 about <b>${
-                    t.price
-                  }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
-                    link,
-                  )}</a></u>\n`;
-                })
-                .join("\n") + `\n📢 Share it to your travel friend!`
-            : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
-        const city = ticketsRoundTrip[0].destination_city;
-        const photo = await getCityImage(city);
-        const options = {
-          reply_markup: {
-            inline_keyboard: [
-              [
-                {
-                  text: "👉        START MENU        👈",
-                  callback_data: "start_menu",
-                },
-              ],
-            ],
-          },
-        };
-        if (photo) {
-          return await safeSendPhoto(chatId, photo, message, options);
-        } else {
-          return await startMenuButton(chatId, message);
-        }
-      } catch (err) {
-        console.error("❌ handleTextMessage error:", err);
-        await startMenuButton(
-          chatId,
-          "⚠️ Something went wrong and I couldn't recognize the city you specified. Return to the start menu and try again. ",
-        );
+      if (ticketsRoundTrip.length === 0) {
+        const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+        return await startMenuButton(chatId, message);
       }
+
+      for (const t of ticketsRoundTrip) {
+        try {
+          const info = await getCityName(t.destination);
+          t.destination_city = info?.[0] || null;
+          t.destination_country = info?.[1] || null;
+          t.destination_country_code = info?.[2] || null;
+        } catch (e) {
+          console.log("getCityName ERROR:", e);
+          t.destination_city = null;
+          t.destination_country = null;
+        }
+      }
+
+      const message =
+        `<b>🔥 Cheapest round trip flights from ${originCity.toUpperCase()} to ${destinationCity.toUpperCase()}, ${destinationCountry}</b>\n\n` +
+        (ticketsRoundTrip.length > 0
+          ? ticketsRoundTrip
+              .map((t) => {
+                const destination_iata = t.destination;
+                const departure_date = DateTime.fromISO(t.departure_at, {
+                  setZone: true,
+                })
+                  .setLocale("en")
+                  .toFormat("ccc dd LLL");
+                const departure_time = DateTime.fromISO(t.departure_at, {
+                  setZone: true,
+                }).toFormat("HH:mm");
+
+                const depart_transfers = t.transfers;
+
+                const return_date = DateTime.fromISO(t.return_at, {
+                  setZone: true,
+                })
+                  .setLocale("en")
+                  .toFormat("ccc dd LLL");
+                const return_time = DateTime.fromISO(t.return_at, {
+                  setZone: true,
+                }).toFormat("HH:mm");
+
+                const return_transfers = t.return_transfers;
+
+                const searchPath = `${originIATA}${DateTime.fromISO(
+                  t.departure_at,
+                  {
+                    setZone: true,
+                  },
+                ).toFormat("ddMM")}${destination_iata}${DateTime.fromISO(
+                  t.return_at,
+                  {
+                    setZone: true,
+                  },
+                ).toFormat("ddMM")}1`;
+                const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
+                const encodedUrl = encodeURIComponent(baseUrl);
+                const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
+
+                const depart_transfers_text =
+                  depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
+                const return_transfers_text =
+                  return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
+
+                return `💸 about <b>${
+                  t.price
+                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                  link,
+                )}</a></u>\n`;
+              })
+              .join("\n") + `\n📢 Share it to your travel friend!`
+          : `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
+      const city = ticketsRoundTrip[0].destination_city;
+      const photo = await getCityImage(city);
+      const options = {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "👉        START MENU        👈",
+                callback_data: "start_menu",
+              },
+            ],
+          ],
+        },
+      };
+      if (photo) {
+        return await safeSendPhoto(chatId, photo, message, options);
+      } else {
+        return await startMenuButton(chatId, message);
+      }
+    } catch (err) {
+      console.error("❌ handleTextMessage error:", err);
+      await startMenuButton(
+        chatId,
+        "⚠️ Something went wrong and I couldn't recognize the city you specified. Return to the start menu and try again. ",
+      );
     }
   } else if (step === "waiting_for_date") {
-    if (!subscribe) {
-      await startMenuButton(chatId, unsubscribeUserMessage);
-    } else {
-      try {
-        await saveUserStep(chatId, "no_step");
-        const userObj = await getUser(chatId);
-        const originIATA = userObj.iata_code;
-        const originCity = userObj.city;
-        const date = normalizeDate(userInput);
+    try {
+      await saveUserStep(chatId, "no_step");
+      const userObj = await getUser(chatId);
+      const originIATA = userObj.iata_code;
+      const originCity = userObj.city;
+      const date = normalizeDate(userInput);
 
-        const ticketsRoundTrip = await getTicketsForDateRoundTrip(
-          originIATA,
-          date,
-        );
+      const ticketsRoundTrip = await getTicketsForDateRoundTrip(
+        originIATA,
+        date,
+      );
 
-        if (ticketsRoundTrip.length === 0) {
-          const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
-          return await startMenuButton(chatId, message);
-        }
-
-        for (const t of ticketsRoundTrip) {
-          try {
-            const info = await getCityName(t.destination);
-            t.destination_city = info?.[0] || null;
-            t.destination_country = info?.[1] || null;
-            t.destination_country_code = info?.[2] || null;
-          } catch (e) {
-            console.log("getCityName ERROR:", e);
-            t.destination_city = null;
-            t.destination_country = null;
-          }
-        }
-
-        const message =
-          `<b>🔥 Cheapest round trip flights from ${originCity.toUpperCase()} on ${userInput}</b>\n\n` +
-          (ticketsRoundTrip.length > 0
-            ? ticketsRoundTrip
-                .map((t) => {
-                  const destination_iata = t.destination;
-                  const destinationCity = t.destination_city;
-                  const destinationCountryCode = t.destination_country_code;
-                  const departure_date = DateTime.fromISO(t.departure_at, {
-                    setZone: true,
-                  })
-                    .setLocale("en")
-                    .toFormat("ccc dd LLL");
-                  const departure_time = DateTime.fromISO(t.departure_at, {
-                    setZone: true,
-                  }).toFormat("HH:mm");
-
-                  const depart_transfers = t.transfers;
-
-                  const return_date = DateTime.fromISO(t.return_at, {
-                    setZone: true,
-                  })
-                    .setLocale("en")
-                    .toFormat("ccc dd LLL");
-                  const return_time = DateTime.fromISO(t.return_at, {
-                    setZone: true,
-                  }).toFormat("HH:mm");
-
-                  const return_transfers = t.return_transfers;
-
-                  const searchPath = `${originIATA}${DateTime.fromISO(
-                    t.departure_at,
-                    {
-                      setZone: true,
-                    },
-                  ).toFormat("ddMM")}${destination_iata}${DateTime.fromISO(
-                    t.return_at,
-                    {
-                      setZone: true,
-                    },
-                  ).toFormat("ddMM")}1`;
-                  const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
-                  const encodedUrl = encodeURIComponent(baseUrl);
-                  const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
-
-                  const depart_transfers_text =
-                    depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
-                  const return_transfers_text =
-                    return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
-
-                  return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
-                    t.price
-                  }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
-                    link,
-                  )}</a></u>\n`;
-                })
-                .join("\n") + `\n📢 Share it to your travel friend!`
-            : `😢💔 Sorry, I can't find the best results, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
-
-        const city = ticketsRoundTrip[0].destination_city;
-        const photo = await getCityImage(city);
-        const options = {
-          reply_markup: {
-            inline_keyboard: [
-              [
-                {
-                  text: "👉        START MENU        👈",
-                  callback_data: "start_menu",
-                },
-              ],
-            ],
-          },
-        };
-        if (photo) {
-          return await safeSendPhoto(chatId, photo, message, options);
-        } else {
-          return await startMenuButton(chatId, message);
-        }
-      } catch (err) {
-        console.error("❌ handleTextMessage error:", err);
-        await startMenuButton(
-          chatId,
-          "⚠️ Error processing data. Try again Something went wrong and I couldn't recognize the date you specified. Please return to the start menu and try again. ",
-        );
+      if (ticketsRoundTrip.length === 0) {
+        const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
+        return await startMenuButton(chatId, message);
       }
+
+      for (const t of ticketsRoundTrip) {
+        try {
+          const info = await getCityName(t.destination);
+          t.destination_city = info?.[0] || null;
+          t.destination_country = info?.[1] || null;
+          t.destination_country_code = info?.[2] || null;
+        } catch (e) {
+          console.log("getCityName ERROR:", e);
+          t.destination_city = null;
+          t.destination_country = null;
+        }
+      }
+
+      const message =
+        `<b>🔥 Cheapest round trip flights from ${originCity.toUpperCase()} on ${userInput}</b>\n\n` +
+        (ticketsRoundTrip.length > 0
+          ? ticketsRoundTrip
+              .map((t) => {
+                const destination_iata = t.destination;
+                const destinationCity = t.destination_city;
+                const destinationCountryCode = t.destination_country_code;
+                const departure_date = DateTime.fromISO(t.departure_at, {
+                  setZone: true,
+                })
+                  .setLocale("en")
+                  .toFormat("ccc dd LLL");
+                const departure_time = DateTime.fromISO(t.departure_at, {
+                  setZone: true,
+                }).toFormat("HH:mm");
+
+                const depart_transfers = t.transfers;
+
+                const return_date = DateTime.fromISO(t.return_at, {
+                  setZone: true,
+                })
+                  .setLocale("en")
+                  .toFormat("ccc dd LLL");
+                const return_time = DateTime.fromISO(t.return_at, {
+                  setZone: true,
+                }).toFormat("HH:mm");
+
+                const return_transfers = t.return_transfers;
+
+                const searchPath = `${originIATA}${DateTime.fromISO(
+                  t.departure_at,
+                  {
+                    setZone: true,
+                  },
+                ).toFormat("ddMM")}${destination_iata}${DateTime.fromISO(
+                  t.return_at,
+                  {
+                    setZone: true,
+                  },
+                ).toFormat("ddMM")}1`;
+                const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
+                const encodedUrl = encodeURIComponent(baseUrl);
+                const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
+
+                const depart_transfers_text =
+                  depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
+                const return_transfers_text =
+                  return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
+
+                return `💸 to <b>${destinationCity}, ${destinationCountryCode}</b> about <b>${
+                  t.price
+                }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n🔗 <u><a href="${link}">https://${extractShortLink(
+                  link,
+                )}</a></u>\n`;
+              })
+              .join("\n") + `\n📢 Share it to your travel friend!`
+          : `😢💔 Sorry, I can't find the best results, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`);
+
+      const city = ticketsRoundTrip[0].destination_city;
+      const photo = await getCityImage(city);
+      const options = {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "👉        START MENU        👈",
+                callback_data: "start_menu",
+              },
+            ],
+          ],
+        },
+      };
+      if (photo) {
+        return await safeSendPhoto(chatId, photo, message, options);
+      } else {
+        return await startMenuButton(chatId, message);
+      }
+    } catch (err) {
+      console.error("❌ handleTextMessage error:", err);
+      await startMenuButton(
+        chatId,
+        "⚠️ Error processing data. Try again Something went wrong and I couldn't recognize the date you specified. Please return to the start menu and try again. ",
+      );
     }
   } else if (userInput === "/cheapflights") {
     await get_top_10_round_trip(chatId);
   } else if (userInput === "/specialoffers") {
-    if (!subscribe) {
-      await startMenuButton(chatId, unsubscribeUserMessage);
-    } else {
-      await special_offers(chatId);
-    }
+    await special_offers(chatId);
   } else if (userInput === "/weekendsonly") {
-    if (!subscribe) {
-      await startMenuButton(chatId, unsubscribeUserMessage);
-    } else {
-      await weekendFlights(chatId);
-    }
+    await weekendFlights(chatId);
   } else if (userInput === "/adddate") {
-    if (!subscribe) {
-      await startMenuButton(chatId, unsubscribeUserMessage);
-    } else {
-      await price_for_date(chatId);
-    }
+    await price_for_date(chatId);
   } else if (userInput === "/adddestination") {
-    if (!subscribe) {
-      await startMenuButton(chatId, unsubscribeUserMessage);
-    } else {
-      await cheapest_flights_to_destination(chatId);
-    }
+    await cheapest_flights_to_destination(chatId);
   } else if (userInput === "/exit") {
-    if (!subscribe) {
-      await startMenuButton(chatId, unsubscribeUserMessage);
-    } else {
-      await saveUserStep(chatId, "no_step");
-      const userObj = await getUser(chatId);
-      const city = userObj.city;
-      const country = userObj.country;
-      await safeSend(chatId, "Exited AI assistant mode.");
-      await startMenu(chatId, city, country);
-      return;
-    }
+    await saveUserStep(chatId, "no_step");
+    const userObj = await getUser(chatId);
+    const city = userObj.city;
+    const country = userObj.country;
+    await safeSend(chatId, "Exited AI assistant mode.");
+    await startMenu(chatId, city, country);
+    return;
   } else if (step === "ai_mode") {
     // 1. достаем юзера
     const user = await getUser(chatId);

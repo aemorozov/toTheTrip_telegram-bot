@@ -437,8 +437,6 @@ async function handleCallbackQuery(chatId, data) {
 
 I’ll send you the best deals every day.
 
-You can use full options in start menu.
-
 To change the city — just select a new one and subscribe again.  
 To unsubscribe — open the start menu and tap “Unsubscribe”.
 `;
@@ -451,7 +449,7 @@ To unsubscribe — open the start menu and tap “Unsubscribe”.
     const message = `
 ❌ <b>You’ve unsubscribed from flight deals from ${userObj.city}</b>.
 
-You won’t receive weekly offers anymore.  
+You won’t receive daily offers anymore.  
 You can subscribe again anytime from the start menu ✈️
 `;
     await startMenuButton(chatId, message);
