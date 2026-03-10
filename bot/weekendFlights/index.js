@@ -114,7 +114,7 @@ export async function getWeekendTickets(originIATA) {
     origin: originIATA,
     one_way: false,
     direct: true,
-    limit: 300,
+    limit: 1000,
     page: 1,
     sorting: "price",
     unique: true,

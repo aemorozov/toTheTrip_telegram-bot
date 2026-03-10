@@ -27,7 +27,7 @@ async function get_top_10_round_trip(chatId) {
   }
 
   const originIATA = userObj.iata_code;
-  const tickets = await getCheapTicketsRoundTrip(originIATA); // запрашиваем 7 билетов
+  const tickets = (await getCheapTicketsRoundTrip(originIATA)).slice(0, 6); // запрашиваем 7 билетов
 
   if (tickets.length === 0) {
     const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
@@ -152,7 +152,10 @@ async function special_offers(chatId) {
 
   const originIATA = userObj.iata_code;
   const originCity = userObj.city;
-  const ticketsRoundTrip = await specialOffersRoundTrip(originIATA);
+  const ticketsRoundTrip = (await specialOffersRoundTrip(originIATA)).slice(
+    0,
+    6,
+  );
 
   if (ticketsRoundTrip.length === 0) {
     const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
