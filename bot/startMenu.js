@@ -19,9 +19,7 @@ ${
 
 `
     : ""
-}🔄 Change departure city via /start.
-
-🔥 <b>Get special offers</b> every day for:\n<b><a href="https://t.me/CheapFlightsFrance">🇫🇷\u00A0France</a></b> <b><a href="https://t.me/CheapFlightsGermany">🇩🇪\u00A0Germany</a></b> <b><a href="https://t.me/CheapFlightsItaly">🇮🇹\u00A0Italy</a></b> <b><a href="https://t.me/CheapFlightsKazakhstan">🇰🇿\u00A0Kazakhstan</a></b> <b><a href="https://t.me/CheapFlightsRomania">🇷🇴\u00A0Romania</a></b> <b><a href="https://t.me/CheapFlightsSpain">🇪🇸\u00A0Spain</a></b>
+}🔥 <b>Special offers</b>: <b><a href="https://t.me/CheapFlightsFrance">🇫🇷\u00A0France</a></b> <b><a href="https://t.me/CheapFlightsGermany">🇩🇪\u00A0Germany</a></b> <b><a href="https://t.me/CheapFlightsItaly">🇮🇹\u00A0Italy</a></b> <b><a href="https://t.me/CheapFlightsKazakhstan">🇰🇿\u00A0Kazakhstan</a></b> <b><a href="https://t.me/CheapFlightsRomania">🇷🇴\u00A0Romania</a></b> <b><a href="https://t.me/CheapFlightsSpain">🇪🇸\u00A0Spain</a></b>
 `;
 
     const inline_keyboard = [];
@@ -46,18 +44,18 @@ ${
           callback_data: "special_offers",
         },
       ],
-      [
-        {
-          text: "🔎         TO DESTINATION        🧭",
-          callback_data: "cheapest_flights_to_destination",
-        },
-      ],
-      [
-        {
-          text: "📅                ON DATE                 🎯",
-          callback_data: "price_for_date",
-        },
-      ],
+      // [
+      //   {
+      //     text: "🔎         TO DESTINATION        🧭",
+      //     callback_data: "cheapest_flights_to_destination",
+      //   },
+      // ],
+      // [
+      //   {
+      //     text: "📅                ON DATE                 🎯",
+      //     callback_data: "price_for_date",
+      //   },
+      // ],
     );
 
     if (subscribeIata === user.iata_code) {
