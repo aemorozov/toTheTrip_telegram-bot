@@ -9,13 +9,13 @@ async function getCheapTicketsRoundTrip(origin) {
       sorting: "price",
       direct: true,
       one_way: false,
-      limit: 7,
+      limit: 1000,
       token: process.env.TRAVELPAYOUTS_API_TOKEN,
     };
 
     const res = await axios.get(
       "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
-      { params }
+      { params },
     );
 
     const data = res.data?.data || {};

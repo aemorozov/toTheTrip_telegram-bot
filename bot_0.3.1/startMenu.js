@@ -1,9 +1,8 @@
 const { safeSend, safeSendPhoto } = require("./telegram");
 const { getCityImage } = require("./getCityImage");
-const { getUser, saveUserStep } = require("./db");
+const { getUser } = require("./db");
 
 async function startMenu(chatId, city, country) {
-  await saveUserStep(chatId, "no_step");
   const user = await getUser(chatId);
   const subscribeIata = user.subscribed_iata || "";
   const subscribe = user.subscribe || false;
@@ -13,8 +12,6 @@ async function startMenu(chatId, city, country) {
 
     const caption = `
 📍 <strong>Departure city is ${city.toUpperCase().replace(/\.$/, "")}!</strong>
-
-⚙️ You can change a /city.
 
 ${
   !subscribe

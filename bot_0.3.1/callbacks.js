@@ -27,7 +27,7 @@ async function get_top_10_round_trip(chatId) {
   }
 
   const originIATA = userObj.iata_code;
-  const tickets = await getCheapTicketsRoundTrip(originIATA); // запрашиваем 7 билетов
+  const tickets = (await getCheapTicketsRoundTrip(originIATA)).slice(0, 6); // запрашиваем 7 билетов
 
   if (tickets.length === 0) {
     const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
@@ -152,7 +152,10 @@ async function special_offers(chatId) {
 
   const originIATA = userObj.iata_code;
   const originCity = userObj.city;
-  const ticketsRoundTrip = await specialOffersRoundTrip(originIATA);
+  const ticketsRoundTrip = (await specialOffersRoundTrip(originIATA)).slice(
+    0,
+    6,
+  );
 
   if (ticketsRoundTrip.length === 0) {
     const message = `😢💔 Sorry, I can't find the best results for ${userObj.city}, check it please on <a href="https://aviasales.tpo.mx/zniZ3SEe">https://aviasales.com</a>`;
@@ -437,8 +440,6 @@ async function handleCallbackQuery(chatId, data) {
 
 I’ll send you the best deals every day.
 
-You can use full options in start menu.
-
 To change the city — just select a new one and subscribe again.  
 To unsubscribe — open the start menu and tap “Unsubscribe”.
 `;
@@ -451,7 +452,7 @@ To unsubscribe — open the start menu and tap “Unsubscribe”.
     const message = `
 ❌ <b>You’ve unsubscribed from flight deals from ${userObj.city}</b>.
 
-You won’t receive weekly offers anymore.  
+You won’t receive daily offers anymore.  
 You can subscribe again anytime from the start menu ✈️
 `;
     await startMenuButton(chatId, message);

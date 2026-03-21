@@ -1,10 +1,11 @@
 const { safeSend } = require("./telegram");
 const { languages } = require("./languages");
-const { getUser } = require("./db");
+const { getUser, saveUserStep } = require("./db");
 
 // Обрабатываем команду старт
 async function handleCommandStart(chatId) {
   let userObj = await getUser(chatId);
+  await saveUserStep(chatId, "waiting_for_origin");
 
   await safeSend(
     chatId,

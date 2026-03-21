@@ -42,8 +42,6 @@ async function get_top_10_round_trip(chatId) {
       t.destination_country_code = info?.[2] || null;
     } catch (e) {
       console.log("getCityName ERROR:", e);
-      t.destination_city = null;
-      t.destination_country = null;
     }
   }
 
@@ -408,31 +406,38 @@ async function handleCallbackQuery(chatId, data) {
   }
 
   if (data === "get_top_10_round_trip") {
+    await saveUserStep(chatId, "no_step");
     await get_top_10_round_trip(chatId);
   }
 
-  if (data === "cheapest_flights_to_destination") {
-    await cheapest_flights_to_destination(chatId);
-  }
+  // if (data === "cheapest_flights_to_destination") {
+  //   await saveUserStep(chatId, "no_step");
+  //   await cheapest_flights_to_destination(chatId);
+  // }
 
   if (data === "special_offers") {
+    await saveUserStep(chatId, "no_step");
     await special_offers(chatId);
   }
 
-  if (data === "price_for_date") {
-    await price_for_date(chatId);
-  }
+  // if (data === "price_for_date") {
+  //   await saveUserStep(chatId, "no_step");
+  //   await price_for_date(chatId);
+  // }
 
-  if (data === "ai_assistant") {
-    await saveUserStep(chatId, "ai_mode");
-    aiAssistant(chatId);
-  }
+  // if (data === "ai_assistant") {
+  //   await saveUserStep(chatId, "no_step");
+  //   await saveUserStep(chatId, "ai_mode");
+  //   aiAssistant(chatId);
+  // }
 
   if (data === "weekend_flights") {
+    await saveUserStep(chatId, "no_step");
     await weekendFlights(chatId);
   }
 
   if (data === "subscribe") {
+    await saveUserStep(chatId, "no_step");
     await subscribe(chatId);
     const userObj = await getUser(chatId);
     const message = `

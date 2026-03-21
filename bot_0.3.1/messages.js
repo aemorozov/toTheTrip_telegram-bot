@@ -26,7 +26,7 @@ const {
 const {
   getTicketsForDateRoundTrip,
 } = require("./priceForDate/getTicketsForDate");
-const { JSONReq, TPReq, messageReq } = require("./aiAssistant/aiAssistant");
+const { aiAssistant } = require("./aiAssistant/aiAssistant");
 const { getCityImage } = require("./getCityImage");
 
 // Нормадизация даты
@@ -174,33 +174,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
 
   // Проверяем, находится ли пользователь на каком-то шаге сценария
   const step = await getUserStep(chatId);
-  if (step === "waiting_for_origin") {
-    try {
-      await saveUserStep(chatId, "no_step");
-      const iataAndCity = await getIataCode(userInput);
-      const iata = iataAndCity[0];
-      const city = iataAndCity[1];
-      const country = iataAndCity[2];
-      if (!iata) {
-        await safeSend(
-          chatId,
-          "Warning: I couldn't recognize the city you specified. Please try again.",
-        );
-        return;
-      }
-
-      await saveUser(userInfo, iata, city, country);
-      await startMenu(chatId, city);
-      return;
-    } catch (err) {
-      console.error("handleTextMessage error:", err);
-      await safeSend(
-        chatId,
-        "Warning: Something went wrong while saving your city. Please try again.",
-      );
-      return;
-    }
-  } else if (step === "waiting_for_destination") {
+  if (step === "waiting_for_destination") {
     try {
       await saveUserStep(chatId, "no_step");
       const userObj = await getUser(chatId);
@@ -434,24 +408,15 @@ async function handleTextMessage(chatId, userInput, userInfo) {
       );
     }
   } else if (userInput === "/cheapflights") {
-    await saveUserStep(chatId, "no_step");
     await get_top_10_round_trip(chatId);
   } else if (userInput === "/specialoffers") {
-    await saveUserStep(chatId, "no_step");
     await special_offers(chatId);
   } else if (userInput === "/weekendsonly") {
-    await saveUserStep(chatId, "no_step");
     await weekendFlights(chatId);
   } else if (userInput === "/adddate") {
-    await saveUserStep(chatId, "no_step");
     await price_for_date(chatId);
   } else if (userInput === "/adddestination") {
-    await saveUserStep(chatId, "no_step");
     await cheapest_flights_to_destination(chatId);
-  } else if (userInput === "/city") {
-    await saveUserStep(chatId, "waiting_for_origin");
-    await safeSend(chatId, "Please enter your departure city.");
-    return;
   } else if (userInput === "/exit") {
     await saveUserStep(chatId, "no_step");
     const userObj = await getUser(chatId);
@@ -460,98 +425,39 @@ async function handleTextMessage(chatId, userInput, userInfo) {
     await safeSend(chatId, "Exited AI assistant mode.");
     await startMenu(chatId, city, country);
     return;
-  } else {
+  } else if (step === "ai_mode") {
+    // 1. достаем юзера
     const user = await getUser(chatId);
 
-    const history = user.messages || [];
+    // 2. сохраняем сообщение
+    user.ai_assist = user.ai_assist || [];
+    user.ai_assist.push(userInput);
+    user.ai_assist = user.ai_assist.slice(-10);
+    await updateUser(user.id, {
+      ai_assist: user.ai_assist,
+      updated_at: new Date().toISOString(),
+    });
 
-    console.log("chatId: ", chatId, "  userInput: ", userInput);
+    // 4. GPT ответ
+    const answer = await aiAssistant(userInput);
 
-    const firstRes = await JSONReq(userInput, history);
-    console.log("firstRes", firstRes);
+    // 5. отправляем
+    await safeSend(chatId, answer, { parse_mode: "HTML" });
+  } else {
+    // Если нет, то пытаемся записать сообщение как город для вылета (origin)
+    // get IATA code
+    const iataAndCity = await getIataCode(userInput);
+    const iata = iataAndCity[0];
+    const city = iataAndCity[1];
+    const country = iataAndCity[2];
+    if (!iata) throw new Error("Unable to determine IATA code");
 
-    const seconRes = await TPReq(JSON.parse(firstRes));
-    console.log("seconRes", seconRes);
+    // save user
+    await saveUser(userInfo, iata, city, country);
 
-    const thirdRes = await messageReq(userInput, firstRes, seconRes);
-    console.log("thirdRes", thirdRes);
-
-    for (const t of seconRes) {
-      try {
-        const info = await getCityName(t.destination);
-        t.destination_city = info?.[0] || null;
-        t.destination_country = info?.[1] || null;
-        t.destination_country_code = info?.[2] || null;
-      } catch (e) {
-        console.log("getCityName ERROR:", e);
-      }
-    }
-
-    const message =
-      seconRes.length > 0
-        ? `${JSON.parse(thirdRes).answer}\n\n` +
-          seconRes
-            .map((t) => {
-              const destination_iata = t.destination;
-              const destination = t.destination_city;
-              const destinationCountry = t.destination_country_code;
-              const departure_date = DateTime.fromISO(t.departure_at, {
-                setZone: true,
-              })
-                .setLocale("en")
-                .toFormat("ccc dd LLL");
-              const departure_time = DateTime.fromISO(t.departure_at, {
-                setZone: true,
-              }).toFormat("HH:mm");
-
-              const depart_transfers = t.transfers;
-
-              const return_date = t.return_at
-                ? DateTime.fromISO(t.return_at, {
-                    setZone: true,
-                  })
-                    .setLocale("en")
-                    .toFormat("ccc dd LLL")
-                : null;
-              const return_time = t.return_at
-                ? DateTime.fromISO(t.return_at, {
-                    setZone: true,
-                  }).toFormat("HH:mm")
-                : null;
-
-              const return_transfers = t.return_transfers;
-
-              const searchPath = `${t.origin}${DateTime.fromISO(
-                t.departure_at,
-                {
-                  setZone: true,
-                },
-              ).toFormat("ddMM")}${destination_iata}${DateTime.fromISO(
-                t.return_at,
-                {
-                  setZone: true,
-                },
-              ).toFormat("ddMM")}1`;
-              const baseUrl = `https://www.aviasales.com/search/${searchPath}?currency=EUR`;
-              const encodedUrl = encodeURIComponent(baseUrl);
-              const link = `https://tp.media/r?marker=59890&trs=443711&p=4114&u=${encodedUrl}&campaign_id=100`;
-
-              const depart_transfers_text =
-                depart_transfers == "0" ? "" : `🔃 ${depart_transfers}`;
-              const return_transfers_text =
-                return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
-
-              return `✈️ to <b>${destination}, ${destinationCountry}</b> about <b>${
-                t.price
-              }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n${return_date ? `📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n` : ""}🔗 <u><a href="${link}">https://${extractShortLink(
-                link,
-              )}</a></u>\n`;
-            })
-            .join("\n") +
-          `\n📢 Share it to your travel friend!`
-        : `${JSON.parse(thirdRes).answer}`;
-
-    return await startMenuButton(chatId, message);
+    // send options
+    await startMenu(chatId, city);
   }
 }
+
 module.exports = { handleTextMessage };
