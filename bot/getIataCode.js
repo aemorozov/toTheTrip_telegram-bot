@@ -104,8 +104,6 @@ async function getIataCode(cityName) {
 
     let code = res.choices[0].message.content.trim();
 
-    console.log(`✅ Found via ChatGPT: ${name} → ${iata}`);
-
     // Сохраняем в Redis
     try {
       const json = await redisRequest("get", "airports");
@@ -116,6 +114,8 @@ async function getIataCode(cityName) {
     } catch (err) {
       console.warn("⚠️ Could not save ChatGPT result to Redis:", err.message);
     }
+
+    console.log(`${(code.code, code.name, code.country_name)}}`);
 
     return [code.code, code.name, code.country_name];
   } catch (err) {
