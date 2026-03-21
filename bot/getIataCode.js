@@ -79,37 +79,47 @@ async function getIataCode(cityName) {
   }
 
   // 3️⃣ Fallback — ChatGPT
-  //   console.log("🔹 Fallback to ChatGPT...");
-  //   try {
-  //     const prompt = `Какой основной IATA-код у города или аэропорта "${cityName}"?
-  // Если нет такого, то поищи ближайший аэропорт, из которого летают регулярные международные рейсы, и верни его IATA-код.
-  // Ответь строго в формате: MOW,Moscow. Если тебе неизвестен город, то не спрашивай уточняющую информацию, просто верни "BUH,Bucharest"`;
+  console.log("🔹 Fallback to ChatGPT...");
+  try {
+    const prompt = `Какой основной IATA-код у города или аэропорта "${cityName}"?
+  Если нет такого, то поищи ближайший аэропорт, из которого летают регулярные международные рейсы, и верни его IATA-код.
+  Ответь строго в формате: 
+      {
+        name: string,
+        code: string,
+        country_name: string
+      }
 
-  //     const res = await openai.chat.completions.create({
-  //       messages: [{ role: "user", content: prompt }],
-  //       model: "gpt-5-mini",
-  //     });
+  name - main city name
+  code - IATA код города
+  country_name - название страны аэропорта
 
-  //     let code = res.choices[0].message.content.trim();
+  Если тебе неизвестен город, то не спрашивай уточняющую информацию, просто верни "BUH,Bucharest"`;
 
-  //     const [iata, name] = code.split(",");
-  //     console.log(`✅ Found via ChatGPT: ${name} → ${iata}`);
+    const res = await openai.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "gpt-5-mini",
+    });
 
-  //     // Сохраняем в Redis
-  //     try {
-  //       const json = await redisRequest("get", "airports");
-  //       const airportsData = json?.result ? JSON.parse(json.result) : {};
-  //       airportsData[name] = iata;
-  //       await redisRequest("set", "airports", JSON.stringify(airportsData));
-  //       console.log(`💾 Saved ChatGPT result to Redis: ${name} → ${iata}`);
-  //     } catch (err) {
-  //       console.warn("⚠️ Could not save ChatGPT result to Redis:", err.message);
-  //     }
+    let code = res.choices[0].message.content.trim();
 
-  //     return [iata, name];
-  //   } catch (err) {
-  //     console.error("❌ ChatGPT error:", err.message);
-  //   }
+    console.log(`✅ Found via ChatGPT: ${name} → ${iata}`);
+
+    // Сохраняем в Redis
+    try {
+      const json = await redisRequest("get", "airports");
+      const airportsData = json?.result ? JSON.parse(json.result) : {};
+      airportsData[name] = iata;
+      await redisRequest("set", "airports", JSON.stringify(airportsData));
+      console.log(`💾 Saved ChatGPT result to Redis: ${name} → ${iata}`);
+    } catch (err) {
+      console.warn("⚠️ Could not save ChatGPT result to Redis:", err.message);
+    }
+
+    return [code.code, code.name, code.country_name];
+  } catch (err) {
+    console.error("❌ ChatGPT error:", err.message);
+  }
 
   console.log("❌ Could not determine IATA code.");
   return [null, null];

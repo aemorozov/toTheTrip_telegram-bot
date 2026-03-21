@@ -186,6 +186,7 @@ async function handleTextMessage(chatId, userInput, userInfo) {
           chatId,
           "Warning: I couldn't recognize the city you specified. Please try again.",
         );
+        await saveUserStep(chatId, "waiting_for_origin");
         return;
       }
 
