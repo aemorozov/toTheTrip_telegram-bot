@@ -95,27 +95,16 @@ async function getIataCode(cityName) {
   code - IATA код города
   country_name - название страны аэропорта
 
-  Если тебе неизвестен город, то не спрашивай уточняющую информацию, просто верни "BUH,Bucharest"`;
+  Если тебе неизвестен город, то не спрашивай уточняющую информацию, просто верни информацию про Бухарест`;
 
     const res = await openai.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "gpt-5-mini",
+      model: "gpt-5.2",
     });
 
     let code = res.choices[0].message.content.trim();
 
-    // Сохраняем в Redis
-    try {
-      const json = await redisRequest("get", "airports");
-      const airportsData = json?.result ? JSON.parse(json.result) : {};
-      airportsData[name] = iata;
-      await redisRequest("set", "airports", JSON.stringify(airportsData));
-      console.log(`💾 Saved ChatGPT result to Redis: ${name} → ${iata}`);
-    } catch (err) {
-      console.warn("⚠️ Could not save ChatGPT result to Redis:", err.message);
-    }
-
-    console.log(`${(code.code, code.name, code.country_name)}}`);
+    console.log(`${[code.code, code.name, code.country_name]}}`);
 
     return [code.code, code.name, code.country_name];
   } catch (err) {
