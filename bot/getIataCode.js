@@ -21,11 +21,9 @@ async function redisRequest(method, key, value = null) {
 
 // === Основная функция поиска IATA-кода ===
 async function getIataCode(cityName) {
-  if (!cityName) return [null, null, null];
+  if (!cityName) return [null, null];
 
   const normalized = cityName.trim();
-
-  console.log(normalized);
 
   // // 1️⃣ Поиск в Redis (таблица airports)
   // try {
@@ -48,16 +46,16 @@ async function getIataCode(cityName) {
   //   await sendMessage("Looking for all airports in your city...");
   // }
 
-  // 2️⃣ Запрос к Travelpayouts (только города)
+  // 2️⃣ Запрос к Travelpayouts (города + аэропорты)
   try {
     const { data } = await axios.get(
       "https://autocomplete.travelpayouts.com/places2",
       {
-        params: { term: normalized, locale: "en", type: "city" },
+        params: { term: normalized, locale: "en", types: ["city", "airport"] },
       },
     );
 
-    const match = data.find((p) => p.type === "city");
+    const match = data.find((p) => p.type === "city") || data[0];
     if (match) {
       // Сохраняем в Redis (обновляем JSON)
       try {
@@ -84,6 +82,7 @@ async function getIataCode(cityName) {
   console.log("🔹 Fallback to ChatGPT...");
   try {
     const prompt = `Какой основной IATA-код у города или аэропорта "${normalized}"?
+  Если нет такого, то поищи ближайший аэропорт, из которого летают регулярные международные рейсы, и верни его IATA-код.
   Ответь строго в формате: 
       {
         name: string,
@@ -95,16 +94,25 @@ async function getIataCode(cityName) {
   code - IATA код города
   country_name - название страны аэропорта
 
-  Если тебе неизвестен город, то не спрашивай уточняющую информацию, просто верни информацию про Бухарест`;
+  Если тебе неизвестен город, то не спрашивай уточняющую информацию, просто верни информацию про Bucharest`;
 
     const res = await openai.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
       model: "gpt-5.2",
     });
 
-    let code = res.choices[0].message.content.trim();
+    const raw = res.choices[0].message.content.trim();
+    let code;
+    try {
+      code = JSON.parse(raw);
+    } catch (e) {
+      console.warn("⚠️ ChatGPT returned non-JSON, raw:", raw);
+      throw e;
+    }
 
-    console.log(`${[code.code, code.name, code.country_name]}}`);
+    console.log(
+      `✅ Found via ChatGPT: code.code, code.name, code.country_name`,
+    );
 
     return [code.code, code.name, code.country_name];
   } catch (err) {
@@ -112,7 +120,7 @@ async function getIataCode(cityName) {
   }
 
   console.log("❌ Could not determine IATA code.");
-  return [null, null];
+  return [null, null, null];
 }
 
 module.exports = { getIataCode };
