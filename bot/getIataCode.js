@@ -21,9 +21,11 @@ async function redisRequest(method, key, value = null) {
 
 // === Основная функция поиска IATA-кода ===
 async function getIataCode(cityName) {
-  if (!cityName) return [null, null];
+  if (!cityName) return [null, null, null];
 
   const normalized = cityName.trim();
+
+  console.log(normalized);
 
   // // 1️⃣ Поиск в Redis (таблица airports)
   // try {
@@ -81,8 +83,7 @@ async function getIataCode(cityName) {
   // 3️⃣ Fallback — ChatGPT
   console.log("🔹 Fallback to ChatGPT...");
   try {
-    const prompt = `Какой основной IATA-код у города или аэропорта "${cityName}"?
-  Если нет такого, то поищи ближайший аэропорт, из которого летают регулярные международные рейсы, и верни его IATA-код.
+    const prompt = `Какой основной IATA-код у города или аэропорта "${normalized}"?
   Ответь строго в формате: 
       {
         name: string,
