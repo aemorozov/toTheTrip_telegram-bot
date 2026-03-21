@@ -87,6 +87,7 @@ async function messageReq(userMessage, firstRes, seconRes) {
   - You have data from user: ${firstResText}.
   - You found that flights: ${seconResText}. If it't empty, ask to change the dates or search on full month.
   - You can't choose fastest way, just cheapest.
+  - Don't make a description of flights.
   
   If ${userMessage} don't include flights information, tell you can work just with flights data.
 
