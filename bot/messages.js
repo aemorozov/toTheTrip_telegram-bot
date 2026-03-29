@@ -9,6 +9,7 @@ const {
   getCityName,
   updateUser,
 } = require("./db");
+const capabilities = require("./aiAssistant/capabilities.json");
 const { startMenu } = require("./startMenu");
 const {
   getTicketsForDestinationRoundTrip,
@@ -464,17 +465,42 @@ async function handleTextMessage(chatId, userInput, userInfo) {
   } else {
     const user = await getUser(chatId);
 
-    const history = user.messages || [];
+    const userFlightObject = user.userFlightObject || {};
 
     console.log("chatId: ", chatId, "  userInput: ", userInput);
 
-    const firstRes = await JSONReq(userInput, history);
+    const firstRes = await JSONReq(userInput, userFlightObject);
     console.log("firstRes", firstRes);
 
-    const seconRes = await TPReq(JSON.parse(firstRes));
+    if (firstRes?.unsupported_reason) {
+      const message =
+        `I can search for flights by exact date, destination, or no date. ` +
+        `Examples: "Rome 12.04", "from OTP to BCN", "to Paris".`;
+      return await startMenuButton(chatId, message);
+    }
+
+    if (!firstRes.origin && user?.iata_code) {
+      firstRes.origin = user.iata_code;
+    }
+
+    if (firstRes.one_way === null || firstRes.one_way === undefined) {
+      firstRes.one_way = capabilities?.defaults?.one_way ?? true;
+    }
+    if (firstRes.direct === null || firstRes.direct === undefined) {
+      firstRes.direct = capabilities?.defaults?.direct ?? true;
+    }
+
+    if (!firstRes.origin) {
+      const message = `Не вижу город вылета. Напиши его, например: "из OTP в BCN" или "Бухарест — Рим".`;
+      return await startMenuButton(chatId, message);
+    }
+
+    await updateUser(chatId, { userFlightObject: firstRes });
+
+    const seconRes = await TPReq(firstRes);
     console.log("seconRes", seconRes);
 
-    const thirdRes = await messageReq(userInput, firstRes, seconRes);
+    const thirdRes = await messageReq(userInput, seconRes);
     console.log("thirdRes", thirdRes);
 
     for (const t of seconRes) {
@@ -483,6 +509,10 @@ async function handleTextMessage(chatId, userInput, userInfo) {
         t.destination_city = info?.[0] || null;
         t.destination_country = info?.[1] || null;
         t.destination_country_code = info?.[2] || null;
+        const originInfo = await getCityName(t.origin);
+        t.origin_city = originInfo?.[0] || null;
+        t.origin_country = originInfo?.[1] || null;
+        t.origin_country_code = originInfo?.[2] || null;
       } catch (e) {
         console.log("getCityName ERROR:", e);
       }
@@ -493,6 +523,8 @@ async function handleTextMessage(chatId, userInput, userInfo) {
         ? `${JSON.parse(thirdRes).answer}\n\n` +
           seconRes
             .map((t) => {
+              const originCity = t.origin_city;
+              const originCountryCode = t.origin_country_code;
               const destination_iata = t.destination;
               const destination = t.destination_city;
               const destinationCountry = t.destination_country_code;
@@ -542,14 +574,14 @@ async function handleTextMessage(chatId, userInput, userInfo) {
               const return_transfers_text =
                 return_transfers == "0" ? "" : `🔃 ${return_transfers}`;
 
-              return `✈️ to <b>${destination}, ${destinationCountry}</b> about <b>${
+              return `✈️ From ${originCity}, ${originCountryCode}\n✈️ to <b>${destination}, ${destinationCountry}</b> about <b>${
                 t.price
               }€</b>\n📅 <b>${departure_date}</b>  🕐 ${departure_time}  ${depart_transfers_text}\n${return_date ? `📅 <b>${return_date}</b>  🕐 ${return_time}  ${return_transfers_text}\n` : ""}🔗 <u><a href="${link}">https://${extractShortLink(
                 link,
               )}</a></u>\n`;
             })
             .join("\n") +
-          `\n📢 Share it to your travel friend!`
+          `\n📢 Nice idea to share it!`
         : `${JSON.parse(thirdRes).answer}`;
 
     return await startMenuButton(chatId, message);

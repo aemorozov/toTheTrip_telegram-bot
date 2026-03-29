@@ -1,6 +1,7 @@
-﻿const TelegramBot = require("node-telegram-bot-api");
+const TelegramBot = require("node-telegram-bot-api");
 const FormData = require("form-data");
 const axios = require("axios");
+const { unsubscribe } = require("./subscribe");
 
 let bot;
 if (!process.env.TELEGRAM_TOKEN) throw new Error("TELEGRAM_TOKEN not set");
@@ -13,12 +14,29 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function isBlockedByUser(err) {
+  const data = err?.response?.data;
+  const code = data?.error_code;
+  const desc = String(data?.description || "");
+  return code === 403 && desc.toLowerCase().includes("bot was blocked");
+}
+
+async function tryUnsubscribeBlocked(chatId, err) {
+  if (!isBlockedByUser(err)) return;
+  try {
+    await unsubscribe(chatId);
+  } catch (unsubErr) {
+    console.error(`ERROR unsubscribe blocked user ${chatId}:`, unsubErr);
+  }
+}
+
 async function safeSend(chatId, text, opts = { parse_mode: "HTML" }) {
   for (let attempt = 1; attempt <= MAX_SEND_ATTEMPTS; attempt += 1) {
     try {
       await bot.sendMessage(chatId, text, opts);
       return true;
     } catch (err) {
+      await tryUnsubscribeBlocked(chatId, err);
       console.error(
         `ERROR bot.sendMessage for ${chatId} (attempt ${attempt}/${MAX_SEND_ATTEMPTS}):`,
         err
@@ -58,6 +76,7 @@ async function safeSendPhoto(chatId, imageBuffer, caption = "", opts = {}) {
 
     await axios.post(url, form, { headers: form.getHeaders() });
   } catch (err) {
+    await tryUnsubscribeBlocked(chatId, err);
     console.error(
       `ERROR safeSendPhoto for ${chatId}:`,
       err.response?.data || err

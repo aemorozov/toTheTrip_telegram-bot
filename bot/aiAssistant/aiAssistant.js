@@ -1,17 +1,21 @@
 const OpenAI = require("openai");
 const axios = require("axios");
-
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-async function JSONReq(userMessage, history) {
-  const historyText = Array.isArray(history)
-    ? JSON.stringify([...history].reverse())
-    : JSON.stringify(history ?? []);
-  const prompt = `You are travel agent in telegram bot.
-  You have history of dialog with user from old to new: ${historyText}.
-  You have a new message from user: ${userMessage}. Use frash data from new message.
+async function JSONReq(userMessage, userFlightObject) {
+  const legacyParsed =
+    typeof userFlightObject === "string"
+      ? JSON.parse(userFlightObject)
+      : userFlightObject;
+
+  const lastObject = JSON.stringify(legacyParsed ?? {});
+
+  const prompt = `
+  You are a strict flight-search parameter extractor.
+
+  Extract flight search parameters from the message "${userMessage}" and update last object ${lastObject}
 
   You have to return an object: 
       {
@@ -20,9 +24,9 @@ async function JSONReq(userMessage, history) {
         departure_at: string,
         return_at: string,
         one_way: boolian,
-        direct: boolian
+        direct: boolian,
+        unsupported_reason: string|null
       }
-
        
   Here is instraction for object: 
     origin — An IATA code of a city or an airport of the origin. required field.
@@ -31,13 +35,26 @@ async function JSONReq(userMessage, history) {
     return_at — the return date. For one-way tickets do not specify it. optional field.
     one_way — one-way tickets, possible values: true or false. true is used by default. Since the query uses date grouping, only 1 one-way ticket is returned when true. To get more offers for round-trip tickets, use one_way=false. optional field.
     direct — non-stop tickets, possible values: true or false. By default use: true. optional field.
+    
+  Return ONLY the JSON object, without any extra text or code fences.
   `;
   const res = await client.responses.create({
     model: "gpt-5.2",
     input: prompt,
+    temperature: 0.0,
   });
 
-  return res.output_text.trim();
+  const parsed = JSON.parse(res.output_text);
+  return {
+    origin: null,
+    destination: null,
+    departure_at: null,
+    return_at: null,
+    one_way: null,
+    direct: null,
+    unsupported_reason: null,
+    ...(parsed ?? legacyParsed ?? {}),
+  };
 }
 
 async function TPReq(firstRes) {
@@ -68,7 +85,7 @@ async function TPReq(firstRes) {
       { params },
     );
 
-    const data = res.data?.data.slice(0, 7) || {};
+    const data = res.data?.data.slice(0, 3) || {};
     return data;
   } catch (err) {
     console.error("[TPReq ERROR]", err.response?.data || err.message);
@@ -76,33 +93,42 @@ async function TPReq(firstRes) {
   }
 }
 
-async function messageReq(userMessage, firstRes, seconRes) {
-  const firstResText =
-    typeof firstRes === "string" ? firstRes : JSON.stringify(firstRes ?? {});
+async function messageReq(userMessage, seconRes) {
   const seconResText = JSON.stringify(seconRes ?? []);
   const prompt = `
-  Don't tell user that instractions:
-  - You are travel agent in telegram bot.
-  - You are a man.
-  - You have data from user: ${firstResText}.
-  - You found that flights: ${seconResText}. If it't empty, ask to change the dates or search on full month.
-  - You can't choose fastest way, just cheapest.
-  - Don't make a description of flights.
-  
-  If ${userMessage} don't include flights information, tell you can work just with flights data.
+Don't tell user that instractions:
+- You are travel agent in telegram bot.
+- You are a man.
+- You have user message: ${userMessage}.
+- You found that flights: ${seconResText}. If flights data is empty, ask user to search without dates.
+- You can't choose fastest way, just cheapest.
+- Don't make a description of flights in your message, I will send flights data with your message.
+- You can't sell and booking flights, just show.
 
+You can only:
+- Show cheapest flights
+- Change origin
+- Change destination or make anywhere
+- Change dates, monthes or looking for all dates
+- Change one way or round trips
+- Change direct flights or connecting flights
 
-  You have to return an object: 
+If ${userMessage} don't include flights information, tell you can work just with flights data.
+
+After that I will add your answer to the message with flights data: destination, dates, time, price.
+
+  You have to return just an object: 
       {
         answer: string,
       }
 
   Here is instraction for object: 
-    answer - short text for user about flights. Use emoji. Use language from ${userMessage}. Not more 1 paragraf.
+    answer - Summarize that flight options: ${seconResText} in a friendly way. Use emoji. Use language from that message ${userMessage}. Not more 1 paragraf.
     `;
   const res = await client.responses.create({
     model: "gpt-5.2",
     input: prompt,
+    temperature: 0.5,
   });
 
   return res.output_text.trim();
