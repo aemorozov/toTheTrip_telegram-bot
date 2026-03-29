@@ -41,9 +41,18 @@ async function updateUser(chatId, updates) {
   if (!redis) return null;
   const key = `user:${chatId}`;
   const existing = safeParseMaybeJson(await redis.get(key)) || {};
+  let nextUpdates = { ...updates };
+  if (updates && updates.iata_code) {
+    const existingFlight = safeParseMaybeJson(existing.userFlightObject);
+    const nextFlight =
+      existingFlight && typeof existingFlight === "object"
+        ? { ...existingFlight, origin: updates.iata_code }
+        : { origin: updates.iata_code };
+    nextUpdates = { ...updates, userFlightObject: nextFlight };
+  }
   const updated = {
     ...existing,
-    ...updates,
+    ...nextUpdates,
     updated_at: new Date().toISOString(),
   };
   await redis.set(key, JSON.stringify(updated));
@@ -57,6 +66,18 @@ async function saveUser(userInfo, iata = "", city = "", country = "") {
   if (!redis) return;
   const userKey = `user:${userInfo.id}`;
   const existing = safeParseMaybeJson(await redis.get(userKey)) || {};
+  const existingFlight = safeParseMaybeJson(existing.userFlightObject);
+  let userFlightObject = existingFlight;
+  if (iata) {
+    if (existingFlight && typeof existingFlight === "object") {
+      userFlightObject = {
+        ...existingFlight,
+        origin: iata,
+      };
+    } else {
+      userFlightObject = { origin: iata };
+    }
+  }
 
   const data = {
     ...existing,
@@ -75,6 +96,7 @@ async function saveUser(userInfo, iata = "", city = "", country = "") {
     one_way: existing.one_way ?? null,
     step: existing.step || null,
     messages: existing.messages || [],
+    userFlightObject: userFlightObject ?? null,
     updated_at: new Date().toISOString(),
   };
 
