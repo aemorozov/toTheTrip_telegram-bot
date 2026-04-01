@@ -34,7 +34,7 @@ async function JSONReq(userMessage, userFlightObject) {
     departure_at — the departure date (YYYY-MM or YYYY-MM-DD). optional field.
     return_at — the return date. For one-way tickets do not specify it. optional field.
     one_way — one-way tickets, possible values: true or false. true is used by default. Since the query uses date grouping, only 1 one-way ticket is returned when true. To get more offers for round-trip tickets, use one_way=false. optional field.
-    direct — non-stop tickets, possible values: true or false. By default use: true. optional field.
+    direct — non-stop tickets, possible values: true or false. By default use: false. Optional field.
     
   Return ONLY the JSON object, without any extra text or code fences.
   `;
@@ -122,9 +122,10 @@ After that I will add your answer to the message with flights data: destination,
         answer: string,
       }
 
-  Here is instraction for object: 
-    answer - Summarize that flight options: ${seconResText} in a friendly way. Use emoji. Use language from that message ${userMessage}. Not more 1 paragraf.
-    `;
+Here is instraction for object: 
+  answer - Summarize that flight options: ${seconResText} in a friendly way. Use emoji. Use language from that message ${userMessage}. Not more 1 paragraf.
+  
+Example message: "Look what I found for you! Connecting flights from Bucharest to Milan on any date. We can search for direct flights or the cheapest tickets in May, just let us know!" Rephrase this message and include your actual search details.`;
   const res = await client.responses.create({
     model: "gpt-5.2",
     input: prompt,
