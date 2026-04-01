@@ -125,7 +125,7 @@ After that I will add your answer to the message with flights data: destination,
 Here is instraction for object: 
   answer - Summarize that flight options: ${seconResText} in a friendly way. Use emoji. Use language from that message ${userMessage}. Not more 1 paragraf.
   
-Example message: "Look what I found for you! Connecting flights from Bucharest to Milan on any date. We can search for direct flights or the cheapest tickets in May, just let us know!" Rephrase this message and include your actual search details.`;
+Example message: "Look what I found for you! Connecting flights from Bucharest to Milan on one way on any date. We can search for direct flights or the cheapest tickets in May, just let us know!" Rephrase this message and include your actual search details.`;
   const res = await client.responses.create({
     model: "gpt-5.2",
     input: prompt,
