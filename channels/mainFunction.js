@@ -71,22 +71,18 @@ async function getGPTTitle(tickets, REDIS_KEY, language = "en") {
   console.log("destination_city:", destination_city);
 
   const response = await openai.chat.completions.create({
-    model: "gpt-5.4-nano",
+    model: "gpt-5.4-mini",
     messages: [
-      {
-        role: "system",
-        content: `You are emotional and unusual travel copywriter for Telegram channels.`,
-      },
       {
         role: "user",
         content: `
 Return emotional, unusual title about one of the most popular place in ${destination_city}
+
 Rules:
-- Strong about 100 characters in that headline, not more.
+- About 200 characters in that headline.
 - Sound natural and human
-- Use emoji (1-2) in start of title
+- Use emoji
 - DO NOT use lies
-- Headlines must feel written by a real person
 - All flights are round trip, use it
 - Use that language: ${language}
 - Do not repeat last titles: ${lastTitles} and emodjis
