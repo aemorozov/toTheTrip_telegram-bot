@@ -44,40 +44,44 @@ async function saveTitle(redis, title, REDIS_KEY) {
 
 async function getGPTTitle(tickets, REDIS_KEY, language = "en") {
   const samples = [
-    "Думаем, чем займемся в январе:",
-    "Жители Бухареста окажутся у моря уже завтра",
-    "Мини-сборки для наших любимых путешественников:",
-    "Еще горячая подборка:",
-    "Горячий пирожок для Петербурга",
-    "Туда, где тепло: 6 ночей в ОАЭ из Екатеринбурга за 24400 рублей с человека!",
-    "А для самых быстрых есть дешёвые тикеты в Египет:",
-    "Праздник к нам приходит:",
-    "Давно мы уже такого не видели: прямые рейсы из Краснодара в Грузию",
-    "Держим путь в Питер: прямые рейсы из Екб",
-    "Кто там просил недорогие билеты в Америку?",
-    "Дед Мороз заезжал в наш офис в Новосибирске и просил передать подарок для хороших мальчиков и девочек:",
-    "Все дороги ведут в Египет:",
-    "Летим смотреть предновогоднюю Турцию:",
-    "Сибиряки, тут раздают дешёвые билеты:",
-    "Пермяки, встречаем Новый год на берегу Красного моря:",
-    "Едем на Кавказ: прямые декабрьские рейсы из Бухареста,",
-    "Вот она, настоящая халява:",
-    "Давненько мы уже не писали про билеты из Москвы на Филиппины!",
+    "January plans? We’ve got something BIG for you 👀",
+    "Bucharest → the seaside TOMORROW? Yes, it’s real 🌊",
+    "🔥 Handpicked deals for our favorite travelers — don’t miss out!",
+    "🚨 HOT deal just dropped — grab it before it’s gone!",
+    "Fresh out of the oven: insane deal for St. Petersburg",
+    "☀️ Escape the cold: 6 nights in the UAE from Yekaterinburg — only 24,400 RUB!",
+    "⚡ Only for the fastest: dirt-cheap tickets to Egypt!",
+    "🎄 The holiday magic starts NOW — don’t miss these deals!",
+    "😳 You won’t believe this: direct flights from Krasnodar to Georgia are BACK!",
+    "✈️ Straight to St. Petersburg — direct flights from Yekaterinburg!",
+    "👀 Someone asked for cheap tickets to the US? Here you go!",
+    "🎅 Santa left something special… and it’s waiting for YOU:",
+    "🌍 All roads lead to Egypt — and prices are CRAZY low!",
+    "🇹🇷 Turkey before New Year? These prices won’t last!",
+    "🚀 Siberia, wake up — insanely cheap tickets are LIVE!",
+    "🌴 Perm, ready for New Year by the Red Sea? Let’s go!",
+    "🏔️ Caucasus calling: direct December flights from Bucharest!",
+    "💸 This is what REAL cheap looks like — don’t blink!",
+    "🔥 Finally! Cheap flights from Moscow to the Philippines are BACK!",
   ];
 
   const lastTitles = await getLastTitles(redis, REDIS_KEY);
+  const destination_city = tickets[0].to;
+
+  console.log("destination_city:", destination_city);
 
   const response = await openai.chat.completions.create({
-    model: "gpt-5.2",
+    model: "gpt-5.4-nano",
     messages: [
       {
         role: "system",
-        content: `You are a professional travel copywriter for Telegram channels.`,
+        content: `You are emotional and unusual travel copywriter for Telegram channels.`,
       },
       {
         role: "user",
-        content: `Rules:
-- Generate SHORT, emotional, unusual ONE headline about all flights ${tickets}
+        content: `
+Return emotional, unusual title about one of the most popular place in ${destination_city}
+Rules:
 - Strong about 100 characters in that headline, not more.
 - Sound natural and human
 - Use emoji (1-2) in start of title
@@ -89,7 +93,8 @@ async function getGPTTitle(tickets, REDIS_KEY, language = "en") {
 - Do not repeat last titles: ${lastTitles} and emodjis
 - Do not use abbreviations
 - Don't call the country of departure
-- If you need to translate into Uzbek, use Cyrillic.`,
+- If you need to translate into Uzbek, use Cyrillic.
+- Instead of the word "tour," use a synonym like "journey" or "trip."`,
       },
     ],
     temperature: 1,
@@ -229,7 +234,7 @@ async function main(
   }
 
   const freshFlights = shuffle(preFreshFlights)
-    .slice(0, 5)
+    .slice(0, 3)
     .sort((a, b) => a.price - b.price);
 
   console.log("freshFlights:", freshFlights.length);
@@ -245,17 +250,14 @@ async function main(
     to: f.destinationName,
     price: f.price,
     currency: "EUR",
-    transfers: f.transfers,
-    return_transfers: f.return_transfers,
-    distance: Math.round(f.distance),
+    departure_at: f.departure_at,
+    return_at: f.return_at,
   }));
 
+  console.log(ticketsForGPT[0].to);
+
   // Формируем сообщение
-  const title = await getGPTTitle(
-    JSON.stringify(ticketsForGPT),
-    REDIS_KEY,
-    language,
-  );
+  const title = await getGPTTitle(ticketsForGPT, REDIS_KEY, language);
 
   const message =
     `<b>${title}</b>\n` +
