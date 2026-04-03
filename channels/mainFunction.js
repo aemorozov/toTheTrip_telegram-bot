@@ -89,7 +89,6 @@ Rules:
 - Headlines must feel written by a real person
 - All flights are round trip, use it
 - Use that language: ${language}
-- Samples for styling: ${samples}
 - Do not repeat last titles: ${lastTitles} and emodjis
 - Do not use abbreviations
 - Don't call the country of departure
