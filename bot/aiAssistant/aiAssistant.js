@@ -33,7 +33,7 @@ async function JSONReq(userMessage, userFlightObject) {
     destination — An IATA code of a city or an airport of the destination (if you don't specify the origin parameter, you must set the destination). optional field.
     departure_at — the departure date (YYYY-MM or YYYY-MM-DD). optional field.
     return_at — the return date. For one-way tickets do not specify it. optional field.
-    one_way — one-way tickets, possible values: true or false. true is used by default. Since the query uses date grouping, only 1 one-way ticket is returned when true. To get more offers for round-trip tickets, use one_way=false. optional field.
+    one_way — one-way tickets, possible values: true or false. By default use: false. Since the query uses date grouping, only 1 one-way ticket is returned when true. To get more offers for round-trip tickets, use one_way=false. optional field.
     direct — non-stop tickets, possible values: true or false. By default use: false. Optional field.
     
   Return ONLY the JSON object, without any extra text or code fences.

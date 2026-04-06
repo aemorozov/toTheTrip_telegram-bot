@@ -43,32 +43,8 @@ async function saveTitle(redis, title, REDIS_KEY) {
 }
 
 async function getGPTTitle(tickets, REDIS_KEY, language = "en") {
-  const samples = [
-    "January plans? We’ve got something BIG for you 👀",
-    "Bucharest → the seaside TOMORROW? Yes, it’s real 🌊",
-    "🔥 Handpicked deals for our favorite travelers — don’t miss out!",
-    "🚨 HOT deal just dropped — grab it before it’s gone!",
-    "Fresh out of the oven: insane deal for St. Petersburg",
-    "☀️ Escape the cold: 6 nights in the UAE from Yekaterinburg — only 24,400 RUB!",
-    "⚡ Only for the fastest: dirt-cheap tickets to Egypt!",
-    "🎄 The holiday magic starts NOW — don’t miss these deals!",
-    "😳 You won’t believe this: direct flights from Krasnodar to Georgia are BACK!",
-    "✈️ Straight to St. Petersburg — direct flights from Yekaterinburg!",
-    "👀 Someone asked for cheap tickets to the US? Here you go!",
-    "🎅 Santa left something special… and it’s waiting for YOU:",
-    "🌍 All roads lead to Egypt — and prices are CRAZY low!",
-    "🇹🇷 Turkey before New Year? These prices won’t last!",
-    "🚀 Siberia, wake up — insanely cheap tickets are LIVE!",
-    "🌴 Perm, ready for New Year by the Red Sea? Let’s go!",
-    "🏔️ Caucasus calling: direct December flights from Bucharest!",
-    "💸 This is what REAL cheap looks like — don’t blink!",
-    "🔥 Finally! Cheap flights from Moscow to the Philippines are BACK!",
-  ];
-
   const lastTitles = await getLastTitles(redis, REDIS_KEY);
   const destination_city = tickets[0].to;
-
-  console.log("destination_city:", destination_city);
 
   const response = await openai.chat.completions.create({
     model: "gpt-5.4-mini",
