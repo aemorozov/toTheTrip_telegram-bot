@@ -9,7 +9,6 @@ const {
   getCityName,
   updateUser,
 } = require("./db");
-const capabilities = require("./aiAssistant/capabilities.json");
 const { startMenu } = require("./startMenu");
 const {
   getTicketsForDestinationRoundTrip,
