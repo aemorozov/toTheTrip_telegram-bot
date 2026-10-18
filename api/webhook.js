@@ -1,4 +1,4 @@
-require("dotenv").config();
+﻿require("dotenv").config();
 const { bot, safeSend } = require("../bot/telegram");
 const { handleCommandStart } = require("../bot/commands");
 const { handleTextMessage } = require("../bot/messages");
@@ -52,7 +52,7 @@ module.exports = async (req, res) => {
       } catch (err) {
         console.error("❌ Ошибка при подсчёте пользователей:", err);
         await safeSend(chatId, "⚠️ Не удалось получить список пользователей.");
-        return res.status(500).send(err.message);
+        return res.status(200).send("ok");
       }
     }
 
@@ -61,11 +61,11 @@ module.exports = async (req, res) => {
       await handleTextMessage(chatId, userInput, userInfo);
     } catch (e) {
       await safeSend(chatId, e.message);
-      return res.status(500).send(e.message);
+      return res.status(200).send("ok");
     }
 
     try {
-      await pushMessage(chatId, userInput, 10);
+      await pushMessage(chatId, userInput, 50);
     } catch (e) {
       console.log("Redis error 2", e);
     }
@@ -73,7 +73,7 @@ module.exports = async (req, res) => {
     return res.status(200).send("ok");
   }
 
-  // Реагируем на нажатия кнопок выбора (колбеков)
+  // Реагируем на нажатия кнопок выбора (коллбеков)
   if (body.callback_query) {
     const chatId = body.callback_query.message?.chat?.id;
     const data = body.callback_query.data;
@@ -88,7 +88,7 @@ module.exports = async (req, res) => {
     }
 
     try {
-      await pushMessage(chatId, data, 10);
+      await pushMessage(chatId, data, 50);
     } catch (e) {
       console.log("Redis error 3", e);
     }
@@ -98,3 +98,4 @@ module.exports = async (req, res) => {
 
   return res.status(200).send("ok");
 };
+
