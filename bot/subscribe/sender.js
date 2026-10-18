@@ -25,7 +25,7 @@ async function saveTitle(redis, title, REDIS_KEY) {
   await redis.ltrim(REDIS_KEY, 0, 9);
 }
 
-async function getGPTTitle(tickets, originName, language = "en") {
+async function getGPTTitle(ticket, originName, language = "en") {
   const samples = [
     "Думаем, чем займемся в январе:",
     "Жители Бухареста окажутся у моря уже завтра",
@@ -50,6 +50,8 @@ async function getGPTTitle(tickets, originName, language = "en") {
 
   const lastTitles = await getLastTitles(redis, REDIS_KEY);
 
+  const ticketDetails = JSON.stringify(ticket);
+
   const response = await openai.chat.completions.create({
     model: "gpt-5.2",
     messages: [
@@ -60,7 +62,7 @@ async function getGPTTitle(tickets, originName, language = "en") {
       {
         role: "user",
         content: `Rules:
-- Generate SHORT, emotional, unusual ONE headline about all flights ${tickets}
+- Generate a SHORT, emotional, unusual headline for this flight: ${ticketDetails}
 - Write just about one ticket.
 - Use ${originName} in title, this is origin name.
 - Strong about 100 characters in that headline, not more.
