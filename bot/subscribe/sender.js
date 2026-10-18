@@ -61,10 +61,11 @@ async function getGPTTitle(tickets, originName, language = "en") {
         role: "user",
         content: `Rules:
 - Generate SHORT, emotional, unusual ONE headline about all flights ${tickets}
+- Write just about one ticket.
 - Use ${originName} in title, this is origin name.
 - Strong about 100 characters in that headline, not more.
 - Sound natural and human
-- Use emoji (1-2) in start of title
+- Use 1 emoji in start of title
 - DO NOT use lies
 - Headlines must feel written by a real person
 - All flights are round trip, use it
