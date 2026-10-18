@@ -1,22 +1,8 @@
 import { main } from "../mainFunction";
 
 const CHANNEL_ID = "@cheapflightsforyou";
-const airports = [
-  "IST",
-  "ESB",
-  "ADB",
-  "AYT",
-  "DLM",
-  "BJV",
-  "GZT",
-  "TZX",
-  "SZF",
-  "ASR",
-  "KYA",
-  "DIY",
-  "VAN",
-];
-const locale = "tr"; // for getCityName and depDate = dtDeparture.setLocale("ro")
+const airports = ["BUH", "CLJ", "CRA", "IAS", "OMR", "SBZ", "TSR"];
+const locale = "ro"; // for getCityName and depDate = dtDeparture.setLocale("ro")
 const rateFlight = (f) => {
   const price = f.price;
   const dist = f.distance;
@@ -28,7 +14,7 @@ const rateFlight = (f) => {
     if (transfers === 0) {
       console.log(
         `TRUE, price < 50 ` +
-          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`,
       );
       return true;
     }
@@ -39,7 +25,7 @@ const rateFlight = (f) => {
     if (transfers === 0 && price <= 60) {
       console.log(
         `TRUE, price < 60, dist < 2000 ` +
-          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`,
       );
       return true;
     }
@@ -50,7 +36,7 @@ const rateFlight = (f) => {
     if (transfers === 0 && price <= 70) {
       console.log(
         `TRUE, price <= 70, dist < 3500 ` +
-          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`,
       );
       return true;
     }
@@ -61,7 +47,7 @@ const rateFlight = (f) => {
     if (transfers === 0 && price <= 100) {
       console.log(
         `TRUE, price < 100, dist < 5000 ` +
-          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`,
       );
       return true;
     }
@@ -72,7 +58,7 @@ const rateFlight = (f) => {
     if (transfers === 0 && price <= 400) {
       console.log(
         `TRUE, price < 400, dist < 8000 ` +
-          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`,
       );
       return true;
     }
@@ -83,14 +69,14 @@ const rateFlight = (f) => {
     if (transfers === 0 && price <= 500) {
       console.log(
         `TRUE, price < 500, dist < 10000 ` +
-          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`,
       );
       return true;
     }
     if (transfers === 1 && price <= 300) {
       console.log(
         `TRUE, price < 300, dist < 10000 ` +
-          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`,
       );
       return true;
     }
@@ -101,7 +87,7 @@ const rateFlight = (f) => {
     if (price <= 500 && transfers <= 1) {
       console.log(
         `TRUE, price < 500, dist >= 10000 ` +
-          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`
+          `Rate from ${f.originName} to ${f.destinationName}, distance ${f.distance}, price ${f.price}, max transfers ${transfers}`,
       );
       return true;
     } // супер-финды!
@@ -111,9 +97,9 @@ const rateFlight = (f) => {
   return false;
 };
 const REDIS_KEY = "Turkey:last_titles";
-const language = "tr";
-const shareText = "Arkadaşlarınla paylaş!";
-const linkText = "Ucuz uçuş botu";
+const language = "en";
+const shareText = "поделись!";
+const linkText = "ссылка на бот";
 const preMessage = {
   flightItem({
     originName,
@@ -130,7 +116,7 @@ const preMessage = {
   }) {
     return `
 ✈️ <b>${originName}</b> ⇄ <b>${destinationName}</b>
-💶 yaklaşık <b>${price}€</b>
+💶 примерно <b>${price}€</b>
 📅 <b>${depDate}  🕓 ${depTime}</b>${
       depTransfers == 0 ? "" : `  🔃 ${depTransfers}`
     }
@@ -152,7 +138,7 @@ async function TopForToday() {
     locale,
     REDIS_KEY,
     language,
-    preMessage
+    preMessage,
   );
 }
 
