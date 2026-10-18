@@ -14,6 +14,8 @@ async function startMenu(chatId, city, country) {
     const caption = `
 📍 <strong>Departure city is ${city.toUpperCase().replace(/\.$/, "")}!</strong>
 
+📲 <strong>Open <a href="https://t.me/CheapFlightsToTheTripBot/app">Cheap Flights APP</a></strong>
+
 ⚙️ You can change a /city.
 
 ${
@@ -22,7 +24,7 @@ ${
 
 `
     : ""
-}🔥 <b>Special offers</b>: <b><a href="https://t.me/CheapFlightsFrance">🇫🇷\u00A0France</a></b> <b><a href="https://t.me/CheapFlightsGermany">🇩🇪\u00A0Germany</a></b> <b><a href="https://t.me/CheapFlightsItaly">🇮🇹\u00A0Italy</a></b> <b><a href="https://t.me/CheapFlightsRomania">🇷🇴\u00A0Romania</a></b> <b><a href="https://t.me/CheapFlightsSpain">🇪🇸\u00A0Spain</a></b>
+}🔥 <b>Channels with cheap flights</b>: <b><a href="https://t.me/CheapFlightsFrance">🇫🇷\u00A0France</a></b> <b><a href="https://t.me/CheapFlightsGermany">🇩🇪\u00A0Germany</a></b> <b><a href="https://t.me/CheapFlightsItaly">🇮🇹\u00A0Italy</a></b> <b><a href="https://t.me/CheapFlightsRomania">🇷🇴\u00A0Romania</a></b> <b><a href="https://t.me/CheapFlightsSpain">🇪🇸\u00A0Spain</a></b>
 `;
 
     const inline_keyboard = [];
