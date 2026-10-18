@@ -55,9 +55,9 @@ async function getGPTTitle(tickets, REDIS_KEY, language = "en") {
 Return emotional, unusual title about one of the most popular place in ${destination_city}
 
 Rules:
-- About 200 characters in that headline.
+- About 100 characters in that headline.
 - Sound natural and human
-- Use emoji
+- Use one emoji
 - DO NOT use lies
 - All flights are round trip, use it
 - Use that language: ${language}
@@ -65,7 +65,8 @@ Rules:
 - Do not use abbreviations
 - Don't call the country of departure
 - If you need to translate into Uzbek, use Cyrillic.
-- Instead of the word "tour," use a synonym like "journey" or "trip."`,
+- Instead of the word "tour," use a synonym like "journey" or "trip."
+- Don't tall about flight, tell more about place.`,
       },
     ],
     temperature: 1,
@@ -204,8 +205,10 @@ async function main(
     }
   }
 
+  const howManyTickets = 1;
+
   const freshFlights = shuffle(preFreshFlights)
-    .slice(0, 3)
+    .slice(0, howManyTickets)
     .sort((a, b) => a.price - b.price);
 
   console.log("freshFlights:", freshFlights.length);
